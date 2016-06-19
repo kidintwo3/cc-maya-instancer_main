@@ -690,6 +690,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
     
     if (m_instanceType == 0) { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status);}
     else if (m_instanceType == 1) { status = instanceCircle(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+	else if (m_instanceType == 2) { status = instanceFibonacciSphere(); CHECK_MSTATUS_AND_RETURN_IT(status);}
     else if (m_instanceType == 4) { status = instanceSpline(); CHECK_MSTATUS_AND_RETURN_IT(status);}
     else { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status);}
 

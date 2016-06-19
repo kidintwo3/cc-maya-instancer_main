@@ -146,6 +146,7 @@ private:
 	MStatus						instanceGrid();
     MStatus                     instanceSpline();
     MStatus                     instanceCircle();
+	MStatus                     instanceFibonacciSphere();
 
 
 	// Datahandles

@@ -144,10 +144,10 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 			MVector cross1 = tan ^ mesh_vTA[i];
 			cross1.normalize() ;
-			MVector cross2 =  tan^cross1;
+			MVector cross2 =  tan ^ cross1;
 			cross2.normalize();
 
-			double m[4][4] = {{cross1.x, cross2.y , cross2.z, 0},
+			double m[4][4] = {{cross2.x, cross2.y , cross2.z, 0},
 			{ cross1.x, cross1.y , cross1.z, 0},
 			{-tan.x, -tan.y , -tan.z, 0},
 			{mesh_pA[i].x, mesh_pA[i].y, mesh_pA[i].z, 1.0}};

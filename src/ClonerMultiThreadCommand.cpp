@@ -22,7 +22,6 @@ MSyntax ClonerMultiThreadCommand::newSyntax()
 	MSyntax syntax;
 
 	syntax.addFlag( "-r", "-remove", MSyntax::kString );
-	syntax.addFlag( "-m", "-muscle", MSyntax::kBoolean );
 
 	syntax.setObjectType( MSyntax::kSelectionList, 1, 1 );
 	syntax.useSelectionAsDefault( true );
@@ -45,7 +44,7 @@ MStatus ClonerMultiThreadCommand::createPrimGenFromCurves(MDagPathArray p_currSe
 
 		if (p_currSelShapeA[i].node().apiType() != MFn::kNurbsCurve)
 		{
-			MGlobal::displayWarning(MString() + "[PrimGen] Only select curves, / " + p_currSelShapeA[i].partialPathName() + " / is not a curve");
+			MGlobal::displayWarning(MString() + "[ClonerMultiThread] Only select curves, / " + p_currSelShapeA[i].partialPathName() + " / is not a curve");
 			return MStatus::kFailure;
 		}
 
@@ -149,68 +148,6 @@ MStatus ClonerMultiThreadCommand::createPrimGenFromLocators()
 
 
 
-	if (!m_muscle)
-	{
-
-		setPlugs(o_primGenNode, "segments", "20");
-		setPlugs(o_primGenNode, "profilePresets", "0");
-		setPlugs(o_primGenNode, "radius", "0.5");
-		setPlugs(o_primGenNode, "sides", "20");
-		setPlugs(o_primGenNode, "jiggleEnabled", "false");
-
-		a_Ramp.setValueAtIndex(1.0,0);
-
-	}
-
-
-
-
-	if (m_muscle)
-	{
-		setPlugs(o_primGenNode, "jiggleEnabled", "true");
-		setPlugs(o_primGenNode, "segments", "20");
-		setPlugs(o_primGenNode, "profilePresets", "0");
-		setPlugs(o_primGenNode, "radius", "1.0");
-		setPlugs(o_primGenNode, "sides", "10");
-
-		MIntArray m_curve_interps;
-		MFloatArray	m_curve_positions;
-		MFloatArray	m_curve_values;
-
-		m_curve_interps.append(MRampAttribute::kSpline);
-		m_curve_interps.append(MRampAttribute::kSpline);
-		m_curve_interps.append(MRampAttribute::kSpline);
-
-		m_curve_positions.append(0.0);
-		m_curve_positions.append(0.5);
-		m_curve_positions.append(1.0);
-
-		m_curve_values.append(0.0);
-		m_curve_values.append(1.0);
-		m_curve_values.append(0.0);
-
-
-		status = a_Ramp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-
-
-
-		// Connect time
-		MSelectionList selection;
-		status = selection.add( "time1" );
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		MObject time1;
-		status = selection.getDependNode( 0, time1 );
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		MFnDependencyNode fnTime1( time1 );
-
-		MDGModifier dgMod;
-		status = dgMod.connect( fnTime1.findPlug( "outTime" ), mfDgN.findPlug( "time" ) );
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-		status = dgMod.doIt();
-		CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	}
 
 	assignInitialShadingGroup(o_outputMesh);
 
@@ -225,11 +162,6 @@ MStatus ClonerMultiThreadCommand::doIt( const MArgList& argList )
 	MArgDatabase argData( syntax(), argList, &status );
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_muscle = false;
-
-	if ( argData.isFlagSet( "muscle" ) ) { m_muscle = argData.flagArgumentBool("muscle",0, &status); }
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
 
 	// Get Selected Object
 
@@ -239,7 +171,7 @@ MStatus ClonerMultiThreadCommand::doIt( const MArgList& argList )
 
 	if (p_currSelTrA.length() == 0)
 	{
-		MGlobal::displayInfo(MString() + "[PrimGen] Nothing selected. Creating PrimGen with Locators");
+		MGlobal::displayInfo(MString() + "[ClonerMultiThread] Nothing selected. Creating ClonerMultiThread with Locators");
 		createPrimGenFromLocators();
 	}
 
@@ -248,10 +180,10 @@ MStatus ClonerMultiThreadCommand::doIt( const MArgList& argList )
 		status = createPrimGenFromCurves(p_currSelTrA, p_currSelShapeA);
 		if (status == MStatus::kFailure)
 		{
-			MGlobal::displayWarning(MString() + "[PrimGen] Selection is not a curve" );
+			MGlobal::displayWarning(MString() + "[ClonerMultiThread] Selection is not a curve" );
 			return::MStatus::kFailure;
 		}
-		MGlobal::displayInfo(MString() + "[PrimGen] Attaching PrimGen to curves" );
+		MGlobal::displayInfo(MString() + "[ClonerMultiThread] Attaching ClonerMultiThread to curves" );
 	}
 
 

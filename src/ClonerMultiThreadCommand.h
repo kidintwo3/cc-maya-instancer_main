@@ -39,8 +39,8 @@ public:
 
 private:
 
-	MStatus createPrimGenFromCurves(MDagPathArray p_currSelTrA, MDagPathArray p_currSelShapeA);
-	MStatus createPrimGenFromLocators();
+	MStatus createClonerMultiThreadCurves(MDagPathArray p_currSelTrA, MDagPathArray p_currSelShapeA);
+	MStatus createClonerMultiThreadFromLocators();
 
 	MDagModifier m_DAGMod;
 	MDGModifier m_DGMod;

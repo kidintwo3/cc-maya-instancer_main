@@ -23,7 +23,9 @@
     <ClCompile Include="..\..\..\src\ClonerMulti.cpp" />
     <ClCompile Include="..\..\..\src\CloneSphere.cpp" />
     <ClCompile Include="..\..\..\src\CloneSpline.cpp" />
+    <ClCompile Include="..\..\..\src\DagUtils.cpp" />
     <ClCompile Include="..\..\..\src\PluginMain.cpp" />
+    <ClCompile Include="..\..\..\src\ClonerMultiThreadCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\AETemplate.h" />
@@ -35,6 +37,8 @@
     <ClInclude Include="..\..\..\src\ClonerMulti.h" />
     <ClInclude Include="..\..\..\src\CloneSphere.h" />
     <ClInclude Include="..\..\..\src\CloneSpline.h" />
+    <ClInclude Include="..\..\..\src\ClonerMultiThreadCommand.h" />
+    <ClInclude Include="..\..\..\src\DagUtils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>

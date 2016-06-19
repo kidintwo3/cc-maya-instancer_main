@@ -15,18 +15,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\CloneAtoB.cpp" />
     <ClCompile Include="..\..\..\src\CloneCircle.cpp" />
     <ClCompile Include="..\..\..\src\CloneGrid.cpp" />
     <ClCompile Include="..\..\..\src\CloneIDs.cpp" />
+    <ClCompile Include="..\..\..\src\CloneMesh.cpp" />
     <ClCompile Include="..\..\..\src\ClonerMulti.cpp" />
     <ClCompile Include="..\..\..\src\CloneSphere.cpp" />
     <ClCompile Include="..\..\..\src\CloneSpline.cpp" />
     <ClCompile Include="..\..\..\src\PluginMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\src\AETemplate.h" />
+    <ClInclude Include="..\..\..\src\CloneAtoB.h" />
     <ClInclude Include="..\..\..\src\CloneCircle.h" />
     <ClInclude Include="..\..\..\src\CloneGrid.h" />
     <ClInclude Include="..\..\..\src\CloneIDs.h" />
+    <ClInclude Include="..\..\..\src\CloneMesh.h" />
     <ClInclude Include="..\..\..\src\ClonerMulti.h" />
     <ClInclude Include="..\..\..\src\CloneSphere.h" />
     <ClInclude Include="..\..\..\src\CloneSpline.h" />

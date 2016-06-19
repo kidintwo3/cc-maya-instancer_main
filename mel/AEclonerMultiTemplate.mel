@@ -9,11 +9,11 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -beginLayout "ClonerMulti instance settings" -collapse 0;
 	editorTemplate -addControl "instanceType";
 	editorTemplate -addControl "patternType";
+	editorTemplate -addControl "scatterType";
 	editorTemplate -addSeparator;
 	editorTemplate -addControl "id";
 	editorTemplate -addSeparator;
-	editorTemplate -label "Manual ID Array" -addControl "connectArrayA";
-	editorTemplate -addSeparator;
+	editorTemplate -addControl "reversePattern";
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Random Pattern Settings" -collapse 1;	
@@ -34,6 +34,8 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -beginLayout "Input objects" -collapse 0;	
 	editorTemplate -callCustom "AE_cm_objList_create" "AE_cm_objList_edit" "";
 	editorTemplate -callCustom "AE_cm_abLoc_create" "AE_cm_abLoc_edit" "";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "mergeInputMeshes";
 	editorTemplate -endLayout;
 	
 	
@@ -43,7 +45,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -beginLayout "Primary Transform" -collapse 0;
 	
 	editorTemplate -addSeparator;
-	editorTemplate -label "Disable Rotation Matrix" -addControl "disableMatrixTransform";
+	editorTemplate -label "World Space Input" -addControl "worldSpace";
 	editorTemplate -addSeparator;
 	
 	editorTemplate -addControl "offsetX";
@@ -60,13 +62,6 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addControl "scaleY";
 	editorTemplate -addControl "scaleZ";
 	editorTemplate -addSeparator;
-	
-	editorTemplate -addSeparator;
-	editorTemplate -label "Stack Grid objects on X axis" -addControl "stackInstancesX";
-	//editorTemplate -addSeparator;
-	//editorTemplate -addControl "stackInstancesY";
-	//editorTemplate -addSeparator;
-	//editorTemplate -addControl "stackInstancesZ";
 	
 	editorTemplate -endLayout;
 	
@@ -118,8 +113,6 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	// -------------------------------------------------------------
 	
 	editorTemplate -beginLayout "UV Settings" -collapse 0;
-	//editorTemplate -addControl "stackUv";
-	//editorTemplate -addSeparator;
 	editorTemplate -addControl "uvOffsetU";
 	editorTemplate -addControl "uvOffsetV";
 	editorTemplate -addSeparator;
@@ -139,27 +132,19 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -beginLayout "Output Mesh Settings" -collapse 0;
 	editorTemplate -addControl "smoothNormals";
 	editorTemplate -addSeparator;
-    editorTemplate -addControl "templateOutputMesh";
+    editorTemplate -addControl "reverseNormals";
 	editorTemplate -addSeparator;
-	editorTemplate -addControl "reverseFlippedNormals";
-	editorTemplate -addSeparator;
-	editorTemplate -addControl "mergeInputMeshesNoDuplicates";
-	editorTemplate -addSeparator;
-	editorTemplate -addControl "polyDisplayLimit";
-	editorTemplate -addSeparator;
-	editorTemplate -addControl "wrapGeoToSpline";
+	editorTemplate -label "Up Vector" -addControl "firstUpVec";
 	editorTemplate -endLayout;
 	
 	// -------------------------------------------------------------
 	
 	editorTemplate -suppress "inMesh";
+	editorTemplate -suppress "inCurve";
+	editorTemplate -suppress "referenceMesh";
+	editorTemplate -suppress "outMesh";
 	editorTemplate -suppress "locatorAPos";
 	editorTemplate -suppress "locatorBPos";
-	editorTemplate -suppress "outputString";
-	//editorTemplate -suppress "stackInstancesX";
-	//editorTemplate -suppress "stackInstancesY";
-	//editorTemplate -suppress "stackInstancesZ";
-	//editorTemplate -suppress "stackUv";
 	
 	
 	AEdependNodeTemplate $nodeName;

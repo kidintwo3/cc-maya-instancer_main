@@ -21,8 +21,8 @@ MStatus ClonerMultiThread::instanceCircle()
     m_tr_matA.clear();
     m_tr_matA.setLength(m_numDup);
     
-    double radius = m_offsetX;
-    double slice = 2.0 * M_PI / m_instanceX;
+    float radius = m_offsetX;
+    float slice = 2.0f * float(M_PI) / m_instanceX;
     
 
     
@@ -34,9 +34,9 @@ MStatus ClonerMultiThread::instanceCircle()
             for (int z = 0; z < m_instanceZ; z++)
             {
                 
-                double angle = slice * x;
-                double newX = radius * cos(angle);
-                double newY = radius * sin(angle);
+                float angle = slice * x;
+                float newX = radius * cos(angle);
+                float newY = radius * sin(angle);
                 //double newZ = radius * sin(angle);
 
                 

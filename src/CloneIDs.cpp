@@ -11,7 +11,7 @@
 #include "CloneIDs.h"
 
 
-MIntArray ClonerMultiThread::generatePatternIDs(int& patternType, int& m_numDup)
+MIntArray ClonerMultiThread::generatePatternIDs(short& patternType, int& m_numDup)
 {
 
 	// temp

@@ -28,6 +28,7 @@
 #include <maya/MFnVectorArrayData.h>
 #include <maya/MFloatVectorArray.h>
 #include <maya/MItMeshPolygon.h>
+#include <maya/MItMeshVertex.h>
 #include <maya/MBoundingBox.h>
 #include <maya/MGlobal.h>
 #include <maya/MPlugArray.h>
@@ -36,6 +37,7 @@
 #include <maya/MFnSet.h>
 #include <maya/MFnMeshData.h>
 #include <maya/MFnNurbsCurve.h>
+#include <maya/MTransformationMatrix.h>
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnDagNode.h>
 #include <maya/MArrayDataBuilder.h>
@@ -82,13 +84,16 @@ public:
 	// Input output
 	static MObject				aOutMesh;
 	static MObject				aInMesh;
-    static MObject              aInCurve;
-    static MObject              aRefMesh;
+	static MObject              aInCurve;
+	static MObject              aRefMesh;
+	static MObject				aInLocAPos;
+	static MObject				aInLocBPos;
 
 	// Types
 	static MObject				aInstanceType;
 	static MObject				aIDType;
 	static MObject				aPatterType;
+	static MObject				aScatterType;
 
 	// Transforms
 	static MObject				aGridInstanceX;
@@ -114,12 +119,12 @@ public:
 	static MObject				aMergeInputMeshes;
 	static MObject				aWorldSpace;
 	static MObject				aRevPattern;
-    
-    // Upvector
-    static MObject              aFirstUpVec;
-    static MObject              aFirstUpVecX;
-    static MObject              aFirstUpVecY;
-    static MObject              aFirstUpVecZ;
+
+	// Upvector
+	static MObject              aFirstUpVec;
+	static MObject              aFirstUpVecX;
+	static MObject              aFirstUpVecY;
+	static MObject              aFirstUpVecZ;
 
 
 private:
@@ -129,24 +134,28 @@ private:
 	MStatus						collectPlugs(MDataBlock& data);
 
 	// Modules CloneIDs
-	MIntArray					generatePatternIDs(int& patternType, int& m_numDup);
+	MIntArray					generatePatternIDs(short& patternType, int& m_numDup);
 	MDoubleArray				generateRndArray(double& surfaceNoise, int& numValues, int& seedVal);;
 
 	MStatus						mergeInputMeshes();
 	MStatus						duplicateInputMeshes(MIntArray& idA);
-    
-    MStatus                     reverseNormals();
 
-	MStatus						generateUVs();
-	MStatus						duplicateUVs();
+	MStatus						overrideInstanceOnMeshSettings();
+
+	MStatus                     reverseNormals();
+
+	MStatus						mergeUVs();
+	MStatus						duplicateUVs(MIntArray& idA);
 
 	MStatus						smoothNormals(MFnMesh &meshFn);
 
 	// Instance types
 	MStatus						instanceGrid();
-    MStatus                     instanceSpline();
-    MStatus                     instanceCircle();
+	MStatus                     instanceAtoB();
+	MStatus                     instanceSpline();
+	MStatus                     instanceCircle();
 	MStatus                     instanceFibonacciSphere();
+	MStatus                     instanceOnMesh();
 
 
 	// Datahandles
@@ -156,19 +165,19 @@ private:
 	MObjectArray				m_inMeshArray;
 	MMatrixArray				m_inMeshMatrixArray;
 
-    
-    // Reference mesh
-    MObject						m_refMesh;
+
+	// Reference mesh
+	MObject						m_refMesh;
 
 	// Plugs
 	MPlug						p_inMesh;
 	MPlug						p_outMesh;
-    
-    // Curve
-    MObject						m_inCurve;
-    MMatrix						m_curveTrMat;
-    
-    // Mesh generation attributes
+
+	// Curve
+	MObject						m_inCurve;
+	MMatrix						m_curveTrMat;
+
+	// Mesh generation attributes
 	int							m_numInputMeshes;
 
 	vector<int>					i_numVertices;
@@ -209,8 +218,9 @@ private:
 	MIntArray					m_manualIDA;
 
 	// Function sliders
-	int							m_instanceType;
-	int							m_patternType;
+	short						m_instanceType;
+	short						m_patternType;
+	short						m_scatterType;
 	int							m_id;
 
 	int                         m_instanceX;
@@ -240,9 +250,21 @@ private:
 
 	// Matrix
 	MMatrixArray				m_tr_matA;
-    
-    // Upvector
-    MVector                     m_firstUpVec;
+
+	MMatrix						m_inLocA_posMat;
+	MMatrix						m_inLocB_posMat;
+
+	MMatrix						m_refMeshTrMat;
+
+	// Upvector
+	MVector                     m_firstUpVec;
+
+	// Mesh instance variables
+
+	MPointArray					mesh_pA;
+	MVectorArray				mesh_uTA;
+	MVectorArray				mesh_vTA;
+	MVectorArray				mesh_nA;
 
 };
 

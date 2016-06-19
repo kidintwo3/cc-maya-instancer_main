@@ -1,0 +1,658 @@
+deleteUI AttrEdclonerMultiFormLayout;
+global proc AEclonerMultiTemplate( string $nodeName )
+{
+	
+	//print $nodeName;
+	
+	editorTemplate -beginScrollLayout;
+	
+	editorTemplate -beginLayout "ClonerMulti instance settings" -collapse 0;
+	editorTemplate -addControl "instanceType";
+	editorTemplate -addControl "patternType";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "id";
+	editorTemplate -addSeparator;
+	editorTemplate -label "Manual ID Array" -addControl "connectArrayA";
+	editorTemplate -addSeparator;
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Random Pattern Settings" -collapse 1;	
+	editorTemplate -label "Pattern Seed" -addControl "randomSeed";
+	editorTemplate -addSeparator;
+	editorTemplate -label "Gap Amount" -addControl "randomIDGapLevel";
+	editorTemplate -addSeparator;
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Instance count" -collapse 0;	
+	editorTemplate -addControl "instanceX";
+	editorTemplate -addControl "instanceY";
+	editorTemplate -addControl "instanceZ";
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "Input objects" -collapse 0;	
+	editorTemplate -callCustom "AE_cm_objList_create" "AE_cm_objList_edit" "";
+	editorTemplate -callCustom "AE_cm_abLoc_create" "AE_cm_abLoc_edit" "";
+	editorTemplate -endLayout;
+	
+	
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "Primary Transform" -collapse 0;
+	
+	editorTemplate -addSeparator;
+	editorTemplate -label "Disable Rotation Matrix" -addControl "disableMatrixTransform";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -addControl "offsetX";
+	editorTemplate -addControl "offsetY";
+	editorTemplate -addControl "offsetZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -addControl "rotateX";
+	editorTemplate -addControl "rotateY";
+	editorTemplate -addControl "rotateZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -addControl "scaleX";
+	editorTemplate -addControl "scaleY";
+	editorTemplate -addControl "scaleZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -addSeparator;
+	editorTemplate -label "Stack Grid objects on X axis" -addControl "stackInstancesX";
+	//editorTemplate -addSeparator;
+	//editorTemplate -addControl "stackInstancesY";
+	//editorTemplate -addSeparator;
+	//editorTemplate -addControl "stackInstancesZ";
+	
+	editorTemplate -endLayout;
+	
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "Randomize Transform" -collapse 0;
+	editorTemplate -label "Offset X" -addControl "randomizeOffsetX";
+	editorTemplate -label "Offset Y" -addControl "randomizeOffsetY";
+	editorTemplate -label "Offset Z" -addControl "randomizeOffsetZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -label "Rotate X" -addControl "randomizeRotateX";
+	editorTemplate -label "Rotate Y" -addControl "randomizeRotateY";
+	editorTemplate -label "Rotate Z" -addControl "randomizeRotateZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -label "Scale X" -addControl "randomizeScaleX";
+	editorTemplate -label "Scale Y" -addControl "randomizeScaleY";
+	editorTemplate -label "Scale Z" -addControl "randomizeScaleZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	
+	editorTemplate -beginLayout "Secondary Transform" -collapse 0;
+	editorTemplate -addControl "transformEveryNth";
+	editorTemplate -addSeparator;
+	
+	
+	editorTemplate -addControl "extraOffsetX";
+	editorTemplate -addControl "extraOffsetY";
+	editorTemplate -addControl "extraOffsetZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -addControl "extraRotateX";
+	editorTemplate -addControl "extraRotateY";
+	editorTemplate -addControl "extraRotateZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -addControl "extraScaleX";
+	editorTemplate -addControl "extraScaleY";
+	editorTemplate -addControl "extraScaleZ";
+	editorTemplate -addSeparator;
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "UV Settings" -collapse 0;
+	//editorTemplate -addControl "stackUv";
+	//editorTemplate -addSeparator;
+	editorTemplate -addControl "uvOffsetU";
+	editorTemplate -addControl "uvOffsetV";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "randomUvOffsetU";
+	editorTemplate -addControl "randomUvOffsetV";
+	editorTemplate -addSeparator;
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "Bake objects" -collapse 0;	
+	editorTemplate -callCustom "AE_cm_bakeObjects_create" "AE_cm_bakeObjects_edit" "";
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "Output Mesh Settings" -collapse 0;
+	editorTemplate -addControl "smoothNormals";
+	editorTemplate -addSeparator;
+    editorTemplate -addControl "templateOutputMesh";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "reverseFlippedNormals";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "mergeInputMeshesNoDuplicates";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "polyDisplayLimit";
+	editorTemplate -addSeparator;
+	editorTemplate -addControl "wrapGeoToSpline";
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -suppress "inMesh";
+	editorTemplate -suppress "locatorAPos";
+	editorTemplate -suppress "locatorBPos";
+	editorTemplate -suppress "outputString";
+	//editorTemplate -suppress "stackInstancesX";
+	//editorTemplate -suppress "stackInstancesY";
+	//editorTemplate -suppress "stackInstancesZ";
+	//editorTemplate -suppress "stackUv";
+	
+	
+	AEdependNodeTemplate $nodeName;
+	editorTemplate -addExtraControls;
+	editorTemplate -endScrollLayout;
+	
+	
+}
+
+global proc AE_cm_objList_create(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    
+	textScrollList -allowMultiSelection false -h 120 "cm_list_objList";
+    
+    setParent ..;
+    
+    separator -height 10 -style "in";
+    
+    gridLayout -cwh 100 18 -numberOfColumns 4 -bgc 0.2 0.2 0.2;
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Plus.png" -label "add" -bgc 0.4 0.4 0.4 -c  ("AE_cm_objList_add " + $nodeName[0] ) "cm_b_add";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Minus.png" -label "remove" -bgc 0.6 0.2 0.3 -c  ("AE_cm_objList_remove " + $nodeName[0] ) "cm_b_rem";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Plus.png" -label "up" -bgc 0.2 0.2 0.2 -c ("AE_cm_objList_moveUp " + $nodeName[0] ) "cm_b_up";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Minus.png" -label "down" -bgc 0.2 0.2 0.2 -c  ("AE_cm_objList_moveDown " + $nodeName[0] ) "cm_b_down";
+	//iconTextButton -style "iconAndTextHorizontal" -image1 "nudgeRight.png" -label "Refesh" -bgc 0.3 0.4 0.4 -c  ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
+	setParent ..;
+	
+	separator -height 5 -style "in";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Refresh.png" -label "Refesh list" -bgc 0.3 0.4 0.4 -c  ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
+    separator -height 5 -style "in";
+    //setParent ..;
+    
+	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
+	text -label "Reference object";
+	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_driverObj";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Apply.png" -label "Set ref object" -c  ("AE_cm_reference_set " + $nodeName[0] ) "cm_b_setRef";
+    //separator -height 5 -style "in";
+    
+    // Refresh list
+    
+    
+    AE_cm_objList_refresh($nodeName[0]);
+    // Create callback
+    
+    //scriptJob -kws true -attributeChange "clonerMulti_node1.instanceX" "AE_cm_whatever()";
+    scriptJob -rp -kws -p "AttrEdclonerMultiFormLayout" -connectionChange ($nodeName[0]+".inMesh") ("AE_cm_objList_refresh " + $nodeName[0] );
+    
+    // collect refmesh Name
+    string $refMeshAttr = $nodeName[0] + ".referenceMesh";
+    string $refMeshShapePlug = `connectionInfo -sourceFromDestination $refMeshAttr`;
+    string $refMeshShape[];
+    tokenize($refMeshShapePlug, ".", $refMeshShape);
+    
+    if ($refMeshShape[0] != "")
+    {
+	    textField -edit -bgc 0.6 0.6 0.8 -tx $refMeshShape[0] "cm_t_driverObj";
+	}
+    
+}
+
+global proc AE_cm_objList_edit(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    iconTextButton -edit -c ("AE_cm_objList_add " + $nodeName[0] ) "cm_b_add";
+	iconTextButton -edit -c ("AE_cm_objList_remove " + $nodeName[0] ) "cm_b_rem";
+	iconTextButton -edit -c ("AE_cm_objList_moveUp " + $nodeName[0] ) "cm_b_up";
+	iconTextButton -edit -c ("AE_cm_objList_moveDown " + $nodeName[0] ) "cm_b_down";
+	iconTextButton -edit -c ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
+	
+	// collect refmesh Name
+    string $refMeshAttr = $nodeName[0] + ".referenceMesh";
+    string $refMeshShapePlug = `connectionInfo -sourceFromDestination $refMeshAttr`;
+    string $refMeshShape[];
+    tokenize($refMeshShapePlug, ".", $refMeshShape);
+    
+    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_driverObj";
+    
+    if ($refMeshShape[0] != "")
+    {
+	    textField -edit -bgc 0.6 0.6 0.8 -tx $refMeshShape[0] "cm_t_driverObj";
+	}
+	
+	scriptJob -rp -kws -p "AttrEdclonerMultiFormLayout" -connectionChange ($nodeName[0]+".inMesh") ("AE_cm_objList_refresh " + $nodeName[0] );
+	
+	AE_cm_objList_refresh($attrName);
+   
+}
+
+global proc AE_cm_objList_add(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    
+    string $selObj[] = `ls -sl -o -tr`;
+    string $selObjShape[];
+    
+    int $numObj = size($selObj);
+    
+    if ($numObj != 0)
+    {
+        string $goalAttr = "";
+        string $sourceAttr = "";
+        
+        // Check if we are trying to add the output mesh
+        
+        string $outMeshAttr = $nodeName[0] + ".outMesh";
+        string $outMeshShapePlug[] = `connectionInfo -destinationFromSource $outMeshAttr`;
+        
+        if (size($outMeshShapePlug) != 0)
+        {
+            string $outMeshShape[];
+            tokenize($outMeshShapePlug[0], ".", $outMeshShape);
+            string $parents[] = `listRelatives -ni -path -parent $outMeshShape[0]`;
+            
+            
+            int $plugSize = `getAttr -size ($nodeName[0] + ".inMesh")`;
+            
+            for( $i=0; $i< $plugSize; ++$i )
+            {
+                $goalAttr = $nodeName[0] + ".inMesh[" + $i + "]";
+                $sourceAttr = `connectionInfo -sfd $goalAttr`;
+                
+                if($sourceAttr != "")
+                {
+                    disconnectAttr $sourceAttr $goalAttr;
+                }
+            }
+            
+            string $listMeshes[] = `textScrollList -query -ai "cm_list_objList"`;
+            int $cc_count = 0;
+            
+            for( $i=0; $i<size($listMeshes); ++$i )
+            {
+                 connectAttr -f ( $listMeshes[$i] + ".worldMesh[0]") ( $nodeName[0] + ".inMesh[" + $i + "]");
+                 $cc_count +=1;
+            }
+            
+            // getAttr -mi clonerMulti_node1.inMesh;
+            
+            // string $inputMeshes[] = `listConnections -s true -p true ($attrName + ".inMesh")`;
+            
+            
+            for( $i=0; $i < $numObj; ++$i )
+            {
+                
+                if($selObj[$i] != $parents[0])
+                {
+                    $selObjShape = `listRelatives -shapes $selObj[$i]`;
+                    connectAttr -f ( $selObjShape[0] + ".worldMesh[0]") ( $nodeName[0] + ".inMesh[" + ($i + ($cc_count)) + "]");
+                }
+            }
+            
+            AE_cm_objList_refresh($nodeName[0]);
+        }
+        
+        if (size($outMeshShapePlug) == 0)
+        {
+            warning -n "[ClonerMulti] ClonerMulti node does not have an output mesh!"; 
+        }
+        
+    }
+    
+    
+}
+
+global proc AE_cm_objList_remove(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    string $goalAttr = "";
+    string $sourceAttr = "";
+    
+    int $selIdx[] = `textScrollList -query -sii "cm_list_objList"`;
+    
+    if (`size($selIdx)` != 0)
+    {
+        int $plugSize = `getAttr -size ($nodeName[0] + ".inMesh")`;
+        
+        for( $i=0; $i< $plugSize; ++$i )
+        {
+            $goalAttr = $nodeName[0] + ".inMesh[" + $i + "]";
+            $sourceAttr = `connectionInfo -sfd $goalAttr`;
+            
+            if($sourceAttr != "")
+            {
+                disconnectAttr $sourceAttr $goalAttr;
+            }
+        }
+        
+        //if ($selIdx[0]-1 != 0 )
+        //{
+            textScrollList -edit -rii $selIdx[0] "cm_list_objList";
+            
+            string $listMeshes[] = `textScrollList -query -ai "cm_list_objList"`;
+            int $cc_count = 0;
+            
+            for( $i=0; $i<size($listMeshes); ++$i )
+            {
+                 connectAttr -f ( $listMeshes[$i] + ".worldMesh[0]") ( $nodeName[0] + ".inMesh[" + $i + "]");
+                 $cc_count +=1;
+            }
+        //}
+    }
+    AE_cm_objList_refresh($attrName);
+    
+}
+
+
+
+global proc AE_cm_objList_moveUp(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    int $selIdx[] = `textScrollList -query -sii "cm_list_objList"`;
+    
+    if (`size($selIdx)` != 0)
+    {
+        if ($selIdx[0]-1 != 0)
+        {
+            
+            string $listObjects[] = `textScrollList -query -ai "cm_list_objList"`;
+            string $listCurrOjb = $listObjects[$selIdx[0]-1];
+        
+            
+            //AE_cm_objList_refresh($attrName);
+            string $listObjects[] = `textScrollList -query -ai "cm_list_objList"`;
+            
+            textScrollList -edit -rii ($selIdx[0]) "cm_list_objList";
+            textScrollList -edit -ap ($selIdx[0]-1) $listCurrOjb "cm_list_objList";
+            
+            string $listObjects[] = `textScrollList -query -ai "cm_list_objList"`;
+            
+            textScrollList -edit -sii ($selIdx[0]-1) "cm_list_objList";
+        }
+        
+        else
+        {
+            textScrollList -edit -sii ($selIdx[0]) "cm_list_objList";  
+        }
+        
+        
+        AE_cm_reconnectPlugs_set($attrName);
+    }
+    
+}
+
+global proc AE_cm_objList_moveDown(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    int $selIdx[] = `textScrollList -query -sii "cm_list_objList"`;
+    
+    if (`size($selIdx)` != 0)
+    {
+        int $numIndx = `textScrollList -query -ni "cm_list_objList"`;
+        
+        
+        if ($selIdx[0]-1 < $numIndx-1)
+        {
+            string $listObjects[] = `textScrollList -query -ai "cm_list_objList"`;
+            string $listCurrOjb = $listObjects[$selIdx[0]-1];
+            
+            //AE_cm_objList_refresh($attrName);
+            string $listObjects[] = `textScrollList -query -ai "cm_list_objList"`;
+            
+            textScrollList -edit -rii ($selIdx[0]) "cm_list_objList";
+            textScrollList -edit -ap ($selIdx[0]+1) $listCurrOjb "cm_list_objList";
+            
+            string $listObjects[] = `textScrollList -query -ai "cm_list_objList"`;
+            
+            textScrollList -edit -sii ($selIdx[0]+1) "cm_list_objList";
+        }
+        
+        else
+        {
+            textScrollList -edit -sii ($selIdx[0]) "cm_list_objList";  
+        }
+        
+        AE_cm_reconnectPlugs_set($attrName);
+    }
+}
+
+global proc AE_cm_reconnectPlugs_set(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    int $plugSize = `getAttr -size ($nodeName[0] + ".inMesh")`;
+    
+    for( $i=0; $i< $plugSize; ++$i )
+    {
+        $goalAttr = $nodeName[0] + ".inMesh[" + $i + "]";
+        $sourceAttr = `connectionInfo -sfd $goalAttr`;
+        
+        if($sourceAttr != "")
+        {
+            disconnectAttr $sourceAttr $goalAttr;
+        }
+    }
+    
+    string $listMeshes[] = `textScrollList -query -ai "cm_list_objList"`;
+    int $cc_count = 0;
+    
+    for( $i=0; $i<size($listMeshes); ++$i )
+    {
+         
+         string $list_shapes[] = `listRelatives -ni -pa -shapes $listMeshes[$i]`;
+         connectAttr -f ( $list_shapes[0] + ".worldMesh[0]") ( $nodeName[0] + ".inMesh[" + $i + "]");
+         
+         $cc_count +=1;
+    }
+    
+    AE_cm_objList_refresh($attrName);
+}
+
+
+global proc AE_cm_reference_set(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    int $isSame = 0;
+    
+    string $selObj[] = `ls -sl -o -tr`;
+    string $selObjShape[];
+    
+    if (size($selObj) != 0)
+    {
+        $selObjShape = `listRelatives  -type "mesh" -shapes $selObj[0]`;
+        
+        
+        // Check if we are trying to add the output mesh
+        
+        string $goalAttr = "";
+        string $sourceAttr = "";
+        
+        string $outMeshAttr = $nodeName[0] + ".outMesh";
+        string $outMeshShapePlug[] = `connectionInfo -destinationFromSource $outMeshAttr`;
+        string $outMeshShape[];
+        tokenize($outMeshShapePlug[0], ".", $outMeshShape);
+        string $parents[] = `listRelatives -ni -path -parent $outMeshShape[0]`;
+        
+        //
+        
+        if($selObjShape[0] == $outMeshShape[0])
+        {
+            $isSame = 1;
+        }
+        
+        int $plugSize = `getAttr -size ($nodeName[0] + ".inMesh")`;
+        
+        string $inMeshShape[];
+        
+        for( $i=0; $i< $plugSize; ++$i )
+        {
+            $goalAttr = $nodeName[0] + ".inMesh[" + $i + "]";
+            $sourceAttr = `connectionInfo -sfd $goalAttr`;
+            
+            
+            
+            if($sourceAttr != "")
+            {
+                tokenize($sourceAttr, ".", $inMeshShape);
+                
+                if($selObjShape[0] == $inMeshShape[0])
+                {
+                    $isSame = 1;
+                }
+                
+                
+            }
+        }
+        
+        //
+        
+        if($isSame == 0)
+        {
+            textField -edit -bgc 0.6 0.6 0.8 -tx $selObjShape[0] "cm_t_driverObj";
+            setAttr ($nodeName[0] + ".offsetX") 0;
+            setAttr ($nodeName[0] + ".offsetY") 0;
+            setAttr ($nodeName[0] + ".offsetZ") 0;
+            
+            connectAttr -f ( $selObjShape[0] + ".worldMesh[0]") ( $nodeName[0] + ".referenceMesh");
+            
+        }
+        
+        if($isSame == 1)
+        {
+            warning -n "[ClonerMulti] Reference mesh can't be the same as the output/input meshes!";
+        }
+    }
+    
+    else
+    {
+        warning -n "[ClonerMulti] Nothing selected / Select only one object!";
+    }
+}
+
+
+global proc AE_cm_objList_refresh(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    
+    int $currSelIdx[] = `textScrollList -query -sii "cm_list_objList"`;
+    
+    textScrollList -edit -ra "cm_list_objList";
+    
+    string $inMeshes[] = `listConnections -s true ($nodeName[0] + ".inMesh")`;
+    
+    for( $i=0; $i<size($inMeshes); ++$i )
+	{
+	    textScrollList -edit -append $inMeshes[$i] "cm_list_objList";
+	}
+	
+	if($currSelIdx[0] != 0)
+	{
+	    textScrollList -edit -sii $currSelIdx[0] "cm_list_objList";
+	}
+	
+	
+}
+
+global proc AE_cm_abLoc_create(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    separator -height 5 -style "in";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Apply.png" -label "Create A-B loc" -c  ("AE_cm_abLoc_set " + $nodeName[0] ) "cm_b_createABLoc";
+    separator -height 5 -style "in";
+    
+}
+
+global proc AE_cm_abLoc_edit(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    iconTextButton -edit -c ("AE_cm_abLoc_set " + $nodeName[0] ) "cm_b_createABLoc";
+    
+}
+
+global proc AE_cm_abLoc_set(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+   
+    clonerMultiCommand -ab -cm $nodeName[0];
+    
+}
+
+global proc AE_cm_bakeObjects_create(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    separator -height 5 -style "in";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Trash.png" -label "Bake objects to Instances" -bgc 0.6 0.2 0.3 -c  ("AE_cm_bakeObjects_doBake " + $nodeName[0] ) "cm_b_bake";
+    separator -height 5 -style "in";
+    
+}
+
+global proc AE_cm_bakeObjects_edit(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    iconTextButton -edit -c ("AE_cm_bakeObjects_doBake " + $nodeName[0] ) "cm_b_bake";
+}
+
+global proc AE_cm_bakeObjects_doBake(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    warning -n "[ClonerMulti] Baking to Instances, Please wait...";
+    
+    string $commStr = `getAttr ($nodeName[0]+".outputString")`;
+    eval $commStr;
+    delete $nodeName[0];
+    
+}
+

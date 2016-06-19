@@ -82,7 +82,8 @@ public:
 	// Input output
 	static MObject				aOutMesh;
 	static MObject				aInMesh;
-	static MObject				aInCurve;
+    static MObject              aInCurve;
+    static MObject              aRefMesh;
 
 	// Types
 	static MObject				aInstanceType;
@@ -113,6 +114,12 @@ public:
 	static MObject				aMergeInputMeshes;
 	static MObject				aWorldSpace;
 	static MObject				aRevPattern;
+    
+    // Upvector
+    static MObject              aFirstUpVec;
+    static MObject              aFirstUpVecX;
+    static MObject              aFirstUpVecY;
+    static MObject              aFirstUpVecZ;
 
 
 private:
@@ -127,18 +134,19 @@ private:
 
 	MStatus						mergeInputMeshes();
 	MStatus						duplicateInputMeshes(MIntArray& idA);
+    
+    MStatus                     reverseNormals();
 
 	MStatus						generateUVs();
 	MStatus						duplicateUVs();
-	MStatus						numDupOverride();
 
 	MStatus						smoothNormals(MFnMesh &meshFn);
 
 	// Instance types
 	MStatus						instanceGrid();
-	MStatus						instanceCircle();
-	MStatus						instanceFibonacciSphere();
-	MStatus						instanceSpline();
+    MStatus                     instanceSpline();
+    MStatus                     instanceCircle();
+
 
 	// Datahandles
 	MDataHandle					h_outputMesh;
@@ -146,16 +154,20 @@ private:
 	// Input data arrays
 	MObjectArray				m_inMeshArray;
 	MMatrixArray				m_inMeshMatrixArray;
-	MObject						m_inCurve;
-	MMatrix						m_curveTrMat;
-	MPlug						p_InCurve;
 
+    
+    // Reference mesh
+    MObject						m_refMesh;
 
 	// Plugs
 	MPlug						p_inMesh;
 	MPlug						p_outMesh;
-
-	// Mesh generation attributes
+    
+    // Curve
+    MObject						m_inCurve;
+    MMatrix						m_curveTrMat;
+    
+    // Mesh generation attributes
 	int							m_numInputMeshes;
 
 	vector<int>					i_numVertices;
@@ -227,6 +239,9 @@ private:
 
 	// Matrix
 	MMatrixArray				m_tr_matA;
+    
+    // Upvector
+    MVector                     m_firstUpVec;
 
 };
 

@@ -37,7 +37,8 @@ MStatus ClonerMultiThread::instanceGrid()
 				MFloatVector v_baseOffV((m_offsetX * float(x)), (m_offsetY * float(y)), (m_offsetZ * float(z))  );
 
 				// Rotation
-				double rotation[3] = {m_rotateX * 0.5f * ( M_PI / 180.0f ), m_rotateY * 0.5f * ( M_PI / 180.0f ),  m_rotateZ * 0.5f * ( M_PI / 180.0f )};
+                
+                double rot[3] = {m_rotateX * 0.5f * ( M_PI / 180.0f ), m_rotateY * 0.5f * ( M_PI / 180.0f ),  m_rotateZ * 0.5f * ( M_PI / 180.0f )};
 
 				// Scale
 				const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
@@ -45,15 +46,14 @@ MStatus ClonerMultiThread::instanceGrid()
 				// Matrix
 				MTransformationMatrix tr_mat;
 
-				status = tr_mat.setTranslation(v_baseOffV, MSpace::kObject);
-				CHECK_MSTATUS_AND_RETURN_IT(status);
-
-				status = tr_mat.setRotation(rotation,  MTransformationMatrix::kXYZ);
-				CHECK_MSTATUS_AND_RETURN_IT(status);
-
-				status = tr_mat.setScale(scaleV, MSpace::kObject);
-				CHECK_MSTATUS_AND_RETURN_IT(status);
-
+                status = tr_mat.setTranslation(v_baseOffV, MSpace::kObject);
+                CHECK_MSTATUS_AND_RETURN_IT(status);
+                
+                status = tr_mat.setScale(scaleV, MSpace::kObject);
+                CHECK_MSTATUS_AND_RETURN_IT(status);
+                
+                status = tr_mat.setRotation(rot, MTransformationMatrix::kXYZ);
+                CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				m_tr_matA.set(tr_mat.asMatrix(), f);
 

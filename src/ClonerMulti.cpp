@@ -12,7 +12,8 @@ MTypeId     ClonerMultiThread::id( 0x80709 );
 
 MObject     ClonerMultiThread::aOutMesh;
 MObject     ClonerMultiThread::aInMesh;
-MObject     ClonerMultiThread::aInCurve;
+MObject		ClonerMultiThread::aInCurve;
+MObject		ClonerMultiThread::aRefMesh;
 
 MObject     ClonerMultiThread::aInstanceType;
 MObject		ClonerMultiThread::aPatterType;
@@ -39,6 +40,11 @@ MObject     ClonerMultiThread::aReverseNormals;
 MObject     ClonerMultiThread::aSmoothNormals;
 MObject     ClonerMultiThread::aMergeInputMeshes;
 MObject		ClonerMultiThread::aWorldSpace;
+
+MObject     ClonerMultiThread::aFirstUpVec;
+MObject     ClonerMultiThread::aFirstUpVecX;
+MObject     ClonerMultiThread::aFirstUpVecY;
+MObject     ClonerMultiThread::aFirstUpVecZ;
 
 
 
@@ -183,56 +189,8 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 
 
 
-	// Flip normals
-
-	if (m_reverseNormals)
-	{
-
-
-		MIntArray revFCA;
-		int co = o_polygonCounts.length() -1;
-		for (unsigned i = 0; i <  o_polygonCounts.length() ; i++)
-		{
-			revFCA.append(o_polygonCounts[co]);
-			co -= 1;
-		}
-
-
-		MIntArray revPCA;
-		co = o_polygonConnects.length() -1;
-		for (unsigned i = 0; i <  o_polygonConnects.length() ; i++)
-		{
-			revPCA.append(o_polygonConnects[co]);
-			co -= 1;
-		}
-
-		MIntArray revUVCA;
-		co = o_uvCountsA.length() -1;
-		for (unsigned i = 0; i <  o_uvCountsA.length() ; i++)
-		{
-			revUVCA.append(o_uvCountsA[co]);
-			co -= 1;
-		}
-
-		MIntArray revUVIDA;
-		co = o_uvIdsA.length() -1;
-		for (unsigned i = 0; i <  o_uvIdsA.length() ; i++)
-		{
-			revUVIDA.append(o_uvIdsA[co]);
-			co -= 1;
-		}
-
-
-
-
-		o_polygonConnects = revPCA;
-		o_polygonCounts = revFCA;
-
-		o_uvCountsA = revUVCA;
-		o_uvIdsA = revUVIDA;
-
-	}
-
+	// Flip normals if set
+    reverseNormals();
 
 	return MS::kSuccess;
 }
@@ -332,7 +290,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 			if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
 
-			currentPoint *= m_tr_matA[m];
+            currentPoint *= m_tr_matA[m];
 
 			o_vertexArray.set(currentPoint,v + idOffset );
 		}
@@ -366,9 +324,69 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 
 	}
+    
+    
+    // Flip normals if set
+    reverseNormals();
 
 
 	return MS::kSuccess;
+}
+
+MStatus ClonerMultiThread::reverseNormals()
+{
+    
+    MStatus status;
+    
+    // Flip normals
+    if (m_reverseNormals)
+    {
+        
+        MIntArray revFCA;
+        int co = o_polygonCounts.length() -1;
+        for (unsigned i = 0; i <  o_polygonCounts.length() ; i++)
+        {
+            revFCA.append(o_polygonCounts[co]);
+            co -= 1;
+        }
+        
+        
+        MIntArray revPCA;
+        co = o_polygonConnects.length() -1;
+        for (unsigned i = 0; i <  o_polygonConnects.length() ; i++)
+        {
+            revPCA.append(o_polygonConnects[co]);
+            co -= 1;
+        }
+        
+        MIntArray revUVCA;
+        co = o_uvCountsA.length() -1;
+        for (unsigned i = 0; i <  o_uvCountsA.length() ; i++)
+        {
+            revUVCA.append(o_uvCountsA[co]);
+            co -= 1;
+        }
+        
+        MIntArray revUVIDA;
+        co = o_uvIdsA.length() -1;
+        for (unsigned i = 0; i <  o_uvIdsA.length() ; i++)
+        {
+            revUVIDA.append(o_uvIdsA[co]);
+            co -= 1;
+        }
+        
+        
+        
+        
+        o_polygonConnects = revPCA;
+        o_polygonCounts = revFCA;
+        
+        o_uvCountsA = revUVCA;
+        o_uvIdsA = revUVIDA;
+        
+    }
+    
+    return MStatus::kSuccess;
 }
 
 
@@ -569,34 +587,25 @@ MStatus ClonerMultiThread::collectInputMeshes(MDataBlock& data)
 }
 
 
-MStatus ClonerMultiThread::numDupOverride()
-{
-	MStatus status;
-
-	if (m_instanceType == 1 ) {m_instanceZ = 1; }  // Circle
-
-	return MStatus::kSuccess;
-}
-
 MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 {
 
 	MStatus status;
+    
 
-	// Datahandles
-	MArrayDataHandle h_inMeshes = data.inputArrayValue(aInMesh, &status);
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	m_inCurve = data.inputValue(aInCurve, &status).asNurbsCurve(); 
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	p_InCurve = MPlug(this->thisMObject(), aInCurve);
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	m_curveTrMat = data.inputValue(aInCurve, &status).geometryTransformMatrix();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	h_outputMesh = data.outputValue(aOutMesh, &status);
+    m_inCurve = data.inputValue(aInCurve, &status).asNurbsCurve();
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    m_curveTrMat = data.inputValue(aInCurve, &status).geometryTransformMatrix();
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    
+    m_refMesh = data.inputValue(aRefMesh, &status).asMesh();
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    
+    m_firstUpVec = data.inputValue(aFirstUpVec, &status).asVector();
+    CHECK_MSTATUS_AND_RETURN_IT(status);
+    m_firstUpVec.normalize();
+    
+    h_outputMesh = data.outputValue(aOutMesh, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_instanceType = data.inputValue(aInstanceType, &status).asInt();
@@ -650,10 +659,10 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_revPattern = data.inputValue(aRevPattern, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+    // Override instace count if circle is set
+    if (m_instanceType == 1) { m_instanceZ = 1;}
+    
 
-	
-	// Set output instance number count and ovverride if necessarry
-	ClonerMultiThread::numDupOverride();
 	m_numDup = m_instanceX * m_instanceY * m_instanceZ; if (m_numDup < 1) { m_numDup = 1;}
 
 	return MStatus::kSuccess;
@@ -678,12 +687,13 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 	m_idA = generatePatternIDs(m_patternType, m_numDup);
 
 	// Generate transormation matrix array
-	if (m_instanceType == 0 ) {status = instanceGrid(); }  // Grid
-	else if (m_instanceType == 1 ) {status = instanceCircle(); }  // Circle
-	else if (m_instanceType == 2 ) {status = instanceFibonacciSphere(); }  // Sphere
-	else if (m_instanceType == 4 ) {status = instanceSpline(); }  // Spline
-	else {status = instanceGrid();}
-	CHECK_MSTATUS_AND_RETURN_IT(status);
+    
+    if (m_instanceType == 0) { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+    else if (m_instanceType == 1) { status = instanceCircle(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+    else if (m_instanceType == 4) { status = instanceSpline(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+    else { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+
+
 
 	// Create output mobject
 	MFnMeshData meshDataFn;
@@ -771,6 +781,7 @@ MStatus ClonerMultiThread::initialize()
 	MFnTypedAttribute			tAttr;
 	MFnNumericAttribute			nAttr;
 	MFnEnumAttribute			eAttr;
+    MFnCompoundAttribute        cAttr;
 
 
 
@@ -783,21 +794,29 @@ MStatus ClonerMultiThread::initialize()
 	tAttr.setReadable(false);
 	addAttribute( ClonerMultiThread::aInMesh );
 
-	ClonerMultiThread::aInCurve = tAttr.create("inCurve", "inCurve", MFnData::kNurbsCurve);
-	tAttr.setWritable(true);
-	tAttr.setReadable(false);
-	tAttr.setStorable(false);
-	tAttr.setKeyable(true);
-	addAttribute(ClonerMultiThread::aInCurve);
-
 	ClonerMultiThread::aOutMesh = tAttr.create( "outMesh", "outMesh", MFnData::kMesh );
 	tAttr.setChannelBox( false );
 	tAttr.setWritable(false);
 	tAttr.setReadable(true);
 	addAttribute( ClonerMultiThread::aOutMesh );
-
-
-	// Types
+    
+    
+    ClonerMultiThread::aRefMesh = tAttr.create( "referenceMesh", "referenceMesh", MFnData::kMesh );
+    tAttr.setWritable(true);
+    tAttr.setReadable(false);
+    tAttr.setStorable(false);
+    tAttr.setKeyable(true);
+    addAttribute( ClonerMultiThread::aRefMesh );
+    
+    ClonerMultiThread::aInCurve = tAttr.create("inCurve", "inCurve", MFnData::kNurbsCurve);
+    tAttr.setWritable(true);
+    tAttr.setReadable(false);
+    tAttr.setStorable(false);
+    tAttr.setKeyable(true);
+    addAttribute(ClonerMultiThread::aInCurve);
+    
+    
+    // Types
 	ClonerMultiThread::aInstanceType = eAttr.create("instanceType", "instanceType", 0);
 	eAttr.setStorable(true);
 	eAttr.addField("Grid", 0);
@@ -806,6 +825,7 @@ MStatus ClonerMultiThread::initialize()
 	eAttr.addField("A - B", 3);
 	eAttr.addField("Spline", 4);
 	eAttr.addField("Input geo", 5);
+    eAttr.setStorable(true);
 	//eAttr.setInternal(true);
 	addAttribute(ClonerMultiThread::aInstanceType);
 
@@ -815,6 +835,7 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setMin(0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
+    eAttr.setStorable(true);
 	addAttribute(ClonerMultiThread::aIDType);
 
 	ClonerMultiThread::aPatterType = eAttr.create("patternType", "patternType", 0);
@@ -827,14 +848,8 @@ MStatus ClonerMultiThread::initialize()
 	eAttr.addField("Loop / End", 5);
 	eAttr.addField("End / Loop", 6);
 	eAttr.addField("Start / Mid / Start Mirror", 7);
+    eAttr.setStorable(true);
 	addAttribute(ClonerMultiThread::aPatterType);
-
-	// Rev pattern
-	ClonerMultiThread::aRevPattern = nAttr.create("reversePattern", "reversePattern", MFnNumericData::kBoolean);
-	nAttr.setDefault(false);
-	nAttr.setKeyable(true);
-	nAttr.setChannelBox(true);
-	addAttribute(ClonerMultiThread::aRevPattern);
 
 
 	// Instance
@@ -896,66 +911,92 @@ MStatus ClonerMultiThread::initialize()
 
 
 	// Rotate
-	aRotateX = nAttr.create("rotateX", "rotateX", MFnNumericData::kFloat);
+	ClonerMultiThread::aRotateX = nAttr.create("rotateX", "rotateX", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
 	nAttr.setSoftMax(360.0);
 	nAttr.setSoftMin(-360.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute(aRotateX);
+	addAttribute(ClonerMultiThread::aRotateX);
 
-	aRotateY = nAttr.create("rotateY", "rotateY", MFnNumericData::kFloat);
+	ClonerMultiThread::aRotateY = nAttr.create("rotateY", "rotateY", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
 	nAttr.setSoftMax(360.0);
 	nAttr.setSoftMin(-360.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute(aRotateY);
+	addAttribute(ClonerMultiThread::aRotateY);
 
-	aRotateZ = nAttr.create("rotateZ", "rotateZ", MFnNumericData::kFloat);
+	ClonerMultiThread::aRotateZ = nAttr.create("rotateZ", "rotateZ", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
 	nAttr.setSoftMax(360.0);
 	nAttr.setSoftMin(-360.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute(aRotateZ);
+	addAttribute(ClonerMultiThread::aRotateZ);
 
 	// Scale
-	aScaleX = nAttr.create("scaleX", "scaleX", MFnNumericData::kFloat);
+	ClonerMultiThread::aScaleX = nAttr.create("scaleX", "scaleX", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
 	nAttr.setSoftMax(1.0);
 	nAttr.setSoftMin(0.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute(aScaleX);
+	addAttribute(ClonerMultiThread::aScaleX);
 
-	aScaleY = nAttr.create("scaleY", "scaleY", MFnNumericData::kFloat);
+	ClonerMultiThread::aScaleY = nAttr.create("scaleY", "scaleY", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
 	nAttr.setSoftMax(1.0);
 	nAttr.setSoftMin(0.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute(aScaleY);
+	addAttribute(ClonerMultiThread::aScaleY);
 
-	aScaleZ = nAttr.create("scaleZ", "scaleZ", MFnNumericData::kFloat);
+	ClonerMultiThread::aScaleZ = nAttr.create("scaleZ", "scaleZ", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(1.0);
 	nAttr.setSoftMax(1.0);
 	nAttr.setSoftMin(0.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute(aScaleZ);
+	addAttribute(ClonerMultiThread::aScaleZ);
 
+    
+    
+    ClonerMultiThread::aFirstUpVecX = nAttr.create("firstUpVecX","fux",MFnNumericData::kDouble,0);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);
+    addAttribute(ClonerMultiThread::aFirstUpVecX);
+    
+    ClonerMultiThread::aFirstUpVecY = nAttr.create("firstUpVecY","fuy",MFnNumericData::kDouble,0);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);
+    addAttribute(ClonerMultiThread::aFirstUpVecY);
+    
+    
+    ClonerMultiThread::aFirstUpVecZ = nAttr.create("firstUpVecZ","fuz",MFnNumericData::kDouble,1);
+    nAttr.setStorable(true);
+    nAttr.setKeyable(true);
+    addAttribute(ClonerMultiThread::aFirstUpVecZ);
+    
+    
+    ClonerMultiThread::aFirstUpVec = cAttr.create("firstUpVec","fu");
+    cAttr.addChild(ClonerMultiThread::aFirstUpVecX);
+    cAttr.addChild(ClonerMultiThread::aFirstUpVecY);
+    cAttr.addChild(ClonerMultiThread::aFirstUpVecZ);
+    addAttribute(ClonerMultiThread::aFirstUpVec);
+    
 
 	ClonerMultiThread::aReverseNormals = nAttr.create("reverseNormals", "reverseNormals", MFnNumericData::kBoolean);
-	nAttr.setDefault(false);
-	nAttr.setKeyable(true);
-	nAttr.setChannelBox(true);
+    nAttr.setStorable(true);
+    nAttr.setDefault(false);
+    nAttr.setKeyable(true);
+    nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aReverseNormals);
 
 	ClonerMultiThread::aSmoothNormals = nAttr.create("smoothNormals", "smoothNormals", MFnNumericData::kBoolean);
@@ -964,6 +1005,14 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aSmoothNormals);
+    
+    // Rev pattern
+    ClonerMultiThread::aRevPattern = nAttr.create("reversePattern", "reversePattern", MFnNumericData::kBoolean);
+    nAttr.setStorable(true);
+    nAttr.setDefault(false);
+    nAttr.setKeyable(true);
+    nAttr.setChannelBox(true);
+    addAttribute(ClonerMultiThread::aRevPattern);
 
 	ClonerMultiThread::aMergeInputMeshes = nAttr.create("mergeInputMeshes", "mergeInputMeshes", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
@@ -981,12 +1030,15 @@ MStatus ClonerMultiThread::initialize()
 
 	// Attribute affects
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMesh);
-	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutMesh);
+    attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMesh);
+    attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aIDType, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aPatterType, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRevPattern, ClonerMultiThread::aOutMesh);
+    
+    attributeAffects(ClonerMultiThread::aFirstUpVec, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aGridInstanceX, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aGridInstanceY, ClonerMultiThread::aOutMesh);

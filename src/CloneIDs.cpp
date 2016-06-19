@@ -194,20 +194,20 @@ MIntArray ClonerMultiThread::generatePatternIDs(int& patternType, int& m_numDup)
 	}
 
 
-	//// Reverse pattern option
+	// Reverse pattern option
 
-	//if (m_revPattern) // Reverse pattern order
-	//{
-	//	MIntArray reverseArray;
+	if (m_revPattern) // Reverse pattern order
+	{
+		MIntArray reverseArray;
 
-	//	for (int i =  idAr.length()-1; i >= 0; i--) {
-	//		reverseArray.append(idAr[i]);
-	//	}
+		for (int i =  idAr.length()-1; i >= 0; i--) {
+			reverseArray.append(idAr[i]);
+		}
 
-	//	idAr = reverseArray;
+		idAr = reverseArray;
 
 
-	//}
+	}
 
 
 

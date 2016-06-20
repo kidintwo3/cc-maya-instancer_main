@@ -1,5 +1,5 @@
 #include "ClonerMulti.h"
-//#include "ClonerMultiThreadCommand.h"
+#include "ClonerMultiCommand.h"
 #include "AETemplate.h"
 
 
@@ -16,8 +16,8 @@ MStatus initializePlugin( MObject obj )
 
 	MGlobal::executeCommand( mel_AETemplate() );
 
-	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiThreadCommand::creator, ClonerMultiThreadCommand::newSyntax );
-    CHECK_MSTATUS_AND_RETURN_IT( status );
+	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiCommand::creator, ClonerMultiCommand::newSyntax );
+	CHECK_MSTATUS_AND_RETURN_IT( status );
 
 	status = fnPlugin.registerNode("clonerMulti",ClonerMultiThread::id, ClonerMultiThread::creator, ClonerMultiThread::initialize);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -36,7 +36,8 @@ MStatus uninitializePlugin( MObject obj )
 
 	
 	status = fnPlugin.deregisterCommand( "clonerMultiCommand" );
-    CHECK_MSTATUS_AND_RETURN_IT( status );
+	CHECK_MSTATUS_AND_RETURN_IT( status );
+
 
 	status = fnPlugin.deregisterNode(ClonerMultiThread::id);
 	CHECK_MSTATUS_AND_RETURN_IT(status);

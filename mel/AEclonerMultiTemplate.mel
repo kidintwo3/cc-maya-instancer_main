@@ -555,10 +555,6 @@ global proc AE_cm_curve_set(string $attrName)
             {
     
     			textField -edit -bgc 0.8 0.6 0.6 -tx $selObjShape[0] "cm_t_curveObj";
-    			setAttr ($nodeName[0] + ".offsetX") 0;
-    			setAttr ($nodeName[0] + ".offsetY") 0;
-    			setAttr ($nodeName[0] + ".offsetZ") 0;
-    			
     			connectAttr -f ( $selObjShape[0] + ".worldSpace[0]") ( $nodeName[0] + ".inCurve");
     		}
     		
@@ -638,10 +634,6 @@ global proc AE_cm_reference_set(string $attrName)
         if($isSame == 0)
         {
             textField -edit -bgc 0.6 0.6 0.8 -tx $selObjShape[0] "cm_t_driverObj";
-            setAttr ($nodeName[0] + ".offsetX") 0;
-            setAttr ($nodeName[0] + ".offsetY") 0;
-            setAttr ($nodeName[0] + ".offsetZ") 0;
-            
             connectAttr -f ( $selObjShape[0] + ".worldMesh[0]") ( $nodeName[0] + ".referenceMesh");
             
         }

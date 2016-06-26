@@ -19,7 +19,7 @@ MStatus initializePlugin( MObject obj )
 	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiCommand::creator, ClonerMultiCommand::newSyntax );
 	CHECK_MSTATUS_AND_RETURN_IT( status );
 
-	status = fnPlugin.registerNode("clonerMulti",ClonerMultiThread::id, ClonerMultiThread::creator, ClonerMultiThread::initialize);
+	status = fnPlugin.registerNode("clonerMulti",ClonerMultiThread::id, ClonerMultiThread::creator, ClonerMultiThread::initialize, MPxNode::kLocatorNode);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 

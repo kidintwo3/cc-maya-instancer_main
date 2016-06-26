@@ -10,6 +10,8 @@
 #define CLONERMULTI_H
 
 #include <maya/MPxNode.h>
+#include <maya/MPxTransform.h>
+
 #include <maya/MPointArray.h>
 #include <maya/MFloatPointArray.h>
 #include <maya/MVectorArray.h>
@@ -51,8 +53,7 @@
 #include <maya/MFnTransform.h>
 #include <maya/MFnSingleIndexedComponent.h>
 #include <maya/MMeshIntersector.h>
-
-#include <maya/MPxManipContainer.h>
+#include <maya/MPxLocatorNode.h>
 
 #include <maya/MDagModifier.h>
 
@@ -64,19 +65,21 @@
 using namespace std;
 
 
-class ClonerMultiThread : public MPxNode
+
+
+class ClonerMultiThread : public MPxLocatorNode
 {
 
 public:
 
 	ClonerMultiThread();
 	virtual						~ClonerMultiThread();
-
 	static void*				creator();
+	virtual void				postConstructor(); 
+
 	virtual MStatus				compute(const MPlug& plug, MDataBlock& data);
 	static  MStatus				initialize();
-
-	virtual void 				postConstructor();
+	
 
 	// Id
 	static MTypeId				id;
@@ -113,12 +116,28 @@ public:
 	static MObject				aScaleY;
 	static MObject				aScaleZ;
 
+	// Random
+	static MObject				aRndOffsetX;
+	static MObject				aRndOffsetY;
+	static MObject				aRndOffsetZ;
+	static MObject				aRndRotateX;
+	static MObject				aRndRotateY;
+	static MObject				aRndRotateZ;
+	static MObject				aRndScaleX;
+	static MObject				aRndScaleY;
+	static MObject				aRndScaleZ;
+	static MObject				aRndUVOffsetU;
+	static MObject				aRndUVOffsetV;
+	static MObject				aSeedVal;
+	static MObject				aRandIDLev;
+
 	// Methods
 	static MObject				aReverseNormals;
 	static MObject				aSmoothNormals;
 	static MObject				aMergeInputMeshes;
 	static MObject				aWorldSpace;
 	static MObject				aRevPattern;
+	static MObject				aLoopOffset;
 
 	// Upvector
 	static MObject              aFirstUpVec;
@@ -129,13 +148,16 @@ public:
 
 private:
 
+	// Sanity check
+	MStatus						checkInputPlugs();
+
 	// Modules Main
 	MStatus						collectInputMeshes(MDataBlock& data);
 	MStatus						collectPlugs(MDataBlock& data);
 
 	// Modules CloneIDs
 	MIntArray					generatePatternIDs(short& patternType, int& m_numDup);
-	MDoubleArray				generateRndArray(double& surfaceNoise, int& numValues, int& seedVal);;
+	MFloatArray					generateRndArray(float& surfaceNoise, int& numValues, int& seedVal);
 
 	MStatus						mergeInputMeshes();
 	MStatus						duplicateInputMeshes(MIntArray& idA);
@@ -172,6 +194,10 @@ private:
 	// Plugs
 	MPlug						p_inMesh;
 	MPlug						p_outMesh;
+	MPlug						p_inCurve;
+	MPlug						p_refMesh;
+	MPlug						p_inLocA;
+	MPlug						p_inLocB;
 
 	// Curve
 	MObject						m_inCurve;
@@ -217,6 +243,9 @@ private:
 	MIntArray					m_idA;
 	MIntArray					m_manualIDA;
 
+	// Random
+	int							m_rand_seed;
+
 	// Function sliders
 	short						m_instanceType;
 	short						m_patternType;
@@ -237,6 +266,32 @@ private:
 	float                       m_scaleY;
 	float                       m_scaleZ;
 
+	float						m_randomOffsetX;
+	float                       m_randomOffsetY;
+	float                       m_randomOffsetZ;
+	float                       m_randomRotateX;
+	float                       m_randomRotateY;
+	float                       m_randomRotateZ;
+	float                       m_randomScaleX;
+	float                       m_randomScaleY;
+	float                       m_randomScaleZ;
+	float					    m_rndUvOffsetU;
+	float						m_rndUvOffsetV;
+
+	MFloatArray                 m_rndOffsetXA;
+	MFloatArray                 m_rndOffsetYA;
+	MFloatArray                 m_rndOffsetZA;
+	MFloatArray                 m_rndRotateXA;
+	MFloatArray                 m_rndRotateYA;
+	MFloatArray                 m_rndRotateZA;
+	MFloatArray                 m_rndScaleXA;
+	MFloatArray                 m_rndScaleYA;
+	MFloatArray                 m_rndScaleZA;
+	MFloatArray                 m_rndOffsetUA;
+	MFloatArray                 m_rndOffsetVA;
+
+	float						m_rndIDLev;
+
 	// Function switches
 	int							m_numDup;
 
@@ -245,7 +300,7 @@ private:
 	bool						m_mergeInputMeshes;
 	bool						m_worldSpace;
 	bool						m_revPattern;
-
+	bool						m_loopOffset;
 
 
 	// Matrix
@@ -254,10 +309,10 @@ private:
 	MMatrix						m_inLocA_posMat;
 	MMatrix						m_inLocB_posMat;
 
-	MMatrix						m_refMeshTrMat;
-
 	// Upvector
 	MVector                     m_firstUpVec;
+
+	MMatrix						m_refMeshMat;
 
 	// Mesh instance variables
 

@@ -81,6 +81,7 @@ MStatus ClonerMultiThread::overrideInstanceOnMeshSettings()
 						status = itPoly.getPointAtUV(pt, uvP, MSpace::kObject);
 						status = itPoly.getAxisAtUV(normal, uTangent, vTangent, uvP, MSpace::kObject);
 
+
 						if (status)
 						{
 							mesh_pA.append(pt);
@@ -101,14 +102,18 @@ MStatus ClonerMultiThread::overrideInstanceOnMeshSettings()
 
 		m_numDup = mesh_pA.length();
 
+		MGlobal::displayInfo(MString() + m_numDup);
+
 	}
 
 	// Vertex
 	if (m_scatterType == 1)
 	{
 		MFnMesh refMesh(m_refMesh);
-		m_numDup = refMesh.numVertices();
+		m_numDup = refMesh.numVertices(&status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
 	}
+
 
 
 	if (m_numDup < 1) { m_numDup = 1;}
@@ -125,11 +130,13 @@ MStatus ClonerMultiThread::instanceOnMesh()
 	MStatus status;
 
 	m_tr_matA.clear();
-	m_tr_matA.setLength(m_numDup);
+	status = m_tr_matA.setLength(m_numDup);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-
-
-
+	if (mesh_uTA.length() < 1)
+	{
+		return MStatus::kSuccess;
+	}
 
 	// UV
 	if (m_scatterType == 0)
@@ -158,25 +165,44 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			// Translation
 			MFloatVector v_baseOffV(m_offsetX, m_offsetY, m_offsetZ);
 
+
 			// Rotation
 			double rot[3] = {m_rotateX * 0.5f * ( M_PI / 180.0f ), m_rotateY * 0.5f * ( M_PI / 180.0f ),  m_rotateZ * 0.5f * ( M_PI / 180.0f )};
 
 			// Scale
 			const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
 
+			// Random Transform
+			MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i] ,m_rndOffsetZA[i]);
+			// Random Rotate
+
+			double rot_rnd[3] = {m_rndRotateXA[i] * 0.5f * ( M_PI / 180.0f ), m_rndRotateYA[i] * 0.5f * ( M_PI / 180.0f ),  m_rndRotateZA[i] * 0.5f * ( M_PI / 180.0f )};
+
+			// Random Scale
+			const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[i]),  double(1.0+m_rndScaleYA[i]),  double(1.0+m_rndScaleZA[i]) };
+
+
+
 			// Matrix
 			MTransformationMatrix tr_mat(rotMatrix);
 
 			status = tr_mat.addTranslation(v_baseOffV, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
+			status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			status = tr_mat.setScale(scaleV, MSpace::kObject);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+			status = tr_mat.addScale(scaleV_rnd, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			status = tr_mat.addRotation(rot, MTransformationMatrix::kXYZ, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
+			status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			m_tr_matA.set(tr_mat.asMatrix() * m_refMeshTrMat, i);
+			status = m_tr_matA.set(tr_mat.asMatrix() * m_refMeshMat, i);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		}
 
@@ -196,8 +222,12 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 		MMatrix rotMatrix;
 
+		int i=0;
+
 		for ( itVert.reset() ; !itVert.isDone() ; itVert.next() )
 		{
+
+			i = itVert.index();
 
 			MPoint vertA = itVert.position(MSpace::kObject, &status);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -208,33 +238,33 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			MIntArray connVerts;
-			itVert.getConnectedVertices(connVerts);
+			status = itVert.getConnectedVertices(connVerts);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			if (connVerts.length() < 2)
+			if (connVerts.length() < 1)
 			{
 				return MStatus::kFailure;
 			}
 
+			MVector v1 = currN;
+
 			MPoint vertB = pA[connVerts[0]];
-			MPoint vertC = pA[connVerts[1]];
 
-			MVector vAVec = vertB - vertA;
-			vAVec.normalize();
-			MVector vBVec = vertC - vertA;
-			vBVec.normalize();
+			MVector v2 = vertB - vertA;
+			v2.normalize();
 
+			MVector v3 = currN ^ v2;
+			v3.normalize();
 
-			MVector vVecCross =(vBVec^currN);
-			vVecCross.normalize();
+			MVector v4 = v3 ^ currN;
 
 			double m[4][4]={
-				{ vBVec.x, vBVec.y , vBVec.z, 0},
-				{ currN.x, currN.y , currN.z, 0},
-				{vVecCross.x, vVecCross.y , vVecCross.z, 0},
+				{ v3.x, v3.y , v3.z, 0},
+				{ v1.x, v1.y , v1.z, 0},
+				{ v4.x, v4.y , v4.z, 0},
 				{ vertA.x, vertA.y , vertA.z, 1}};
 
 			rotMatrix = m;
-
 
 
 			// Translation
@@ -246,19 +276,39 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			// Scale
 			const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
 
+
+
+			// Random Transform
+			MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i] ,m_rndOffsetZA[i]);
+			// Random Rotate
+
+			double rot_rnd[3] = {m_rndRotateXA[i] * 0.5f * ( M_PI / 180.0f ), m_rndRotateYA[i] * 0.5f * ( M_PI / 180.0f ),  m_rndRotateZA[i] * 0.5f * ( M_PI / 180.0f )};
+
+			// Random Scale
+			const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[i]),  double(1.0+m_rndScaleYA[i]),  double(1.0+m_rndScaleZA[i]) };
+
+
+
 			// Matrix
 			MTransformationMatrix tr_mat(rotMatrix);
 
 			status = tr_mat.addTranslation(v_baseOffV, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
+			status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			status = tr_mat.setScale(scaleV, MSpace::kObject);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+			status = tr_mat.addScale(scaleV_rnd, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			status = tr_mat.addRotation(rot, MTransformationMatrix::kXYZ, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
+			status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			m_tr_matA.set(tr_mat.asMatrix() * m_refMeshTrMat, itVert.index());
+			status = m_tr_matA.set(tr_mat.asMatrix() * m_refMeshMat, i);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		}
 

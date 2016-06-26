@@ -78,13 +78,31 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 		// Scale
 		const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
 
+		// Random Transform
+		MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i] ,m_rndOffsetZA[i]);
+		// Random Rotate
+
+		double rot_rnd[3] = {m_rndRotateXA[i] * 0.5f * ( M_PI / 180.0f ), m_rndRotateYA[i] * 0.5f * ( M_PI / 180.0f ),  m_rndRotateZA[i] * 0.5f * ( M_PI / 180.0f )};
+
+		// Random Scale
+		const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[i]),  double(1.0+m_rndScaleYA[i]),  double(1.0+m_rndScaleZA[i]) };
+
+
+
+
 		status = tr_mat.addTranslation(p, MSpace::kObject);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		status = tr_mat.addRotation(rotation,  MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
+		status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		status = tr_mat.addScale(scaleV, MSpace::kObject);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		status = tr_mat.addScale(scaleV_rnd, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 

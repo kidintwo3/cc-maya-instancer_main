@@ -15,7 +15,7 @@ MIntArray ClonerMultiThread::generatePatternIDs(short& patternType, int& m_numDu
 {
 
 	// temp
-	double m_rndIDLev = 1.0;
+	//double m_rndIDLev = 1.0;
 
 
 	MIntArray idAr;
@@ -213,28 +213,6 @@ MIntArray ClonerMultiThread::generatePatternIDs(short& patternType, int& m_numDu
 
 
 	return idAr;
-
-}
-
-
-MDoubleArray ClonerMultiThread::generateRndArray(double& surfaceNoise, int& numValues, int& seedVal)
-{
-
-	// Random Surface
-
-	MDoubleArray randArray;
-	srand(seedVal);
-
-	double randVal;
-
-	for (int i=0; i < numValues; i++) {
-
-		randVal = (rand() / ((double) RAND_MAX)) * surfaceNoise;
-		randArray.append(randVal);
-
-	}
-
-	return randArray;
 
 }
 

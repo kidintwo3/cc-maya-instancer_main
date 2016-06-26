@@ -102,7 +102,7 @@ MStatus ClonerMultiThread::overrideInstanceOnMeshSettings()
 
 		m_numDup = mesh_pA.length();
 
-		MGlobal::displayInfo(MString() + m_numDup);
+		// MGlobal::displayInfo(MString() + m_numDup);
 
 	}
 

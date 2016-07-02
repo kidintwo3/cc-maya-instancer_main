@@ -1,13 +1,13 @@
 //
-//  PrimitiveGeneratorLoc.h
-//  PrimitiveGeneratorLoc
+//  ClonerMultiLoc.h
+//  ClonerMultiLoc
 //
 //  Created by Hunyadi Janos on 31/01/15.
 //  Copyright (c) 2015 Janos Hunyadi. All rights reserved.
 //
 
-#ifndef PrimitiveGeneratorLoc_H
-#define PrimitiveGeneratorLoc_H
+#ifndef ClonerMultiLoc_H
+#define ClonerMultiLoc_H
 
 #include <maya/MPxLocatorNode.h>
 #include <maya/M3dView.h>
@@ -61,11 +61,11 @@ using namespace std;
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 
-class PrimitiveGeneratorLoc : public MPxLocatorNode
+class ClonerMultiLoc : public MPxLocatorNode
 {
 public:
-	PrimitiveGeneratorLoc();
-	virtual ~PrimitiveGeneratorLoc();
+	ClonerMultiLoc();
+	virtual ~ClonerMultiLoc();
 
     virtual MStatus   		compute( const MPlug& plug, MDataBlock& data );
 
@@ -98,11 +98,11 @@ private:
 
 // data for override
 
-class PrimitiveGeneratorLocData : public MUserData
+class ClonerMultiLocData : public MUserData
 {
 public:
-	PrimitiveGeneratorLocData() : MUserData(false) {} // don't delete after draw
-	virtual ~PrimitiveGeneratorLocData() {}
+	ClonerMultiLocData() : MUserData(false) {} // don't delete after draw
+	virtual ~ClonerMultiLocData() {}
 
 
 	MMatrix					m_inLoc_mat;
@@ -115,15 +115,15 @@ public:
 
 // override
 
-class PrimitiveGeneratorLocOverride : public MHWRender::MPxDrawOverride
+class ClonerMultiLocOverride : public MHWRender::MPxDrawOverride
 {
 public:
 	static MHWRender::MPxDrawOverride* Creator(const MObject& obj)
 	{
-		return new PrimitiveGeneratorLocOverride(obj);
+		return new ClonerMultiLocOverride(obj);
 	}
 
-	virtual ~PrimitiveGeneratorLocOverride();
+	virtual ~ClonerMultiLocOverride();
 	virtual MHWRender::DrawAPI supportedDrawAPIs() const;
 
 	virtual bool isBounded( const MDagPath& objPath, const MDagPath& cameraPath) const;
@@ -137,7 +137,7 @@ public:
 	static void draw(const MHWRender::MDrawContext& context, const MUserData* data) {};
 
 private:
-	PrimitiveGeneratorLocOverride(const MObject& obj);
+	ClonerMultiLocOverride(const MObject& obj);
 
 };
 

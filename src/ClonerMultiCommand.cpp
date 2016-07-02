@@ -345,12 +345,12 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				{
 
 					// Create clonerMulti locator A
-					o_locA = m_DAGMod.createNode("locator");
+					o_locA = m_DAGMod.createNode("clonerMultiLoc");
 					MFnDependencyNode fnDepLocA( o_locA );
 					fnDepLocA.setName( clonerMulti_locA_name );
 
 					// Create clonerMulti locator B
-					o_locB = m_DAGMod.createNode("locator");
+					o_locB = m_DAGMod.createNode("clonerMultiLoc");
 					MFnDependencyNode fnDepLocB( o_locB );
 					fnDepLocB.setName( clonerMulti_locB_name );
 

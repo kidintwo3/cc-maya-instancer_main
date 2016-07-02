@@ -24,8 +24,9 @@ MStatus initializePlugin( MObject obj )
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	// Locator
-	status = fnPlugin.registerNode( "PrimitiveGeneratorLoc", ClonerMultiLoc::id, &ClonerMultiLoc::creator, &ClonerMultiLoc::initialize, MPxNode::kLocatorNode, &ClonerMultiLoc::drawDbClassification);
+	status = fnPlugin.registerNode( "clonerMultiLoc", ClonerMultiLoc::id, &ClonerMultiLoc::creator, &ClonerMultiLoc::initialize, MPxNode::kLocatorNode, &ClonerMultiLoc::drawDbClassification);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
+
 	status = MHWRender::MDrawRegistry::registerDrawOverrideCreator( ClonerMultiLoc::drawDbClassification, ClonerMultiLoc::drawRegistrantId, ClonerMultiLocOverride::Creator);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 

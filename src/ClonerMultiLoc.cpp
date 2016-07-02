@@ -10,7 +10,7 @@
 
 // Plugin
 
-MTypeId ClonerMultiLoc::id( 0x00123944 );
+MTypeId ClonerMultiLoc::id( 0x80711 );
 
 
 

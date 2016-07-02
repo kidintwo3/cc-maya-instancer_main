@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\..\src\CloneMesh.cpp" />
     <ClCompile Include="..\..\..\src\ClonerMulti.cpp" />
     <ClCompile Include="..\..\..\src\ClonerMultiCommand.cpp" />
+    <ClCompile Include="..\..\..\src\ClonerMultiLoc.cpp" />
     <ClCompile Include="..\..\..\src\CloneSphere.cpp" />
     <ClCompile Include="..\..\..\src\CloneSpline.cpp" />
     <ClCompile Include="..\..\..\src\DagUtils.cpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="..\..\..\src\CloneMesh.h" />
     <ClInclude Include="..\..\..\src\ClonerMulti.h" />
     <ClInclude Include="..\..\..\src\ClonerMultiCommand.h" />
+    <ClInclude Include="..\..\..\src\ClonerMultiLoc.h" />
     <ClInclude Include="..\..\..\src\CloneSphere.h" />
     <ClInclude Include="..\..\..\src\CloneSpline.h" />
     <ClInclude Include="..\..\..\src\DagUtils.h" />

@@ -60,58 +60,58 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 
+	// Get selection
+
+	if (selectedObjects.length() != 0)
+	{
+
+		MDagPath currDagPathTr;
+		p_currSelTrA.clear();
+		p_currSelShapeA.clear();
+		p_currSelTrA_curves.clear();
+		p_currSelShapeA_curves.clear();
+
+		//bool ffound = false;
 
 
-	//if (selectedObjects.length() != 0)
-	//{
+		// Get Meshes
+		for (unsigned int i = 0; i < selectedObjects.length(); i++)
+		{
+			selectedObjects.getDagPath(i, currDagPathTr);
 
-	//	MDagPath currDagPathTr;
-	//	p_currSelTrA.clear();
-	//	p_currSelShapeA.clear();
-	//	p_currSelTrA_curves.clear();
-	//	p_currSelShapeA_curves.clear();
+			if (currDagPathTr.apiType() == MFn::kTransform)
+			{
 
-	//	//bool ffound = false;
+				p_currSelTrA.append(currDagPathTr);
 
-
-	//	// Get Meshes
-	//	for (unsigned int i = 0; i < selectedObjects.length(); i++)
-	//	{
-	//		selectedObjects.getDagPath(i, currDagPathTr);
-
-	//		if (currDagPathTr.apiType() == MFn::kTransform)
-	//		{
-
-	//			p_currSelTrA.append(currDagPathTr);
-
-	//			status = getShapeNodeFromTransformDAG(currDagPathTr);
-	//			if (status)
-	//			{
-	//				p_currSelShapeA.append(currDagPathTr);
-	//			}
-	//		}
-	//	}
+				status = getShapeNodeFromTransformDAG(currDagPathTr);
+				if (status)
+				{
+					p_currSelShapeA.append(currDagPathTr);
+				}
+			}
+		}
 
 
-	//	// Get Curves
-	//	for (unsigned int i = 0; i < selectedObjects.length(); i++)
-	//	{
-	//		selectedObjects.getDagPath(i, currDagPathTr);
+		// Get Curves
+		for (unsigned int i = 0; i < selectedObjects.length(); i++)
+		{
+			selectedObjects.getDagPath(i, currDagPathTr);
 
-	//		if (currDagPathTr.apiType() == MFn::kTransform)
-	//		{
+			if (currDagPathTr.apiType() == MFn::kTransform)
+			{
 
-	//			p_currSelTrA_curves.append(currDagPathTr);
+				p_currSelTrA_curves.append(currDagPathTr);
 
-	//			status = getShapeNodeFromTransformDAG_curve(currDagPathTr);
-	//			if (status)
-	//			{
-	//				p_currSelShapeA_curves.append(currDagPathTr);
-	//			}
-	//		}
-	//	}
+				status = getShapeNodeFromTransformDAG_curve(currDagPathTr);
+				if (status)
+				{
+					p_currSelShapeA_curves.append(currDagPathTr);
+				}
+			}
+		}
 
-	//}
+	}
 
 
 
@@ -198,9 +198,17 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		MPlug p_clonerMultiNode_outMesh = fnDepClonerNodeShape.findPlug( "outMesh", &status );
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
+		MPlug p_clonerMultiNode_inMesh = fnDepClonerNodeShape.findPlug( "inMesh", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MPlug p_clonerMultiNode_inCurve = fnDepClonerNodeShape.findPlug( "inCurve", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
 		status = m_DAGMod.connect( p_clonerMultiNode_outMesh, p_clonerMultiMesh_inMesh );
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 		m_DAGMod.doIt();
+
+
 
 
 		// Assign Same material as input mesh
@@ -208,6 +216,66 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 		// Add selected objects
+		for (int i = 0; i < p_currSelShapeA.length(); i++)
+		{
+
+
+			MFnDagNode fnDepSource( p_currSelShapeA[i].node() );
+			MPlug plugSource = fnDepSource.findPlug( "worldMesh" );
+			plugSource = plugSource.elementByLogicalIndex(0);
+
+
+			MPlug plugTarget = p_clonerMultiNode_inMesh.elementByLogicalIndex(i);
+
+			MGlobal::displayInfo(MString() + "[ClonerMulti] connected: " + plugSource.name() + " -> " + p_clonerMultiNode_inMesh.name()  );
+
+			status = m_DAGMod.connect( plugSource, plugTarget );
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+			m_DAGMod.doIt();
+
+
+
+		}
+
+		// Add selected curves
+		for (int i = 0; i < p_currSelShapeA_curves.length(); i++)
+		{
+
+			if (i==0)
+			{
+
+				MFnDagNode fnDepSource( p_currSelShapeA_curves[i].node() );
+				MPlug plugSource = fnDepSource.findPlug( "worldSpace" );
+				plugSource = plugSource.elementByLogicalIndex(0);
+
+
+
+
+
+				MGlobal::displayInfo(MString() + "[ClonerMulti] connected: " + plugSource.name() + " -> " + p_clonerMultiNode_inCurve.name()  );
+
+				status = m_DAGMod.connect( plugSource, p_clonerMultiNode_inCurve );
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+				m_DAGMod.doIt();
+
+				// Plugs of the clonerMulti node
+				MPlug p_instancetype = fnDepClonerNodeShape.findPlug("instanceType", &status);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				status = p_instancetype.setShort(4);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+				fnDepClonerNodeShape.findPlug("offsetX").setFloat(0.0);
+				fnDepClonerNodeShape.findPlug("offsetY").setFloat(0.0);
+				fnDepClonerNodeShape.findPlug("offsetZ").setFloat(0.0);
+
+
+			}
+
+
+		}
+
 
 	}
 

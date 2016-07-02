@@ -1296,7 +1296,7 @@ MStatus ClonerMultiThread::initialize()
 	addAttribute(ClonerMultiThread::aScatterType);
 
 
-	ClonerMultiThread::aPatterType = eAttr.create("patternType", "patternType", 0);
+	ClonerMultiThread::aPatterType = eAttr.create("patternType", "patternType", 1);
 	eAttr.addField("ID", 0);
 	eAttr.addField("Order Loop Forward", 1);
 	eAttr.addField("Order Loop Backwards", 2);
@@ -1325,7 +1325,7 @@ MStatus ClonerMultiThread::initialize()
 	// Instance
 	ClonerMultiThread::aGridInstanceX = nAttr.create("instanceX", "instanceX", MFnNumericData::kInt);
 	nAttr.setStorable(true);
-	nAttr.setDefault(1);
+	nAttr.setDefault(10);
 	nAttr.setMin(1);
 	nAttr.setSoftMax(10);
 	nAttr.setKeyable(true);

@@ -325,11 +325,51 @@ MStatus getShapeNodeFromTransformDAG(MDagPath& path)
 		path.pop();
 	}
 
-	MGlobal::displayWarning(MString() + "Selection is not a mesh");
+	//MGlobal::displayWarning(MString() + "Selection is not a mesh");
 
 	return MS::kFailure;
 
 }
+
+MStatus getShapeNodeFromTransformDAG_curve(MDagPath& path)
+{
+	MStatus status;
+
+	if (path.apiType() == MFn::kNurbsCurve)
+	{
+		return MS::kSuccess;
+	}
+
+	unsigned int numShapes;
+	status = path.numberOfShapesDirectlyBelow(numShapes);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	for (unsigned int i = 0; i < numShapes; ++i)
+	{
+		status = path.extendToShapeDirectlyBelow(i);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		if (!path.hasFn(MFn::kNurbsCurve))
+		{
+			path.pop();
+			continue;
+		}
+
+		MFnDagNode fnNode(path, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		if (!fnNode.isIntermediateObject())
+		{
+			return MS::kSuccess;
+		}
+		path.pop();
+	}
+
+	//MGlobal::displayWarning(MString() + "Selection is not a mesh");
+
+	return MS::kFailure;
+
+}
+
 
 bool checkMatExist(MString matName){
 

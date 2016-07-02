@@ -38,6 +38,7 @@ bool                checkNodeExist(MSelectionList selList, MString searchString)
 
 //Paths
 MStatus				getShapeNodeFromTransformDAG(MDagPath& path);
+MStatus				getShapeNodeFromTransformDAG_curve(MDagPath& path);
 MDagPath            getDagFromString(MString nodeName);
 MDagPath            getCurrSelectionDAG();
 MDagPathArray		getCurrSelectionDAGArray();

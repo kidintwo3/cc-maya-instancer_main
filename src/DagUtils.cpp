@@ -355,6 +355,7 @@ bool checkMatExist(MString matName){
 	return false;
 }
 
+
 MStatus assignSameMaterial(MDagPath& inputShapeDagPath, MObject& outputShapeDagPath)
 {
 
@@ -364,10 +365,10 @@ MStatus assignSameMaterial(MDagPath& inputShapeDagPath, MObject& outputShapeDagP
 
 	if (inputShapeDagPath.hasFn(MFn::kMesh))
 	{
-		// Find the Shading Engines Connected to the SourceNode 
+		// Find the Shading Engines Connected to the SourceNode
 		MFnMesh fnMesh(inputShapeDagPath.node());
 
-		// A ShadingGroup will have a MFnSet 
+		// A ShadingGroup will have a MFnSet
 		MObjectArray sets, comps;
 		fnMesh.getConnectedSetsAndMembers(inputShapeDagPath.instanceNumber(), sets, comps, true);
 
@@ -381,7 +382,7 @@ MStatus assignSameMaterial(MDagPath& inputShapeDagPath, MObject& outputShapeDagP
 	}
 
 
-	MGlobal::displayInfo(MString() + "Initial SG: " + sMaterial);
+	MGlobal::displayInfo(MString() + "[Instancer] Initial SG: " + sMaterial);
 
 	MSelectionList sList;
 	MGlobal::getSelectionListByName(sMaterial, sList);
@@ -397,6 +398,7 @@ MStatus assignSameMaterial(MDagPath& inputShapeDagPath, MObject& outputShapeDagP
 
 	return MS::kSuccess;
 }
+
 
 MStatus assignInitialShadingGroup(MObject& oMesh)
 {

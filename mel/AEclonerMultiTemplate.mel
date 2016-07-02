@@ -91,12 +91,15 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	// -------------------------------------------------------------
 	
 	editorTemplate -beginLayout "UV Settings" -collapse 0;
+	editorTemplate -callCustom "AE_cm_refreshUVs_create" "AE_cm_refreshUVs_edit" "";
+	editorTemplate -addSeparator;
 	editorTemplate -addControl "uvOffsetU";
 	editorTemplate -addControl "uvOffsetV";
 	editorTemplate -addSeparator;
 	editorTemplate -addControl "randomUvOffsetU";
 	editorTemplate -addControl "randomUvOffsetV";
 	editorTemplate -addSeparator;
+	editorTemplate -addControl "UvUdimLoop";
 	editorTemplate -endLayout;
 	
 	// -------------------------------------------------------------
@@ -147,17 +150,15 @@ global proc AE_cm_objList_create(string $attrName)
 	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Minus.png" -label "remove" -bgc 0.6 0.2 0.3 -c  ("AE_cm_objList_remove " + $nodeName[0] ) "cm_b_rem";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Plus.png" -label "up" -bgc 0.2 0.2 0.2 -c ("AE_cm_objList_moveUp " + $nodeName[0] ) "cm_b_up";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Minus.png" -label "down" -bgc 0.2 0.2 0.2 -c  ("AE_cm_objList_moveDown " + $nodeName[0] ) "cm_b_down";
-	//iconTextButton -style "iconAndTextHorizontal" -image1 "nudgeRight.png" -label "Refesh" -bgc 0.3 0.4 0.4 -c  ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
 	setParent ..;
 	
 	separator -height 5 -style "in";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Refresh.png" -label "Refesh list" -bgc 0.3 0.4 0.4 -c  ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
     separator -height 5 -style "in";
 
-    //setParent ..;
     
 	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
-	text -label "Input Geo";
+	text -label "Ref Geo";
 	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_driverObj";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Apply.png" -label "Set Geo" -c  ("AE_cm_reference_set " + $nodeName[0] ) "cm_b_setRef";
     
@@ -165,7 +166,7 @@ global proc AE_cm_objList_create(string $attrName)
     setParent ..;
     separator -height 5 -style "in";
 	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
-	text -label "Input Curve";
+	text -label "Ref Curve";
 	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_curveObj";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "shellModNode_Apply.png" -label "Set Curve" -c  ("AE_cm_curve_set " + $nodeName[0] ) "cm_b_setCrv";
     // Refresh list
@@ -736,7 +737,7 @@ global proc AE_cm_abLoc_set(string $attrName)
     string $nodeName[];
     tokenize($attrName, ".", $nodeName);
    
-    clonerMultiCommand -ab -cm $nodeName[0];
+    clonerMultiCommand -ab -no $nodeName[0];
     
 }
 
@@ -764,11 +765,49 @@ global proc AE_cm_bakeObjects_doBake(string $attrName)
     string $nodeName[];
     tokenize($attrName, ".", $nodeName);
     
-    warning -n "[ClonerMulti] Baking to Instances, Please wait...";
+    print "[ClonerMulti] Baking to Instances, Please wait...";
     
-    string $commStr = `getAttr ($nodeName[0]+".outputString")`;
-    eval $commStr;
-    delete $nodeName[0];
+    
+    
+    string $nodeNameParent[];
+    
+    $nodeNameParent = `listRelatives -parent $nodeName[0]`;
+    
+    if (size($nodeNameParent) != 0)
+    {
+        clonerMultiCommand -no $nodeNameParent[0] -b;
+        deleteUI AttrEdclonerMultiFormLayout;
+    }
+
     
 }
 
+global proc AE_cm_refreshUVs_create(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    separator -height 5 -style "in";
+	iconTextButton -style "iconAndTextHorizontal" -label "Refresh UVs" -bgc 0.8 0.4 0.4 -c  ("AE_cm_refreshUVs_doRefreshUVs " + $nodeName[0] ) "cm_b_refreshuv";
+    separator -height 5 -style "in";
+    
+}
+
+global proc AE_cm_refreshUVs_edit(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    iconTextButton -edit -c ("AE_cm_refreshUVs_doRefreshUVs " + $nodeName[0] ) "cm_b_refreshuv";
+}
+
+global proc AE_cm_refreshUVs_doRefreshUVs(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    print "[ClonerMulti] Refreshing UVs...";
+    
+    dgdirty $nodeName[0]; 
+    
+}

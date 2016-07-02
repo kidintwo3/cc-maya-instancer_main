@@ -26,6 +26,8 @@
 #include <maya/MFnMatrixAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnMeshData.h>
+#include <maya/MFnMatrixArrayData.h>
+#include <maya/MFnIntArrayData.h>
 #include <maya/MFnPointArrayData.h>
 #include <maya/MFnVectorArrayData.h>
 #include <maya/MFloatVectorArray.h>
@@ -79,7 +81,8 @@ public:
 
 	virtual MStatus				compute(const MPlug& plug, MDataBlock& data);
 	static  MStatus				initialize();
-	
+
+
 
 	// Id
 	static MTypeId				id;
@@ -126,10 +129,14 @@ public:
 	static MObject				aRndScaleX;
 	static MObject				aRndScaleY;
 	static MObject				aRndScaleZ;
-	static MObject				aRndUVOffsetU;
-	static MObject				aRndUVOffsetV;
 	static MObject				aSeedVal;
 	static MObject				aRandIDLev;
+
+	// UV
+	static MObject				aUVOffsetU;
+	static MObject				aUVOffsetV;
+	static MObject				aRndUVOffsetU;
+	static MObject				aRndUVOffsetV;
 
 	// Methods
 	static MObject				aReverseNormals;
@@ -138,6 +145,7 @@ public:
 	static MObject				aWorldSpace;
 	static MObject				aRevPattern;
 	static MObject				aLoopOffset;
+	static MObject				aUvUDIMLoop;
 
 	// Upvector
 	static MObject              aFirstUpVec;
@@ -145,6 +153,9 @@ public:
 	static MObject              aFirstUpVecY;
 	static MObject              aFirstUpVecZ;
 
+	// Output string for baking
+	static MObject				aOutMatrixArray;
+	static MObject				aOutIDArray;
 
 private:
 
@@ -182,6 +193,9 @@ private:
 
 	// Datahandles
 	MDataHandle					h_outputMesh;
+	MDataHandle					h_outputMatrix;
+	MDataHandle					h_outputID;
+	
 
 	// Input data arrays
 	MObjectArray				m_inMeshArray;
@@ -252,10 +266,14 @@ private:
 	short						m_scatterType;
 	int							m_id;
 
+
+	// Number of instances
 	int                         m_instanceX;
 	int                         m_instanceY;
 	int                         m_instanceZ;
 
+
+	// Transforms
 	float					    m_offsetX;
 	float                       m_offsetY;
 	float                       m_offsetZ;
@@ -266,6 +284,8 @@ private:
 	float                       m_scaleY;
 	float                       m_scaleZ;
 
+
+	// Random
 	float						m_randomOffsetX;
 	float                       m_randomOffsetY;
 	float                       m_randomOffsetZ;
@@ -275,6 +295,10 @@ private:
 	float                       m_randomScaleX;
 	float                       m_randomScaleY;
 	float                       m_randomScaleZ;
+
+	// UV
+	float						m_uvOffsetU;
+	float						m_uvOffsetV;
 	float					    m_rndUvOffsetU;
 	float						m_rndUvOffsetV;
 
@@ -301,7 +325,7 @@ private:
 	bool						m_worldSpace;
 	bool						m_revPattern;
 	bool						m_loopOffset;
-
+	bool						m_uvUDIMLoop;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;
@@ -312,6 +336,9 @@ private:
 	// Upvector
 	MVector                     m_firstUpVec;
 
+
+
+
 	MMatrix						m_refMeshMat;
 
 	// Mesh instance variables
@@ -320,6 +347,8 @@ private:
 	MVectorArray				mesh_uTA;
 	MVectorArray				mesh_vTA;
 	MVectorArray				mesh_nA;
+
+	
 
 };
 

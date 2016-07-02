@@ -7,6 +7,10 @@
 #include <maya/MFnDagNode.h>
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnIntArrayData.h>
+#include <maya/MFnMatrixArrayData.h>
+#include <maya/MFnIntArrayData.h>
+#include <maya/MMatrixArray.h>
+#include <maya/MTransformationMatrix.h>
 #include <maya/MFnMesh.h>
 #include <maya/MGlobal.h>
 #include <maya/MIntArray.h>
@@ -41,22 +45,23 @@ public:
 
 private:
 
-	MDagModifier m_DAGMod;
-	MDGModifier m_DGMod;
-	MFnDependencyNode m_DEPNode;
+	MDagModifier		m_DAGMod;
 
-	//MObject o_newMesh;
-	MDagPathArray p_currSelTrA;
-	MDagPathArray p_currSelShapeA;
-	MDagPathArray p_currSelTrA_curves;
-	MDagPathArray p_currSelShapeA_curves;
 
-	MObject o_clonerMultiNode;
 
-	MObject o_locA;
-	MObject o_locB;
+	MDagPathArray		p_currSelTrA;
+	MDagPathArray		p_currSelShapeA;
+	MDagPathArray		p_currSelTrA_curves;
+	MDagPathArray		p_currSelShapeA_curves;
 
-	MObject o_clonerOutputMesh;
+	MObject				o_clonerMultiNode;
+
+	MObject				o_locA;
+	MObject				o_locB;
+
+	MObject				o_clonerOutputMesh;
+
+	MObjectArray		o_outputObjectsA;
 
 };
 

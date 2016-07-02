@@ -14,7 +14,7 @@
 
 MString mel_AETemplate()
 {
-	MString s_aeTemplate = MString() +
+	MString s_aeTemplate = MString() + 
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"	\r\n"
@@ -107,12 +107,15 @@ MString mel_AETemplate()
 		"	// -------------------------------------------------------------\r\n"
 		"	\r\n"
 		"	editorTemplate -beginLayout \"UV Settings\" -collapse 0;\r\n"
+		"	editorTemplate -callCustom \"AE_cm_refreshUVs_create\" \"AE_cm_refreshUVs_edit\" \"\";\r\n"
+		"	editorTemplate -addSeparator;\r\n"
 		"	editorTemplate -addControl \"uvOffsetU\";\r\n"
 		"	editorTemplate -addControl \"uvOffsetV\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
 		"	editorTemplate -addControl \"randomUvOffsetU\";\r\n"
 		"	editorTemplate -addControl \"randomUvOffsetV\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
+		"	editorTemplate -addControl \"UvUdimLoop\";\r\n"
 		"	editorTemplate -endLayout;\r\n"
 		"	\r\n"
 		"	// -------------------------------------------------------------\r\n"
@@ -162,16 +165,14 @@ MString mel_AETemplate()
 		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Minus.png\" -label \"remove\" -bgc 0.6 0.2 0.3 -c  (\"AE_cm_objList_remove \" + $nodeName[0] ) \"cm_b_rem\";\r\n"
 		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Plus.png\" -label \"up\" -bgc 0.2 0.2 0.2 -c (\"AE_cm_objList_moveUp \" + $nodeName[0] ) \"cm_b_up\";\r\n"
 		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Minus.png\" -label \"down\" -bgc 0.2 0.2 0.2 -c  (\"AE_cm_objList_moveDown \" + $nodeName[0] ) \"cm_b_down\";\r\n"
-		"	//iconTextButton -style \"iconAndTextHorizontal\" -image1 \"nudgeRight.png\" -label \"Refesh\" -bgc 0.3 0.4 0.4 -c  (\"AE_cm_objList_refresh \" + $nodeName[0] ) \"cm_b_refr\";\r\n"
 		"	setParent ..;\r\n"
 		"	\r\n"
 		"	separator -height 5 -style \"in\";\r\n"
 		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Refresh.png\" -label \"Refesh list\" -bgc 0.3 0.4 0.4 -c  (\"AE_cm_objList_refresh \" + $nodeName[0] ) \"cm_b_refr\";\r\n"
 		"    separator -height 5 -style \"in\";\r\n"
-		"    //setParent ..;\r\n"
 		"    \r\n"
 		"	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;\r\n"
-		"	text -label \"Input Geo\";\r\n"
+		"	text -label \"Ref Geo\";\r\n"
 		"	textField -bgc 0.3 0.3 0.3 -ed false -tx \"none\" \"cm_t_driverObj\";\r\n"
 		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Apply.png\" -label \"Set Geo\" -c  (\"AE_cm_reference_set \" + $nodeName[0] ) \"cm_b_setRef\";\r\n"
 		"    \r\n"
@@ -179,7 +180,7 @@ MString mel_AETemplate()
 		"    setParent ..;\r\n"
 		"    separator -height 5 -style \"in\";\r\n"
 		"	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;\r\n"
-		"	text -label \"Input Curve\";\r\n"
+		"	text -label \"Ref Curve\";\r\n"
 		"	textField -bgc 0.3 0.3 0.3 -ed false -tx \"none\" \"cm_t_curveObj\";\r\n"
 		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Apply.png\" -label \"Set Curve\" -c  (\"AE_cm_curve_set \" + $nodeName[0] ) \"cm_b_setCrv\";\r\n"
 		"    // Refresh list\r\n"
@@ -560,10 +561,6 @@ MString mel_AETemplate()
 		"            {\r\n"
 		"    \r\n"
 		"    			textField -edit -bgc 0.8 0.6 0.6 -tx $selObjShape[0] \"cm_t_curveObj\";\r\n"
-		"    			setAttr ($nodeName[0] + \".offsetX\") 0;\r\n"
-		"    			setAttr ($nodeName[0] + \".offsetY\") 0;\r\n"
-		"    			setAttr ($nodeName[0] + \".offsetZ\") 0;\r\n"
-		"    			\r\n"
 		"    			connectAttr -f ( $selObjShape[0] + \".worldSpace[0]\") ( $nodeName[0] + \".inCurve\");\r\n"
 		"    		}\r\n"
 		"    		\r\n"
@@ -641,10 +638,6 @@ MString mel_AETemplate()
 		"        if($isSame == 0)\r\n"
 		"        {\r\n"
 		"            textField -edit -bgc 0.6 0.6 0.8 -tx $selObjShape[0] \"cm_t_driverObj\";\r\n"
-		"            setAttr ($nodeName[0] + \".offsetX\") 0;\r\n"
-		"            setAttr ($nodeName[0] + \".offsetY\") 0;\r\n"
-		"            setAttr ($nodeName[0] + \".offsetZ\") 0;\r\n"
-		"            \r\n"
 		"            connectAttr -f ( $selObjShape[0] + \".worldMesh[0]\") ( $nodeName[0] + \".referenceMesh\");\r\n"
 		"            \r\n"
 		"        }\r\n"
@@ -742,7 +735,7 @@ MString mel_AETemplate()
 		"    string $nodeName[];\r\n"
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
 		"   \r\n"
-		"    clonerMultiCommand -ab -cm $nodeName[0];\r\n"
+		"    clonerMultiCommand -ab -no $nodeName[0];\r\n"
 		"    \r\n"
 		"}\r\n"
 		"global proc AE_cm_bakeObjects_create(string $attrName)\r\n"
@@ -767,52 +760,50 @@ MString mel_AETemplate()
 		"    string $nodeName[];\r\n"
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
 		"    \r\n"
-		"    warning -n \"[ClonerMulti] Baking to Instances, Please wait...\";\r\n"
+		"    print \"[ClonerMulti] Baking to Instances, Please wait...\";\r\n"
 		"    \r\n"
-		"    string $commStr = `getAttr ($nodeName[0]+\".outputString\")`;\r\n"
-		"    eval $commStr;\r\n"
-		"    delete $nodeName[0];\r\n"
+		"    \r\n"
+		"    \r\n"
+		"    string $nodeNameParent[];\r\n"
+		"    \r\n"
+		"    $nodeNameParent = `listRelatives -parent $nodeName[0]`;\r\n"
+		"    \r\n"
+		"    if (size($nodeNameParent) != 0)\r\n"
+		"    {\r\n"
+		"        clonerMultiCommand -no $nodeNameParent[0] -b;\r\n"
+		"        deleteUI AttrEdclonerMultiFormLayout;\r\n"
+		"    }\r\n"
+		"    \r\n"
+		"}\r\n"
+		"global proc AE_cm_refreshUVs_create(string $attrName)\r\n"
+		"{\r\n"
+		"    string $nodeName[];\r\n"
+		"    tokenize($attrName, \".\", $nodeName);\r\n"
+		"    \r\n"
+		"    separator -height 5 -style \"in\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -label \"Refresh UVs\" -bgc 0.8 0.4 0.4 -c  (\"AE_cm_refreshUVs_doRefreshUVs \" + $nodeName[0] ) \"cm_b_refreshuv\";\r\n"
+		"    separator -height 5 -style \"in\";\r\n"
+		"    \r\n"
+		"}\r\n"
+		"global proc AE_cm_refreshUVs_edit(string $attrName)\r\n"
+		"{\r\n"
+		"    string $nodeName[];\r\n"
+		"    tokenize($attrName, \".\", $nodeName);\r\n"
+		"    iconTextButton -edit -c (\"AE_cm_refreshUVs_doRefreshUVs \" + $nodeName[0] ) \"cm_b_refreshuv\";\r\n"
+		"}\r\n"
+		"global proc AE_cm_refreshUVs_doRefreshUVs(string $attrName)\r\n"
+		"{\r\n"
+		"    \r\n"
+		"    string $nodeName[];\r\n"
+		"    tokenize($attrName, \".\", $nodeName);\r\n"
+		"    \r\n"
+		"    print \"[ClonerMulti] Refreshing UVs...\";\r\n"
+		"    \r\n"
+		"    dgdirty $nodeName[0]; \r\n"
 		"    \r\n"
 		"}\r\n";
 
 
-	return s_aeTemplate;
-
-}
-
-MString mel_createShelf()
-{
-
-	MString s_aeTemplate = MString() + "int $cc_doesShelfExist = `shelfLayout -query -ex \"CreativeCase\"`;\n" +
-		"if ($cc_doesShelfExist == 1)\n" +
-		"{\n" +
-		"    \n" +
-		"    string $shelfButtons[] = `shelfLayout -q -ca \"CreativeCase\"`;\n" +
-		"    \n" +
-		"    int $ex_b01,$ex_b02,$ex_b03 = 0;\n" +
-		"    \n" +
-		"    for( $i=0; $i<size($shelfButtons); ++$i )\n" +
-		"{\n" +
-		"    if( `control -exists $shelfButtons[$i]` == true)\n" +
-		"    {\n" +
-		"         if (`control -q -docTag $shelfButtons[$i]` == \"sm_createSmButton\") {$ex_b01 = 1;}\n" +
-		"         if (`control -q -docTag $shelfButtons[$i]` == \"sm_addSmButton\") {$ex_b02 = 1;}\n" +
-		"         if (`control -q -docTag $shelfButtons[$i]` == \"sm_createPlaneSmButton\") {$ex_b03 = 1;}\n" +
-		"    }\n" +
-		"    \n" +
-		"}\n" +
-		"if ($ex_b01 == 0) {shelfButton -p \"CreativeCase\" -dtg \"sm_createSmButton\" -annotation \"Add a ShellMod modifier to the selected objects\" -image1 \"shellModNode.png\" -command \"shellModCommand\";}\n" +
-		"if ($ex_b02 == 0) {shelfButton -p \"CreativeCase\" -dtg \"sm_addSmButton\" -annotation \"Add the objects to the first selected ShellMod node\" -image1 \"shellModNode_Add.png\" -command \"shellModCommand -a\";}\n" +
-		"if ($ex_b03 == 0) {shelfButton -p \"CreativeCase\" -dtg \"sm_createPlaneSmButton\" -annotation \"Creates a polygon plane with a ShellMod\" -image1 \"shellModNode_Plane.png\" -command \"polyPlane -sx 1 -sy 1 -w 5 -h 5;shellModCommand;move -y 1\";}\n" +
-		"    \n" +
-		"}\n" +
-		"if ($cc_doesShelfExist == false)\n" +
-		"{\n" +
-		"    shelfLayout -cellWidth 33 -cellHeight 33 -p $gShelfTopLevel CreativeCase;\n" +
-		"    shelfButton -p \"CreativeCase\" -dtg \"sm_createSmButton\" -annotation \"Add a ShellMod modifier to the selected objects\" -image1 \"shellModNode.png\" -command \"shellModCommand\";\n" +
-		"    shelfButton -p \"CreativeCase\" -dtg \"sm_addSmButton\" -annotation \"Add the objects to the first selected ShellMod node\" -image1 \"shellModNode_Add.png\" -command \"shellModCommand -a\";\n" +
-		"    shelfButton -p \"CreativeCase\" -dtg \"sm_createPlaneSmButton\" -annotation \"Creates a polygon plane with a ShellMod\" -image1 \"shellModNode_Plane.png\" -command \"polyPlane -sx 1 -sy 1 -w 5 -h 5;shellModCommand;move -y 1\";\n" +
-		"};\n";
 
 	return s_aeTemplate;
 }

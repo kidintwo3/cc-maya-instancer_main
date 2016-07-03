@@ -71,6 +71,7 @@ MObject     ClonerMultiThread::aMergeInputMeshes;
 MObject		ClonerMultiThread::aWorldSpace;
 MObject		ClonerMultiThread::aLoopOffset;
 MObject		ClonerMultiThread::aUvUDIMLoop;
+MObject		ClonerMultiThread::aOutputMeshDisplayOverride;
 
 MObject     ClonerMultiThread::aFirstUpVec;
 MObject     ClonerMultiThread::aFirstUpVecX;
@@ -906,6 +907,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_uvUDIMLoop = data.inputValue(aUvUDIMLoop, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+	m_outputMeshDisplayOverride = data.inputValue(aOutputMeshDisplayOverride, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
 	// Override instace count if instance type is set to Circle
 	if (m_instanceType == 1) { m_instanceZ = 1;}
 	if (m_instanceType == 5) { m_instanceZ = 1;}
@@ -1009,6 +1013,41 @@ MStatus ClonerMultiThread::checkInputPlugs()
 
 
 
+MStatus ClonerMultiThread::displayOverride()
+{
+
+	MStatus status;
+
+	if (p_outMesh.isConnected())
+	{
+		// -----------------------------------------------
+		// Collect output plug mesh's name
+		//status = p_outMesh.selectAncestorLogicalIndex(0);
+		//CHECK_MSTATUS_AND_RETURN_IT(status);
+		MPlugArray outputs_plugArr;
+		p_outMesh.connectedTo(outputs_plugArr, false, true, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		if (outputs_plugArr.length() > 0)
+		{
+			MPlug outMeshPlug_shape = outputs_plugArr[0];
+			MFnDependencyNode outMesh_dn(outMeshPlug_shape.node());
+
+
+			MPlug p_out_overrideEnabled = outMesh_dn.findPlug("overrideEnabled", false, &status);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+			p_out_overrideEnabled.setBool(m_outputMeshDisplayOverride);
+
+			MPlug p_out_overrideDisplayType = outMesh_dn.findPlug("overrideDisplayType", false, &status);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+			p_out_overrideDisplayType.setInt(2);
+		}
+
+	}
+
+
+	return MS::kSuccess;
+}
 
 
 
@@ -1196,6 +1235,9 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 	// Send ID array to output datablock
 	status = h_outputID.set(ex_idData);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+	displayOverride();
 
 
 	return MS::kSuccess;
@@ -1643,9 +1685,19 @@ MStatus ClonerMultiThread::initialize()
 	addAttribute(ClonerMultiThread::aUvUDIMLoop);
 
 
+	ClonerMultiThread::aOutputMeshDisplayOverride = nAttr.create("outputMeshDisplayOverride", "outputMeshDisplayOverride", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setDefault(false);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aOutputMeshDisplayOverride);
+
+
 
 	// Attribute affects
 	// Output mesh
+
+
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutMesh);
@@ -1699,6 +1751,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aWorldSpace, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aLoopOffset, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aUvUDIMLoop, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aOutputMeshDisplayOverride, ClonerMultiThread::aOutMesh);
 
 
 	// Output Matrix array

@@ -14,6 +14,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addControl "id";
 	editorTemplate -addSeparator;
 	editorTemplate -addControl "reversePattern";
+	editorTemplate -label "Lock Output Mesh" -addControl "outputMeshDisplayOverride";
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Random Pattern Settings" -collapse 1;	

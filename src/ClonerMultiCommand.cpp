@@ -420,6 +420,11 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 					status = p_instancetype.setShort(3);
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 
+					fnDepClonerNodeShape.findPlug("offsetX").setFloat(0.0);
+					fnDepClonerNodeShape.findPlug("offsetY").setFloat(0.0);
+					fnDepClonerNodeShape.findPlug("offsetZ").setFloat(0.0);
+
+
 				}
 
 

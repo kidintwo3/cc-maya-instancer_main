@@ -146,6 +146,7 @@ public:
 	static MObject				aRevPattern;
 	static MObject				aLoopOffset;
 	static MObject				aUvUDIMLoop;
+	static MObject				aOutputMeshDisplayOverride;
 
 	// Upvector
 	static MObject              aFirstUpVec;
@@ -181,6 +182,7 @@ private:
 	MStatus						duplicateUVs(MIntArray& idA);
 
 	MStatus						smoothNormals(MFnMesh &meshFn);
+	MStatus						displayOverride();
 
 	// Instance types
 	MStatus						instanceGrid();
@@ -326,6 +328,7 @@ private:
 	bool						m_revPattern;
 	bool						m_loopOffset;
 	bool						m_uvUDIMLoop;
+	bool						m_outputMeshDisplayOverride;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;

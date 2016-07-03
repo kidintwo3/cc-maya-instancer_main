@@ -14,7 +14,7 @@
 
 MString mel_AETemplate()
 {
-	MString s_aeTemplate = MString() + 
+	MString s_aeTemplate = MString() + "//deleteUI AttrEdclonerMultiFormLayout;\r\n"
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"	\r\n"
@@ -30,6 +30,7 @@ MString mel_AETemplate()
 		"	editorTemplate -addControl \"id\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
 		"	editorTemplate -addControl \"reversePattern\";\r\n"
+		"	editorTemplate -label \"Lock Output Mesh\" -addControl \"outputMeshDisplayOverride\";\r\n"
 		"	editorTemplate -endLayout;\r\n"
 		"	\r\n"
 		"	editorTemplate -beginLayout \"Random Pattern Settings\" -collapse 1;	\r\n"
@@ -802,6 +803,7 @@ MString mel_AETemplate()
 		"    dgdirty $nodeName[0]; \r\n"
 		"    \r\n"
 		"}\r\n";
+
 
 
 

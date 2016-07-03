@@ -2,7 +2,7 @@
 #include "ClonerMultiCommand.h"
 #include "ClonerMultiLoc.h"
 #include "AETemplate.h"
-
+#include "icons.h"
 
 #include <maya/MFnPlugin.h>
 
@@ -13,7 +13,9 @@ MStatus initializePlugin( MObject obj )
 {
 	MStatus status;
 
-	MFnPlugin fnPlugin( obj, "Janos Hunyadi", "1.0", "Any" );
+	icons_data_write();
+
+	MFnPlugin fnPlugin( obj, "Creative Case", "1.0", "Any" );
 
 	MGlobal::executeCommand( mel_AETemplate() );
 	MGlobal::executeCommand( mel_createShelf() );

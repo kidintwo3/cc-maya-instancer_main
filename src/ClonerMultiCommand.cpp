@@ -722,7 +722,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 		else
 		{
-			MGlobal::displayError(MString() + "[Shellmod] No/wrong ClonerMulti name set for command (use the -cm flag to set)");
+			MGlobal::displayError(MString() + "[ClonerMulti] No/wrong ClonerMulti name set for command (use the -cm flag to set)");
 			return MStatus::kFailure;
 		}
 
@@ -810,7 +810,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 	//	if (argData.isFlagSet( "-cm" ))
 	//	{
-	//		MGlobal::displayError(MString() + "[Shellmod] No ClonerMulti name set for command (use the -cm flag to set)");
+	//		MGlobal::displayError(MString() + "[ClonerMulti] No ClonerMulti name set for command (use the -cm flag to set)");
 	//		argData.getFlagArgument("-cm", 0, s_clonerMultiNodeName);
 	//		//return MStatus::kFailure;
 

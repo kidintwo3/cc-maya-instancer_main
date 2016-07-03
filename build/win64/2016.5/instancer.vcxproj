@@ -41,6 +41,7 @@
     <ClInclude Include="..\..\..\src\CloneSphere.h" />
     <ClInclude Include="..\..\..\src\CloneSpline.h" />
     <ClInclude Include="..\..\..\src\DagUtils.h" />
+    <ClInclude Include="..\..\..\src\icons.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <Keyword>Win32Proj</Keyword>

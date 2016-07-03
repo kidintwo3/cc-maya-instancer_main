@@ -119,6 +119,11 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	
 	// -------------------------------------------------------------
 	
+	editorTemplate -beginLayout "Plug-in Info" -collapse 1;
+	editorTemplate -callCustom "AE_cm_website_create" "AE_cm_website_edit" "";
+	editorTemplate -endLayout;
+	// -------------------------------------------------------------
+	
 	editorTemplate -suppress "inMesh";
 	editorTemplate -suppress "inCurve";
 	editorTemplate -suppress "referenceMesh";
@@ -811,4 +816,28 @@ global proc AE_cm_refreshUVs_doRefreshUVs(string $attrName)
     
     dgdirty $nodeName[0]; 
     
+}
+
+
+// ----------------------------
+
+global proc AE_cm_launch_website()
+{
+    launch -web "http://gumroad.com/creativecase";
+}
+
+
+global proc AE_cm_website_create(string $attrName)
+{
+	string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    iconTextButton -label "Creative Case website" -style "iconAndTextHorizontal" -image1 "clonerMulti_CCLogo.png" -c "AE_cm_launch_website()";
+
+    setParent ..;
+}
+
+global proc AE_cm_website_edit(string $attrName)
+{
+
 }

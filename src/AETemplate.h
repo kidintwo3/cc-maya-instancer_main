@@ -1,6 +1,6 @@
 //
 //  AETemplates.h
-//  shellMod
+//  clonerMulti
 //
 //  Created by Hunyadi János on 2015. 01. 03..
 //  Copyright (c) 2015. Janos Hunyadi. All rights reserved.
@@ -14,7 +14,7 @@
 
 MString mel_AETemplate()
 {
-	MString s_aeTemplate = MString() + "//deleteUI AttrEdclonerMultiFormLayout;\r\n"
+	MString s_aeTemplate = MString() +"//deleteUI AttrEdclonerMultiFormLayout;\r\n"
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"	\r\n"
@@ -133,6 +133,11 @@ MString mel_AETemplate()
 		"    editorTemplate -addControl \"reverseNormals\";\r\n"
 		"	editorTemplate -endLayout;\r\n"
 		"	\r\n"
+		"	// -------------------------------------------------------------\r\n"
+		"	\r\n"
+		"	editorTemplate -beginLayout \"Plug-in Info\" -collapse 1;\r\n"
+		"	editorTemplate -callCustom \"AE_cm_website_create\" \"AE_cm_website_edit\" \"\";\r\n"
+		"	editorTemplate -endLayout;\r\n"
 		"	// -------------------------------------------------------------\r\n"
 		"	\r\n"
 		"	editorTemplate -suppress \"inMesh\";\r\n"
@@ -802,6 +807,22 @@ MString mel_AETemplate()
 		"    \r\n"
 		"    dgdirty $nodeName[0]; \r\n"
 		"    \r\n"
+		"}\r\n"
+		"// ----------------------------\r\n"
+		"global proc AE_cm_launch_website()\r\n"
+		"{\r\n"
+		"    launch -web \"http://gumroad.com/creativecase\";\r\n"
+		"}\r\n"
+		"global proc AE_cm_website_create(string $attrName)\r\n"
+		"{\r\n"
+		"	string $nodeName[];\r\n"
+		"    tokenize($attrName, \".\", $nodeName);\r\n"
+		"    \r\n"
+		"    iconTextButton -label \"Creative Case website\" -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_CCLogo.png\" -c \"AE_cm_launch_website()\";\r\n"
+		"    setParent ..;\r\n"
+		"}\r\n"
+		"global proc AE_cm_website_edit(string $attrName)\r\n"
+		"{\r\n"
 		"}\r\n";
 
 

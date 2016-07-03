@@ -149,7 +149,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 	{
 
 		// Create clonerMulti node
-		o_clonerMultiNode = m_DAGMod.createNode(MTypeId(0x80709));
+		o_clonerMultiNode = m_DAGMod.createNode(MTypeId(0x00123946));
 		MFnDependencyNode fnDepCloner( o_clonerMultiNode );
 		fnDepCloner.setName( clonerMulti_node_name  );
 
@@ -345,12 +345,12 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				{
 
 					// Create clonerMulti locator A
-					o_locA = m_DAGMod.createNode("clonerMultiLoc");
+					o_locA = m_DAGMod.createNode(MTypeId(0x00123947));
 					MFnDependencyNode fnDepLocA( o_locA );
 					fnDepLocA.setName( clonerMulti_locA_name );
 
 					// Create clonerMulti locator B
-					o_locB = m_DAGMod.createNode("clonerMultiLoc");
+					o_locB = m_DAGMod.createNode(MTypeId(0x00123947));
 					MFnDependencyNode fnDepLocB( o_locB );
 					fnDepLocB.setName( clonerMulti_locB_name );
 

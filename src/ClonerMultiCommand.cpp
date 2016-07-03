@@ -23,12 +23,12 @@ MSyntax ClonerMultiCommand::newSyntax()
 
 	syntax.addFlag( "-na", "-name", MSyntax::kString);
 
-	syntax.addFlag( "-g", "-grid");
-	syntax.addFlag( "-c", "-circle");
+	//syntax.addFlag( "-g", "-grid");
+	//syntax.addFlag( "-c", "-circle");
 	syntax.addFlag( "-ab", "-atob");
-	syntax.addFlag( "-s", "-sphere");
-	syntax.addFlag( "-c", "-curve");
-	syntax.addFlag( "-m", "-mesh");
+	//syntax.addFlag( "-s", "-sphere");
+	//syntax.addFlag( "-c", "-curve");
+	//syntax.addFlag( "-m", "-mesh");
 	syntax.addFlag( "-b", "-bake");
 
 	syntax.addFlag( "-no", "-node", MSyntax::kString  );
@@ -500,12 +500,30 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				MObject outMeshAttr = fnDepClonerNodeShape.attribute( "outMesh", &status );
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
+				// Get it's locator A plug
+				MObject inLocator_A_Attr = fnDepClonerNodeShape.attribute( "locatorAPos", &status );
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				// Get it's locator B plug
+				MObject inLocator_B_Attr = fnDepClonerNodeShape.attribute( "locatorBPos", &status );
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
 
 				// Getting mPlug by plugging in our MObject and attribute
 				MPlug matrixPlug = MPlug( fnDepClonerNodeShape.object(), worldMatrixAttr );
 				MPlug idPlug = MPlug( fnDepClonerNodeShape.object(), idArrayAttr );
 				MPlug inMeshPlug = MPlug( fnDepClonerNodeShape.object(), inMeshAttr );
 				MPlug outMeshPlug = MPlug( fnDepClonerNodeShape.object(), outMeshAttr );
+				MPlug inLocator_A_plug = MPlug( fnDepClonerNodeShape.object(), inLocator_A_Attr );
+				MPlug inLocator_B_plug = MPlug( fnDepClonerNodeShape.object(), inLocator_B_Attr );
+
+				//o_locA = inLocator_A_plug.asMObject();
+				//o_locB = inLocator_B_plug.asMObject();
+
+				//MFnDependencyNode fnDepLocA( o_locA );
+				//MFnDependencyNode fnDepLocB( o_locB );
 
 				MObject matrixObject = matrixPlug.asMObject();
 				MObject idObject = idPlug.asMObject();
@@ -576,6 +594,12 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 									MObject outputObj = inMesh_dn.duplicate(false, false, &status);
 									CHECK_MSTATUS_AND_RETURN_IT(status);
 
+									
+
+									MFnDependencyNode fnDepLocB( outputObj );
+									fnDepLocB.setName( MString() + inMesh_dn.name() + "_clone_#" );
+
+
 									// Set transforms of output mesh
 									MFnTransform fn_transform(outputObj);
 									MTransformationMatrix trMAt(out_matrixArray[i] * out_tr_mat);
@@ -628,6 +652,56 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 
+					if (inLocator_A_plug.isConnected())
+					{
+
+						
+
+						// Find input locator
+						MPlugArray destPlugs;
+						inLocator_A_plug.connectedTo(destPlugs, true, false);
+
+
+						MGlobal::displayInfo(MString() + destPlugs.length());
+
+						MPlug destPlug = destPlugs[0];
+						MFnDagNode depN(destPlug.node());
+
+						MObject parent_tr = depN.parent(0, &status);
+						CHECK_MSTATUS_AND_RETURN_IT(status);
+						MFnDagNode parent_depN(parent_tr);
+
+						if (!parent_depN.object().isNull())
+						{
+							// Delete A locator
+							status = m_DAGMod.deleteNode(parent_depN.object());
+							CHECK_MSTATUS_AND_RETURN_IT(status);
+						}
+
+
+					}
+
+					if (inLocator_B_plug.isConnected())
+					{
+						// Find input locator
+						MPlugArray destPlugs;
+						inLocator_B_plug.connectedTo(destPlugs, true, false);
+
+						MPlug destPlug = destPlugs[0];
+						MFnDagNode depN(destPlug.node());
+
+						MObject parent_tr = depN.parent(0, &status);
+						CHECK_MSTATUS_AND_RETURN_IT(status);
+						MFnDagNode parent_depN(parent_tr);
+
+						if (!parent_depN.object().isNull())
+						{
+							// Delete A locator
+							status = m_DAGMod.deleteNode(parent_depN.object());
+							CHECK_MSTATUS_AND_RETURN_IT(status);
+						}
+
+					}
 
 
 					// Delete output mesh

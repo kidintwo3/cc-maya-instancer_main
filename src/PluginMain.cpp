@@ -16,6 +16,7 @@ MStatus initializePlugin( MObject obj )
 	MFnPlugin fnPlugin( obj, "Janos Hunyadi", "1.0", "Any" );
 
 	MGlobal::executeCommand( mel_AETemplate() );
+	MGlobal::executeCommand( mel_createShelf() );
 
 	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiCommand::creator, ClonerMultiCommand::newSyntax );
 	CHECK_MSTATUS_AND_RETURN_IT( status );
@@ -46,6 +47,9 @@ MStatus uninitializePlugin( MObject obj )
 
 
 	status = fnPlugin.deregisterNode(ClonerMultiThread::id);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	status = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator( ClonerMultiLoc::drawDbClassification, ClonerMultiLoc::drawRegistrantId);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	status = fnPlugin.deregisterNode( ClonerMultiLoc::id );

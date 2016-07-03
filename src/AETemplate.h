@@ -162,20 +162,20 @@ MString mel_AETemplate()
 		"    separator -height 10 -style \"in\";\r\n"
 		"    \r\n"
 		"    gridLayout -cwh 100 18 -numberOfColumns 4 -bgc 0.2 0.2 0.2;\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Plus.png\" -label \"add\" -bgc 0.4 0.4 0.4 -c  (\"AE_cm_objList_add \" + $nodeName[0] ) \"cm_b_add\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Minus.png\" -label \"remove\" -bgc 0.6 0.2 0.3 -c  (\"AE_cm_objList_remove \" + $nodeName[0] ) \"cm_b_rem\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Plus.png\" -label \"up\" -bgc 0.2 0.2 0.2 -c (\"AE_cm_objList_moveUp \" + $nodeName[0] ) \"cm_b_up\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Minus.png\" -label \"down\" -bgc 0.2 0.2 0.2 -c  (\"AE_cm_objList_moveDown \" + $nodeName[0] ) \"cm_b_down\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Plus.png\" -label \"add\" -bgc 0.4 0.4 0.4 -c  (\"AE_cm_objList_add \" + $nodeName[0] ) \"cm_b_add\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Minus.png\" -label \"remove\" -bgc 0.6 0.2 0.3 -c  (\"AE_cm_objList_remove \" + $nodeName[0] ) \"cm_b_rem\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Plus.png\" -label \"up\" -bgc 0.2 0.2 0.2 -c (\"AE_cm_objList_moveUp \" + $nodeName[0] ) \"cm_b_up\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Minus.png\" -label \"down\" -bgc 0.2 0.2 0.2 -c  (\"AE_cm_objList_moveDown \" + $nodeName[0] ) \"cm_b_down\";\r\n"
 		"	setParent ..;\r\n"
 		"	\r\n"
 		"	separator -height 5 -style \"in\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Refresh.png\" -label \"Refesh list\" -bgc 0.3 0.4 0.4 -c  (\"AE_cm_objList_refresh \" + $nodeName[0] ) \"cm_b_refr\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Refresh.png\" -label \"Refesh list\" -bgc 0.3 0.4 0.4 -c  (\"AE_cm_objList_refresh \" + $nodeName[0] ) \"cm_b_refr\";\r\n"
 		"    separator -height 5 -style \"in\";\r\n"
 		"    \r\n"
 		"	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;\r\n"
 		"	text -label \"Ref Geo\";\r\n"
 		"	textField -bgc 0.3 0.3 0.3 -ed false -tx \"none\" \"cm_t_driverObj\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Apply.png\" -label \"Set Geo\" -c  (\"AE_cm_reference_set \" + $nodeName[0] ) \"cm_b_setRef\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Apply.png\" -label \"Set Geo\" -c  (\"AE_cm_reference_set \" + $nodeName[0] ) \"cm_b_setRef\";\r\n"
 		"    \r\n"
 		"    \r\n"
 		"    setParent ..;\r\n"
@@ -183,7 +183,7 @@ MString mel_AETemplate()
 		"	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;\r\n"
 		"	text -label \"Ref Curve\";\r\n"
 		"	textField -bgc 0.3 0.3 0.3 -ed false -tx \"none\" \"cm_t_curveObj\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Apply.png\" -label \"Set Curve\" -c  (\"AE_cm_curve_set \" + $nodeName[0] ) \"cm_b_setCrv\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Apply.png\" -label \"Set Curve\" -c  (\"AE_cm_curve_set \" + $nodeName[0] ) \"cm_b_setCrv\";\r\n"
 		"    // Refresh list\r\n"
 		"    \r\n"
 		"    \r\n"
@@ -719,7 +719,7 @@ MString mel_AETemplate()
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
 		"    \r\n"
 		"    separator -height 5 -style \"in\";\r\n"
-		"    iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Apply.png\" -label \"Create A-B loc\" -c  (\"AE_cm_abLoc_set \" + $nodeName[0] ) \"cm_b_createABLoc\";\r\n"
+		"    iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Apply.png\" -label \"Create A-B loc\"  -bgc 0.3 0.4 0.4 -c  (\"AE_cm_abLoc_set \" + $nodeName[0] ) \"cm_b_createABLoc\";\r\n"
 		"    separator -height 5 -style \"in\";\r\n"
 		"    \r\n"
 		"}\r\n"
@@ -745,7 +745,7 @@ MString mel_AETemplate()
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
 		"    \r\n"
 		"    separator -height 5 -style \"in\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"shellModNode_Trash.png\" -label \"Bake objects to Instances\" -bgc 0.6 0.2 0.3 -c  (\"AE_cm_bakeObjects_doBake \" + $nodeName[0] ) \"cm_b_bake\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Trash.png\" -label \"Bake objects to Instances\" -bgc 0.6 0.2 0.3 -c  (\"AE_cm_bakeObjects_doBake \" + $nodeName[0] ) \"cm_b_bake\";\r\n"
 		"    separator -height 5 -style \"in\";\r\n"
 		"    \r\n"
 		"}\r\n"
@@ -782,7 +782,7 @@ MString mel_AETemplate()
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
 		"    \r\n"
 		"    separator -height 5 -style \"in\";\r\n"
-		"	iconTextButton -style \"iconAndTextHorizontal\" -label \"Refresh UVs\" -bgc 0.8 0.4 0.4 -c  (\"AE_cm_refreshUVs_doRefreshUVs \" + $nodeName[0] ) \"cm_b_refreshuv\";\r\n"
+		"	iconTextButton -style \"iconAndTextHorizontal\"  -image1 \"clonerMulti_Refresh.png\"  -label \"Refresh UVs\" -bgc 0.8 0.4 0.4 -c  (\"AE_cm_refreshUVs_doRefreshUVs \" + $nodeName[0] ) \"cm_b_refreshuv\";\r\n"
 		"    separator -height 5 -style \"in\";\r\n"
 		"    \r\n"
 		"}\r\n"
@@ -790,7 +790,7 @@ MString mel_AETemplate()
 		"{\r\n"
 		"    string $nodeName[];\r\n"
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
-		"    iconTextButton -edit -c (\"AE_cm_refreshUVs_doRefreshUVs \" + $nodeName[0] ) \"cm_b_refreshuv\";\r\n"
+		"    iconTextButton -edit -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Refresh.png\" -c (\"AE_cm_refreshUVs_doRefreshUVs \" + $nodeName[0] ) \"cm_b_refreshuv\";\r\n"
 		"}\r\n"
 		"global proc AE_cm_refreshUVs_doRefreshUVs(string $attrName)\r\n"
 		"{\r\n"
@@ -798,7 +798,7 @@ MString mel_AETemplate()
 		"    string $nodeName[];\r\n"
 		"    tokenize($attrName, \".\", $nodeName);\r\n"
 		"    \r\n"
-		"    print \"[ClonerMulti] Refreshing UVs...\";\r\n"
+		"    print \"[ClonerMulti] Refreshing UVs...\\n\";\r\n"
 		"    \r\n"
 		"    dgdirty $nodeName[0]; \r\n"
 		"    \r\n"
@@ -806,22 +806,36 @@ MString mel_AETemplate()
 
 
 
-
 	return s_aeTemplate;
 }
 
-MString mel_deleteShelf()
+MString mel_createShelf()
 {
 
 	MString s_shelf = 
-		"int $cc_doesShelfExist;\
-		$cc_doesShelfExist = `shelfLayout -query -ex \"CreativeCase\"`;\
-		\
-		if ($cc_doesShelfExist == true)\
-		{\
-		deleteUI CreativeCase;\
-		}\
-		";
+		"int $cc_doesShelfExist = `shelfLayout -query -ex \"CreativeCase\"`;\r\n"
+		"if ($cc_doesShelfExist == 1)\r\n"
+		"{\r\n"
+		"	string $shelfButtons[] = `shelfLayout -q -ca \"CreativeCase\"`;\r\n"
+		"	int $ex_b01,$ex_b02 = 0;\r\n"
+		"	for( $i=0; $i<size($shelfButtons); ++$i )\r\n"
+		"	{\r\n"
+		"		if( `control -exists $shelfButtons[$i]` == true)\r\n"
+		"		{\r\n"
+		"			if (`control -q -docTag $shelfButtons[$i]` == \"cm_createCmButton\") {$ex_b01 = 1;}\r\n"
+		"		}\r\n"
+		"	}\r\n"
+		"	if ($ex_b01 == 0) {shelfButton -p \"CreativeCase\" -dtg \"cm_createCmButton\" -annotation \"Apply a ClonerMulti modifier on the selected objects and/or curves\" -image1 \"clonerMulti.png\" -command \"clonerMultiCommand\";}\r\n"
+		"}\r\n"
+		"	\r\n"
+		"if ($cc_doesShelfExist == false)\r\n"
+		"{\r\n"
+		"		shelfLayout -cellWidth 33 -cellHeight 33 -p $gShelfTopLevel CreativeCase;\r\n"
+		"		shelfButton -p \"CreativeCase\" -dtg \"cm_createCmButton\" -annotation \"Apply a ClonerMulti modifier on the selected objects and/or curves\" -image1 \"clonerMulti.png\" -command \"clonerMultiCommand\";\r\n"
+		"}\r\n";
+
+
+
 
 	return s_shelf;
 }

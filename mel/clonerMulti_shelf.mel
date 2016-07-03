@@ -1,0 +1,24 @@
+int $cc_doesShelfExist = `shelfLayout -query -ex "CreativeCase"`;
+
+if ($cc_doesShelfExist == 1)
+{
+	string $shelfButtons[] = `shelfLayout -q -ca "CreativeCase"`;
+	int $ex_b01,$ex_b02 = 0;
+
+	for( $i=0; $i<size($shelfButtons); ++$i )
+	{
+		if( `control -exists $shelfButtons[$i]` == true)
+		{
+			if (`control -q -docTag $shelfButtons[$i]` == "cm_createCmButton") {$ex_b01 = 1;}
+		}
+	}
+
+	if ($ex_b01 == 0) {shelfButton -p "CreativeCase" -dtg "cm_createCmButton" -annotation "Apply a ClonerMulti modifier on the selected objects and/or curves" -image1 "clonerMulti.png" -command "clonerMultiCommand";}
+}
+
+	
+if ($cc_doesShelfExist == false)
+{
+		shelfLayout -cellWidth 33 -cellHeight 33 -p $gShelfTopLevel CreativeCase;
+		shelfButton -p "CreativeCase" -dtg "cm_createCmButton" -annotation "Apply a ClonerMulti modifier on the selected objects and/or curves" -image1 "clonerMulti.png" -command "clonerMultiCommand";
+}

@@ -102,7 +102,6 @@ void ClonerMultiThread::postConstructor()
 
 	nodeFn.setName("clonerMultiShape#");
 
-	this->setExistWithoutInConnections(true);
 }
 
 

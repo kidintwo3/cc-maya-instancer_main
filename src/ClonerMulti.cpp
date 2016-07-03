@@ -8,7 +8,7 @@
 
 #include "ClonerMulti.h"
 
-MTypeId     ClonerMultiThread::id( 0x80709 );
+MTypeId     ClonerMultiThread::id( 0x00123946 );
 
 MObject     ClonerMultiThread::aOutMesh;
 MObject		ClonerMultiThread::aOutMatrixArray;

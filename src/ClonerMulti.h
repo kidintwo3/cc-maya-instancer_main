@@ -59,6 +59,14 @@
 
 #include <maya/MDagModifier.h>
 
+// Viewport 2.0 includes
+#include <maya/MDrawRegistry.h>
+#include <maya/MPxDrawOverride.h>
+#include <maya/MUserData.h>
+#include <maya/MDrawContext.h>
+#include <maya/MHWGeometryUtilities.h>
+
+
 #include <vector>
 #include <iostream>
 
@@ -83,7 +91,9 @@ public:
 	virtual MStatus				compute(const MPlug& plug, MDataBlock& data);
 	static  MStatus				initialize();
 
-
+	// Vp 2.0 stuff
+	static	MString				drawDbClassification;
+	static	MString				drawRegistrantId;
 
 	// Id
 	static MTypeId				id;
@@ -95,6 +105,9 @@ public:
 	static MObject              aRefMesh;
 	static MObject				aInLocAPos;
 	static MObject				aInLocBPos;
+
+	// Display
+	static MObject				aLimitDisplay;
 
 	// Types
 	static MObject				aInstanceType;
@@ -148,6 +161,7 @@ public:
 	static MObject				aLoopOffset;
 	static MObject				aUvUDIMLoop;
 	static MObject				aOutputMeshDisplayOverride;
+	static MObject				aDisplayProxy;
 
 	// Upvector
 	static MObject              aFirstUpVec;
@@ -174,6 +188,8 @@ private:
 
 	MStatus						mergeInputMeshes();
 	MStatus						duplicateInputMeshes(MIntArray& idA);
+
+	MStatus						generateBBMeshes(MIntArray& idA);
 
 	MStatus						overrideInstanceOnMeshSettings();
 
@@ -269,6 +285,8 @@ private:
 	short						m_scatterType;
 	int							m_id;
 
+	// Display
+	int							m_polyLimit;
 
 	// Number of instances
 	int                         m_instanceX;
@@ -330,6 +348,7 @@ private:
 	bool						m_loopOffset;
 	bool						m_uvUDIMLoop;
 	bool						m_outputMeshDisplayOverride;
+	bool						m_displayProxy;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;
@@ -355,6 +374,66 @@ private:
 	
 
 };
+
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+// Viewport 2.0 override implementation
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
+
+// data for override
+
+class ClonerMultiThreadData : public MUserData
+{
+public:
+	ClonerMultiThreadData() : MUserData(false) {} // don't delete after draw
+	virtual ~ClonerMultiThreadData() {}
+
+
+	MMatrix					m_inLoc_mat;
+
+	MColor					m_locColor;
+	MPoint					m_controllerPos;
+
+	bool					m_displayProxy;
+
+	MPointArray				m_dispPointA;
+
+};
+
+
+// override
+
+class ClonerMultiThreadOverride : public MHWRender::MPxDrawOverride
+{
+public:
+	static MHWRender::MPxDrawOverride* Creator(const MObject& obj)
+	{
+		return new ClonerMultiThreadOverride(obj);
+	}
+
+	virtual ~ClonerMultiThreadOverride();
+	virtual MHWRender::DrawAPI supportedDrawAPIs() const;
+
+	virtual bool isBounded( const MDagPath& objPath, const MDagPath& cameraPath) const;
+	virtual MBoundingBox boundingBox( const MDagPath& objPath, const MDagPath& cameraPath) const;
+
+	virtual MUserData* prepareForDraw( const MDagPath& objPath, const MDagPath& cameraPath, const MHWRender::MFrameContext& frameContext, MUserData* oldData);
+
+	virtual bool hasUIDrawables() const { return true; }
+	virtual void addUIDrawables( const MDagPath& objPath, MHWRender::MUIDrawManager& drawManager, const MHWRender::MFrameContext& frameContext, const MUserData* data);
+
+	static void draw(const MHWRender::MDrawContext& context, const MUserData* data) {};
+
+private:
+	ClonerMultiThreadOverride(const MObject& obj);
+
+	MPointArray getInstancePoints(const MDagPath& objPath) const;
+
+};
+
 
 
 

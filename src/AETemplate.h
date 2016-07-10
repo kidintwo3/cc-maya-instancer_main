@@ -14,7 +14,7 @@
 
 MString mel_AETemplate()
 {
-	MString s_aeTemplate = MString() +"//deleteUI AttrEdclonerMultiFormLayout;\r\n"
+	MString s_aeTemplate = MString() + "//deleteUI AttrEdclonerMultiFormLayout;\r\n"
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"	\r\n"
@@ -31,6 +31,7 @@ MString mel_AETemplate()
 		"	editorTemplate -addSeparator;\r\n"
 		"	editorTemplate -addControl \"reversePattern\";\r\n"
 		"	editorTemplate -label \"Lock Output Mesh\" -addControl \"outputMeshDisplayOverride\";\r\n"
+		"	editorTemplate -label \"Proxy Display\" -addControl \"displayProxy\";\r\n"
 		"	editorTemplate -endLayout;\r\n"
 		"	\r\n"
 		"	editorTemplate -beginLayout \"Random Pattern Settings\" -collapse 1;	\r\n"
@@ -275,6 +276,10 @@ MString mel_AETemplate()
 		"    {\r\n"
 		"	    textField -edit -bgc 0.3 0.3 0.3 -tx \"none\" \"cm_t_curveObj\";\r\n"
 		"	}\r\n"
+		"	\r\n"
+		"	// Refresh references\r\n"
+		"	iconTextButton -edit -c (\"AE_cm_reference_set \" + $nodeName[0] ) \"cm_b_setRef\";\r\n"
+		"	iconTextButton -edit -c (\"AE_cm_curve_set \" + $nodeName[0] ) \"cm_b_setCrv\";\r\n"
 		"	\r\n"
 		"	scriptJob -rp -kws -p \"AttrEdclonerMultiFormLayout\" -connectionChange ($nodeName[0]+\".inMesh\") (\"AE_cm_objList_refresh \" + $nodeName[0] );\r\n"
 		"	\r\n"

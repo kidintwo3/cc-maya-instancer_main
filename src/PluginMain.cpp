@@ -23,7 +23,10 @@ MStatus initializePlugin( MObject obj )
 	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiCommand::creator, ClonerMultiCommand::newSyntax );
 	CHECK_MSTATUS_AND_RETURN_IT( status );
 
-	status = fnPlugin.registerNode("clonerMulti",ClonerMultiThread::id, ClonerMultiThread::creator, ClonerMultiThread::initialize, MPxNode::kLocatorNode);
+	status = fnPlugin.registerNode("clonerMulti",ClonerMultiThread::id, ClonerMultiThread::creator, ClonerMultiThread::initialize, MPxNode::kLocatorNode, &ClonerMultiThread::drawDbClassification);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	status = MHWRender::MDrawRegistry::registerDrawOverrideCreator( ClonerMultiThread::drawDbClassification, ClonerMultiThread::drawRegistrantId, ClonerMultiThreadOverride::Creator);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	// Locator
@@ -49,6 +52,10 @@ MStatus uninitializePlugin( MObject obj )
 
 
 	status = fnPlugin.deregisterNode(ClonerMultiThread::id);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+	status = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator( ClonerMultiThread::drawDbClassification, ClonerMultiThread::drawRegistrantId);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	status = MHWRender::MDrawRegistry::deregisterDrawOverrideCreator( ClonerMultiLoc::drawDbClassification, ClonerMultiLoc::drawRegistrantId);

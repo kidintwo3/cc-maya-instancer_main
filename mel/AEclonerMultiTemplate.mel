@@ -1,4 +1,4 @@
-deleteUI AttrEdclonerMultiFormLayout;
+//deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	
@@ -15,6 +15,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addSeparator;
 	editorTemplate -addControl "reversePattern";
 	editorTemplate -label "Lock Output Mesh" -addControl "outputMeshDisplayOverride";
+	editorTemplate -label "Proxy Display" -addControl "displayProxy";
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Random Pattern Settings" -collapse 1;	
@@ -262,6 +263,10 @@ global proc AE_cm_objList_edit(string $attrName)
     {
 	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_curveObj";
 	}
+	
+	// Refresh references
+	iconTextButton -edit -c ("AE_cm_reference_set " + $nodeName[0] ) "cm_b_setRef";
+	iconTextButton -edit -c ("AE_cm_curve_set " + $nodeName[0] ) "cm_b_setCrv";
 	
 	scriptJob -rp -kws -p "AttrEdclonerMultiFormLayout" -connectionChange ($nodeName[0]+".inMesh") ("AE_cm_objList_refresh " + $nodeName[0] );
 	

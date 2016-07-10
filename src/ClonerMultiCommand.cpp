@@ -190,9 +190,34 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 		// Connect the mesh to the node
 		MFnDependencyNode fnDepClonerOutputMeshShape( dag_outMeshShape.node() );
+		MFnDependencyNode fnDepClonerOutputMeshTransform( dag_outMeshTr.node() );
 		MFnDependencyNode fnDepClonerNodeShape( dag_clonerNodeShape.node() );
+		MFnDependencyNode fnDepClonerNodeTransform( dag_clonerNodeTr.node() );
 
+		// Mesh plugs
 		MPlug p_clonerMultiMesh_inMesh = fnDepClonerOutputMeshShape.findPlug( "inMesh", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MPlug p_clonerMultiMesh_translate = fnDepClonerOutputMeshTransform.findPlug( "translate", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MPlug p_clonerMultiMesh_rotate = fnDepClonerOutputMeshTransform.findPlug( "rotate", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MPlug p_clonerMultiMesh_scale = fnDepClonerOutputMeshTransform.findPlug( "scale", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
+		// Node plugs
+
+		MPlug p_clonerMultiNode_translate = fnDepClonerNodeTransform.findPlug( "translate", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MPlug p_clonerMultiNode_rotate = fnDepClonerNodeTransform.findPlug( "rotate", &status );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MPlug p_clonerMultiNode_scale = fnDepClonerNodeTransform.findPlug( "scale", &status );
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		MPlug p_clonerMultiNode_outMesh = fnDepClonerNodeShape.findPlug( "outMesh", &status );
@@ -206,9 +231,17 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 		status = m_DAGMod.connect( p_clonerMultiNode_outMesh, p_clonerMultiMesh_inMesh );
 		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		status = m_DAGMod.connect( p_clonerMultiNode_translate, p_clonerMultiMesh_translate );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		status = m_DAGMod.connect( p_clonerMultiNode_rotate, p_clonerMultiMesh_rotate );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		status = m_DAGMod.connect( p_clonerMultiNode_scale, p_clonerMultiMesh_scale );
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
 		m_DAGMod.doIt();
-
-
 
 
 		// Assign Same material as input mesh

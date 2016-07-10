@@ -69,7 +69,7 @@
 
 #include <vector>
 #include <iostream>
-
+#include <math.h>
 
 #include <fstream>
 
@@ -90,6 +90,8 @@ public:
 
 	virtual MStatus				compute(const MPlug& plug, MDataBlock& data);
 	static  MStatus				initialize();
+    
+    virtual void            draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status );
 
 	// Vp 2.0 stuff
 	static	MString				drawDbClassification;

@@ -1475,6 +1475,37 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+// VP 1.0 Functions
+void ClonerMultiThread::draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style,  M3dView::DisplayStatus status )
+{
+    MObject thisNode = thisMObject();
+    
+    MFnDependencyNode fnDepCloner( thisNode );
+    
+    // Draw locator
+    view.beginGL();
+    
+    glPushAttrib( GL_CURRENT_BIT );
+    
+    if ( status == M3dView::kActive ) {
+        view.setDrawColor( 13, M3dView::kActiveColors );
+    } else {
+        view.setDrawColor( 13, M3dView::kDormantColors );
+    }
+    
+    
+    view.drawText( ".", MPoint::origin, M3dView::kCenter );
+    
+    
+    
+    glPopAttrib();
+    
+    view.endGL();
+    
+}
+
+
 // VP 2.0 Override functions
 
 MHWRender::DrawAPI ClonerMultiThreadOverride::supportedDrawAPIs() const

@@ -1333,6 +1333,7 @@ MStatus ClonerMultiThread::initialize()
 	ClonerMultiThread::aScatterType = eAttr.create("scatterType", "scatterType", 0);
 	eAttr.addField("UV", 0);
 	eAttr.addField("Vertex", 1);
+	eAttr.addField("Polygon", 2);
 	eAttr.setStorable(true);
 	addAttribute(ClonerMultiThread::aScatterType);
 

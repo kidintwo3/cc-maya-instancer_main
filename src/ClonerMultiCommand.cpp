@@ -591,14 +591,14 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 									MFnDagNode inMesh_dn(currP.node());
 
 									// Create output mesh
-									MObject outputObj = inMesh_dn.duplicate(false, false, &status);
+									MObject outputObj = inMesh_dn.duplicate(true, false, &status);
 									CHECK_MSTATUS_AND_RETURN_IT(status);
 
 									
 
-									MFnDependencyNode fnDepLocB( outputObj );
-									fnDepLocB.setName( MString() + inMesh_dn.name() + "_clone_#" );
-
+					/*				MFnDependencyNode fnDepLocB( outputObj );
+									fnDepLocB.setName( MString() + inMesh_dn.name() + "_clone_#", false, &status );
+									CHECK_MSTATUS_AND_RETURN_IT(status);*/
 
 									// Set transforms of output mesh
 									MFnTransform fn_transform(outputObj);

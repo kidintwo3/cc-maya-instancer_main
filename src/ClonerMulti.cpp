@@ -1536,8 +1536,7 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 
 			MObject matrixObject;
 
-			status = pointsPlug.getValue(matrixObject);
-			CHECK_MSTATUS_AND_RETURN_IT(status);
+			pointsPlug.getValue(matrixObject);
 
 			if (status)
 			{
@@ -1545,8 +1544,7 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 				MFnMatrixArrayData worldMatrixData( matrixObject );
 				MMatrixArray out_matrixArray;
 
-				status = worldMatrixData.copyTo(out_matrixArray);
-				CHECK_MSTATUS_AND_RETURN_IT(status);
+				worldMatrixData.copyTo(out_matrixArray);
 
 
 				currPA.setLength(out_matrixArray.length());

@@ -644,12 +644,13 @@ MStatus ClonerMultiThread::mergeUVs()
 
 		MFnMesh mFnA(m_inMeshArray[i]);
 
-		mFnA.getCurrentUVSetName(defaultUVSetName);
+		//mFnA.getCurrentUVSetName(defaultUVSetName);
 		mFnA.getUVs(in_uArray,in_vArray);
-		mFnA.getAssignedUVs(in_uvCounts, in_uvIds, &defaultUVSetName);
+		//mFnA.getAssignedUVs(in_uvCounts, in_uvIds, &defaultUVSetName);
+		mFnA.getAssignedUVs(in_uvCounts, in_uvIds);
 
 		//v_defaultUVSetName[i] = defaultUVSetName;
-		o_defaultUVSetNameA = defaultUVSetName;
+		//o_defaultUVSetNameA = defaultUVSetName;
 		v_in_uArray[i] = in_uArray;
 		v_in_vArray[i] = in_vArray;
 		v_in_uvCounts[i] = in_uvCounts;
@@ -764,12 +765,13 @@ MStatus ClonerMultiThread::duplicateUVs(MIntArray& idA)
 
 		MFnMesh mFnA(m_inMeshArray[i]);
 
-		mFnA.getCurrentUVSetName(defaultUVSetName);
+		//mFnA.getCurrentUVSetName(defaultUVSetName);
 		mFnA.getUVs(in_uArray,in_vArray);
-		mFnA.getAssignedUVs(in_uvCounts, in_uvIds, &defaultUVSetName);
+		//mFnA.getAssignedUVs(in_uvCounts, in_uvIds, &defaultUVSetName);
+		mFnA.getAssignedUVs(in_uvCounts, in_uvIds);
 
 		//v_defaultUVSetName[i] = defaultUVSetName;
-		o_defaultUVSetNameA = defaultUVSetName;
+		//o_defaultUVSetNameA = defaultUVSetName;
 		v_in_uArray[i] = in_uArray;
 		v_in_vArray[i] = in_vArray;
 		v_in_uvCounts[i] = in_uvCounts;
@@ -1359,7 +1361,8 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 				meshFn.create(o_numVertices, o_numPolygons, o_vertexArray, o_polygonCounts, o_polygonConnects, o_uArrayA, o_vArrayA, newMeshData, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
-				status = meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
+				//status = meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
+				status = meshFn.assignUVs(o_uvCountsA, o_uvIdsA);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				m_inMeshArray.clear();
@@ -1376,7 +1379,8 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 				ex_meshFn.create(o_numVertices, o_numPolygons, o_vertexArray, o_polygonCounts, o_polygonConnects, o_uArrayA, o_vArrayA, ex_newMeshData, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
-				status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
+				//status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
+				status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				// Smooth the normals globally
@@ -1401,7 +1405,8 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 				ex_meshFn.create(o_numVertices, o_numPolygons, o_vertexArray, o_polygonCounts, o_polygonConnects, o_uArrayA, o_vArrayA, ex_newMeshData, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
-				status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
+				//status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
+				status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 

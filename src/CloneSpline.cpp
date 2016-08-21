@@ -116,14 +116,20 @@ MStatus ClonerMultiThread::instanceSpline()
 
 
 		double m[4][4] = {{tan.x, tan.y , tan.z, 0.0},
-		{ cross2.x, cross2.y , cross2.z, 0.0},
-		{cross1.x, cross1.y , cross1.z, 0.0},
-		{p.x, p.y, p.z, 1.0}};
+		{ cross2.x, cross2.y, cross2.z, 0.0},
+		{ cross1.x, cross1.y, cross1.z, 0.0},
+		{ p.x, p.y, p.z, 1.0}};
 
 		rotMatrix = m;
 
-		// Translation
-		MFloatVector v_baseOffV(m_offsetX, m_offsetY, 0.0);
+
+		// Translation X
+		MFloatVector v_baseOffX(m_offsetX, 0.0, 0.0);
+
+
+		// Translation Y
+		MFloatVector v_baseOffY(0.0, m_offsetY, 0.0);
+
 
 		// Rotation
 
@@ -149,7 +155,10 @@ MStatus ClonerMultiThread::instanceSpline()
 		// Matrix
 		MTransformationMatrix tr_mat(rotMatrix);
 
-		status = tr_mat.addTranslation(v_baseOffV, MSpace::kObject);
+
+		status = tr_mat.addTranslation(v_baseOffX, MSpace::kObject);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		status = tr_mat.addTranslation(v_baseOffY, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);

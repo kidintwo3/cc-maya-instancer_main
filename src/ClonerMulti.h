@@ -70,7 +70,7 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
-
+#include <algorithm>
 #include <fstream>
 
 using namespace std;
@@ -170,6 +170,10 @@ public:
 	static MObject              aFirstUpVecX;
 	static MObject              aFirstUpVecY;
 	static MObject              aFirstUpVecZ;
+
+	static MObject				aConnectPieces;
+	static MObject				aConnectArrayA;
+	static MObject				aConnectArrayB;
 
 	// Output string for baking
 	static MObject				aOutMatrixArray;
@@ -351,6 +355,7 @@ private:
 	bool						m_uvUDIMLoop;
 	bool						m_outputMeshDisplayOverride;
 	bool						m_displayProxy;
+	bool						m_connectPieces;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;
@@ -361,7 +366,9 @@ private:
 	// Upvector
 	MVector                     m_firstUpVec;
 
-
+	// Connection strings
+	MIntArray					m_ConnectArrayA;
+	MIntArray					m_ConnectArrayB;
 
 
 	MMatrix						m_refMeshMat;

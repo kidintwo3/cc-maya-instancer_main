@@ -1,4 +1,4 @@
-//deleteUI AttrEdclonerMultiFormLayout;
+deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	
@@ -25,11 +25,13 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addSeparator;
 	editorTemplate -endLayout;
 	
+	
 	editorTemplate -beginLayout "Instance count" -collapse 0;	
 	editorTemplate -addControl "instanceX";
 	editorTemplate -addControl "instanceY";
 	editorTemplate -addControl "instanceZ";
 	editorTemplate -endLayout;
+	
 	
 	// -------------------------------------------------------------
 	
@@ -88,6 +90,17 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -label "Random Scale Z" -addControl "randomizeScaleZ";
 	editorTemplate -addSeparator;
 	
+	editorTemplate -endLayout;
+	
+	// -------------------------------------------------------------
+	
+	editorTemplate -beginLayout "Snap vert pairs" -collapse 0;
+	editorTemplate -addControl "connectPieces";
+	editorTemplate -addSeparator;
+    editorTemplate -addControl "connectArrayA";
+	editorTemplate -addControl "connectArrayB";
+	editorTemplate -addSeparator;
+	editorTemplate -callCustom "AE_cm_setArrays_create" "AE_cm_setArrays_edit" "";
 	editorTemplate -endLayout;
 	
 	// -------------------------------------------------------------
@@ -823,6 +836,99 @@ global proc AE_cm_refreshUVs_doRefreshUVs(string $attrName)
     
 }
 
+global proc AE_cm_setArrays_create(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    separator -height 5 -style "in";
+    text -label "Snap is limited to one input object only...";
+    separator -height 5 -style "in";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set A Array"  -bgc 0.3 0.4 0.4 -c  ("AE_cm_setArrays_A " + $nodeName[0] ) "cm_b_applyAArray";
+    separator -height 5 -style "in";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set B Array"  -bgc 0.3 0.4 0.4 -c  ("AE_cm_setArrays_B " + $nodeName[0] ) "cm_b_applyBArray";
+    separator -height 5 -style "in";
+}
+
+global proc AE_cm_setArrays_edit(string $attrName)
+{
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -c ("AE_cm_setArrays_A " + $nodeName[0] ) "cm_b_applyAArray";
+    iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -c ("AE_cm_setArrays_B " + $nodeName[0] ) "cm_b_applyBArray";
+}
+
+global proc AE_cm_setArrays_A(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    
+    string $vert_sel[] = `ls -os -fl`;
+    int $vert_num = size($vert_sel);
+    $vert_num = $vert_num-1;
+    
+    string $vert_array;
+    
+    for( $i=0; $i< size($vert_sel); ++$i )
+    {
+       
+       string $buf;
+       $buf=`match "vtx.*" $vert_sel[$i]`;
+       $buf=`match "[0-9]+" $buf`;
+    
+       int $n=int($buf);
+       
+       
+       $vert_array += $n;
+       
+       if ($i < $vert_num)
+       {
+           $vert_array += ",";
+       }
+       
+    }
+    
+    
+    setAttr -type "string" ($nodeName[0] + ".connectArrayA") $vert_array;
+}
+
+
+global proc AE_cm_setArrays_B(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    
+    string $vert_sel[] = `ls -os -fl`;
+    int $vert_num = size($vert_sel);
+    $vert_num = $vert_num-1;
+    
+    string $vert_array;
+    
+    for( $i=0; $i< size($vert_sel); ++$i )
+    {
+       
+       string $buf;
+       $buf=`match "vtx.*" $vert_sel[$i]`;
+       $buf=`match "[0-9]+" $buf`;
+    
+       int $n=int($buf);
+       
+       
+       $vert_array += $n;
+       
+       if ($i < $vert_num)
+       {
+           $vert_array += ",";
+       }
+       
+    }
+    
+    
+    setAttr -type "string" ($nodeName[0] + ".connectArrayB") $vert_array;
+}
 
 // ----------------------------
 

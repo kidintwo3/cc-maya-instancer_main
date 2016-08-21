@@ -385,6 +385,11 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 			rotMatrix = m;
 
+			double area;
+			status = itPoly.getArea(area);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+
+			//MGlobal::displayInfo(MString() + area);
 
 			// Translation
 			MFloatVector v_baseOffV(m_offsetX, m_offsetY, m_offsetZ);
@@ -393,8 +398,7 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			double rot[3] = {m_rotateX * 0.5f * ( M_PI / 180.0f ), m_rotateY * 0.5f * ( M_PI / 180.0f ),  m_rotateZ * 0.5f * ( M_PI / 180.0f )};
 
 			// Scale
-			const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
-
+			const double scaleV[3] = {  double(m_scaleX + area),  double(m_scaleY + area),  double(m_scaleZ + area) };
 
 
 			// Random Transform
@@ -418,8 +422,13 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 			status = tr_mat.setScale(scaleV, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
+			//status = tr_mat.addScale(scaleV_area, MSpace::kObject);
+			//CHECK_MSTATUS_AND_RETURN_IT(status);
+
 			status = tr_mat.addScale(scaleV_rnd, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
 
 			status = tr_mat.addRotation(rot, MTransformationMatrix::kXYZ, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);

@@ -32,7 +32,10 @@
 #include <maya/MTransformationMatrix.h>
 #include <maya/MFnTransform.h>
 #include <maya/MDagPathArray.h>
-
+#include <maya/MItMeshEdge.h>
+#include <maya/MFnComponentListData.h>
+#include <maya/MFnSingleIndexedComponent.h>
+#include <maya/MItMeshVertex.h>
 
 class ClonerMultiCommand : public MPxCommand
 {

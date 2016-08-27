@@ -843,9 +843,19 @@ global proc AE_cm_setArrays_create(string $attrName)
     separator -height 5 -style "in";
     text -label "Snap is limited to one input object only...";
     separator -height 5 -style "in";
+    
+    rowLayout -numberOfColumns 3;
     iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set A Array"  -bgc 0.3 0.4 0.4 -c  ("AE_cm_setArrays_A " + $nodeName[0] ) "cm_b_applyAArray";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png" -label "Shift"  -bgc 0.6 0.4 0.4 -c  ("AE_cm_shiftArrays_A " + $nodeName[0] ) "cm_b_shiftAArray";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png" -label "Reverse"  -bgc 0.3 0.6 0.4 -c  ("AE_cm_reverseArrays_A " + $nodeName[0] ) "cm_b_reverseAArray";
+    setParent ..;
+    
     separator -height 5 -style "in";
+    rowLayout -numberOfColumns 3;
     iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set B Array"  -bgc 0.3 0.4 0.4 -c  ("AE_cm_setArrays_B " + $nodeName[0] ) "cm_b_applyBArray";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png" -label "Shift"  -bgc 0.6 0.4 0.4 -c  ("AE_cm_shiftArrays_B " + $nodeName[0] ) "cm_b_shiftBArray";
+    iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png" -label "Reverse"  -bgc 0.3 0.6 0.4 -c  ("AE_cm_reverseArrays_B " + $nodeName[0] ) "cm_b_reverseBArray";
+    setParent ..;
     separator -height 5 -style "in";
 }
 
@@ -854,7 +864,11 @@ global proc AE_cm_setArrays_edit(string $attrName)
     string $nodeName[];
     tokenize($attrName, ".", $nodeName);
     iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -c ("AE_cm_setArrays_A " + $nodeName[0] ) "cm_b_applyAArray";
+    iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png"  -c ("AE_cm_shiftArrays_A " + $nodeName[0] ) "cm_b_shiftAArray";
+    iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png"  -c ("AE_cm_reverseArrays_A " + $nodeName[0] ) "cm_b_reverseAArray";
     iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -c ("AE_cm_setArrays_B " + $nodeName[0] ) "cm_b_applyBArray";
+    iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png"  -c ("AE_cm_shiftArrays_B " + $nodeName[0] ) "cm_b_shiftBArray";
+    iconTextButton -edit -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png"  -c ("AE_cm_reverseArrays_B " + $nodeName[0] ) "cm_b_reverseBArray";
 }
 
 global proc AE_cm_setArrays_A(string $attrName)
@@ -863,33 +877,7 @@ global proc AE_cm_setArrays_A(string $attrName)
     string $nodeName[];
     tokenize($attrName, ".", $nodeName);
     
-    
-    string $vert_sel[] = `ls -os -fl`;
-    int $vert_num = size($vert_sel);
-    $vert_num = $vert_num-1;
-    
-    string $vert_array;
-    
-    for( $i=0; $i< size($vert_sel); ++$i )
-    {
-       
-       string $buf;
-       $buf=`match "vtx.*" $vert_sel[$i]`;
-       $buf=`match "[0-9]+" $buf`;
-    
-       int $n=int($buf);
-       
-       
-       $vert_array += $n;
-       
-       if ($i < $vert_num)
-       {
-           $vert_array += ",";
-       }
-       
-    }
-    
-    
+    string $vert_array = `clonerMultiCommand -ac`;
     setAttr -type "string" ($nodeName[0] + ".connectArrayA") $vert_array;
 }
 
@@ -900,37 +888,68 @@ global proc AE_cm_setArrays_B(string $attrName)
     string $nodeName[];
     tokenize($attrName, ".", $nodeName);
     
-    
-    string $vert_sel[] = `ls -os -fl`;
-    int $vert_num = size($vert_sel);
-    $vert_num = $vert_num-1;
-    
-    string $vert_array;
-    
-    for( $i=0; $i< size($vert_sel); ++$i )
-    {
-       
-       string $buf;
-       $buf=`match "vtx.*" $vert_sel[$i]`;
-       $buf=`match "[0-9]+" $buf`;
-    
-       int $n=int($buf);
-       
-       
-       $vert_array += $n;
-       
-       if ($i < $vert_num)
-       {
-           $vert_array += ",";
-       }
-       
-    }
-    
-    
+    string $vert_array = `clonerMultiCommand -ac`;
     setAttr -type "string" ($nodeName[0] + ".connectArrayB") $vert_array;
 }
 
+global proc AE_cm_shiftArrays_A(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    string $shiftArrayString = `getAttr ($nodeName[0] + ".connectArrayA")`;
+    
+    string $shiftArrayString_sorted = `clonerMultiCommand -s $shiftArrayString`;
+    
+    setAttr -type "string" ($nodeName[0] + ".connectArrayA") $shiftArrayString_sorted;
+}
+
+
+global proc AE_cm_shiftArrays_B(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    string $shiftArrayString = `getAttr ($nodeName[0] + ".connectArrayB")`;
+    
+    string $shiftArrayString_sorted = `clonerMultiCommand -s $shiftArrayString`;
+    
+    setAttr -type "string" ($nodeName[0] + ".connectArrayB") $shiftArrayString_sorted;
+}
+
 // ----------------------------
+
+global proc AE_cm_reverseArrays_A(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    string $shiftArrayString = `getAttr ($nodeName[0] + ".connectArrayA")`;
+    
+    string $shiftArrayString_sorted = `clonerMultiCommand -r $shiftArrayString`;
+    
+    setAttr -type "string" ($nodeName[0] + ".connectArrayA") $shiftArrayString_sorted;
+}
+
+
+global proc AE_cm_reverseArrays_B(string $attrName)
+{
+    
+    string $nodeName[];
+    tokenize($attrName, ".", $nodeName);
+    
+    string $shiftArrayString = `getAttr ($nodeName[0] + ".connectArrayB")`;
+    
+    string $shiftArrayString_sorted = `clonerMultiCommand -r $shiftArrayString`;
+    
+    setAttr -type "string" ($nodeName[0] + ".connectArrayB") $shiftArrayString_sorted;
+}
+
+// ----------------------------
+
 
 global proc AE_cm_launch_website()
 {

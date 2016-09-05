@@ -1,4 +1,4 @@
-deleteUI AttrEdclonerMultiFormLayout;
+//deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	
@@ -67,6 +67,9 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addControl "scaleX";
 	editorTemplate -addControl "scaleY";
 	editorTemplate -addControl "scaleZ";
+	editorTemplate -addSeparator;
+	
+	editorTemplate -label "Snap Orientation" -addControl "orientationType";
 	editorTemplate -addSeparator;
 	
 	editorTemplate -endLayout;

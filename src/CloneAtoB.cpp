@@ -71,6 +71,11 @@ MStatus ClonerMultiThread::instanceAtoB(){
 		rotMatrix = m;
 
 
+		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+
+
 		// Translation
 		MFloatVector v_baseOffV(m_offsetX, m_offsetY, m_offsetZ);
 

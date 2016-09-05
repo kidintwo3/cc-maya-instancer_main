@@ -116,6 +116,7 @@ public:
 	static MObject				aIDType;
 	static MObject				aPatterType;
 	static MObject				aScatterType;
+	static MObject				aOrientationType;
 
 	// Transforms
 	static MObject				aGridInstanceX;
@@ -289,6 +290,7 @@ private:
 	short						m_instanceType;
 	short						m_patternType;
 	short						m_scatterType;
+	short						m_orientationType;
 	int							m_id;
 
 	// Display

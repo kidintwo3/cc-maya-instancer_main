@@ -22,6 +22,8 @@ MObject     ClonerMultiThread::aInLocBPos;
 MObject     ClonerMultiThread::aInstanceType;
 MObject		ClonerMultiThread::aPatterType;
 MObject		ClonerMultiThread::aScatterType;
+MObject		ClonerMultiThread::aOrientationType;
+
 MObject     ClonerMultiThread::aIDType;
 MObject     ClonerMultiThread::aRevPattern;
 MObject		ClonerMultiThread::aLimitDisplay;
@@ -1082,6 +1084,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_scatterType = data.inputValue(aScatterType, &status).asShort();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_orientationType = data.inputValue(aOrientationType, &status).asShort();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	
 	m_id = data.inputValue(aIDType, &status).asInt();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_rand_seed = data.inputValue(aSeedVal, &status).asInt();
@@ -1932,6 +1937,16 @@ MStatus ClonerMultiThread::initialize()
 	eAttr.setStorable(true);
 	addAttribute(ClonerMultiThread::aPatterType);
 
+	// Orientation
+	ClonerMultiThread::aOrientationType = eAttr.create("orientationType", "orientationType", 0);
+	eAttr.addField("Auto", 0);
+	eAttr.addField("X", 1);
+	eAttr.addField("Y", 2);
+	eAttr.addField("Z", 3);
+	eAttr.setStorable(true);
+	//eAttr.setInternal(true);
+	addAttribute(ClonerMultiThread::aOrientationType);
+
 	ClonerMultiThread::aLimitDisplay = nAttr.create("polyDisplayLimit", "polyDisplayLimit", MFnNumericData::kInt);
 	nAttr.setDefault(50000);
 	nAttr.setKeyable(true);
@@ -2320,6 +2335,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aPatterType, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aScatterType, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aOrientationType, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aIDType, ClonerMultiThread::aOutMesh);
 
@@ -2382,6 +2398,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aPatterType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aScatterType, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aOrientationType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aIDType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aFirstUpVec, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aLimitDisplay, ClonerMultiThread::aOutMatrixArray);
@@ -2434,6 +2451,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aPatterType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScatterType, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aOrientationType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aIDType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aFirstUpVec, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aLimitDisplay, ClonerMultiThread::aOutIDArray);

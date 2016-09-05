@@ -86,6 +86,9 @@ MString mel_AETemplate()
 		"	editorTemplate -addControl \"scaleZ\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
 		"	\r\n"
+		"	editorTemplate -label \"Snap Orientation\" -addControl \"orientationType\";\r\n"
+		"	editorTemplate -addSeparator;\r\n"
+		"	\r\n"
 		"	editorTemplate -endLayout;\r\n"
 		"	\r\n"
 		"	\r\n"
@@ -943,6 +946,7 @@ MString mel_AETemplate()
 		"global proc AE_cm_website_edit(string $attrName)\r\n"
 		"{\r\n"
 		"}\r\n";
+
 
 	return s_aeTemplate;
 }

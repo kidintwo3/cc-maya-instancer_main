@@ -327,7 +327,7 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 
 	}
-	
+
 
 	// Polygons
 	if (m_scatterType == 2)
@@ -384,6 +384,12 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				{ vertA.x, vertA.y , vertA.z, 1}};
 
 			rotMatrix = m;
+
+
+			if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}};rotMatrix = m;}
+			if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}};rotMatrix = m;}
+			if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}};rotMatrix = m;}
+
 
 			double area;
 			status = itPoly.getArea(area);

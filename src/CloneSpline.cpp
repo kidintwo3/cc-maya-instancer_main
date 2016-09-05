@@ -123,6 +123,14 @@ MStatus ClonerMultiThread::instanceSpline()
 		rotMatrix = m;
 
 
+		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		
+
+		
+
+
 		// Translation X
 		MFloatVector v_baseOffX(m_offsetX, 0.0, 0.0);
 
@@ -149,8 +157,6 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		// Random Scale
 		const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[i]),  double(1.0+m_rndScaleYA[i]),  double(1.0+m_rndScaleZA[i]) };
-
-
 
 		// Matrix
 		MTransformationMatrix tr_mat(rotMatrix);

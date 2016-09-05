@@ -2,12 +2,12 @@
 //Name: instancer_tutorial.ma
 //Last modified: Sat, Aug 27, 2016 03:04:05 PM
 //Codeset: 1252
-requires maya "2017";
+requires maya "2016";
 requires -nodeType "clonerMulti" "ClonerMulti" "1.2";
 currentUnit -l centimeter -a degree -t film;
 fileInfo "application" "maya";
-fileInfo "product" "Maya 2017";
-fileInfo "version" "2017";
+fileInfo "product" "Maya 2016";
+fileInfo "version" "2016";
 fileInfo "cutIdentifier" "201606150345-997974";
 fileInfo "osv" "Microsoft Windows 8 Business Edition, 64-bit  (Build 9200)\n";
 createNode transform -s -n "persp";

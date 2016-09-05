@@ -84,6 +84,7 @@ MObject     ClonerMultiThread::aFirstUpVecZ;
 
 
 MObject		ClonerMultiThread::aConnectPieces;
+MObject		ClonerMultiThread::aConnectLoop;
 MObject		ClonerMultiThread::aConnectArrayA;
 MObject		ClonerMultiThread::aConnectArrayB;
 
@@ -1192,6 +1193,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_connectPieces = data.inputValue(aConnectPieces, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_connectLoop = data.inputValue(aConnectLoop, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	// Override instace count if instance type is set to Circle
@@ -2309,6 +2313,13 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute( ClonerMultiThread::aConnectPieces );
 
+	ClonerMultiThread::aConnectLoop = nAttr.create( "connectLoop", "connectLoop", MFnNumericData::kBoolean );
+	nAttr.setStorable(true);
+	nAttr.setDefault(false);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute( ClonerMultiThread::aConnectLoop );
+
 	ClonerMultiThread::aConnectArrayA = tAttr.create( "connectArrayA", "connectArrayA", MFnData::kString, defaultStringA );
 	tAttr.setStorable(true);
 	tAttr.setChannelBox(false);
@@ -2383,8 +2394,9 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aUvUDIMLoop, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aOutputMeshDisplayOverride, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aDisplayProxy, ClonerMultiThread::aOutMesh);
-	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMesh);
 
+	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
 
@@ -2439,6 +2451,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aDisplayProxy, ClonerMultiThread::aOutMatrixArray);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMatrixArray);
 
@@ -2491,6 +2504,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aUvUDIMLoop, ClonerMultiThread::aOutIDArray);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutIDArray);
 

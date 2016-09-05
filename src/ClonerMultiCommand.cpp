@@ -175,92 +175,343 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		{
 			MGlobal::displayInfo(MString() + "Converting edges to Verts" );
 			MItMeshEdge eIter(m_pathBaseMeshShape, component, &status);
+			MItMeshVertex pIter(m_pathBaseMeshShape);
 
 			if(status != MS::kSuccess)
 			{
 				return MS::kFailure;
 			}
 
-			MIntArray vertIDArray;
+
+			MIntArray connpA;
+
+			MIntArray vertIdA;
+
+
+			int prevIndex;
 
 			for ( eIter.reset() ; !eIter.isDone() ; eIter.next() )
 			{
-				//int lastInd = eIter.index(0);
-				vertIDArray.append( eIter.index(0));
-				vertIDArray.append( eIter.index(1));
-
-			}
-
-			MFnComponentListData fnComponentList;
-			MObject componentData = fnComponentList.create();
-
-			MFnSingleIndexedComponent fnSingleComponent;
-			component = fnSingleComponent.create( MFn::kMeshVertComponent );
-			fnSingleComponent.addElements( vertIDArray );
-			fnComponentList.add( component );
-
-			MItMeshVertex pIter(m_pathBaseMeshShape, component, &status);
-
-			if(status != MS::kSuccess)
-			{
-				return MS::kFailure;
+				vertIdA.append(eIter.index(0));
+				vertIdA.append(eIter.index(1));
 			}
 
 
-			//
 
-			MIntArray oldPIndexA;
 
-			for (pIter.reset() ; !pIter.isDone(); pIter.next() )
+			int vertId = -1;
+
+			for (int i = 0; i < vertIdA.length(); i++)
 			{
-				oldPIndexA.append(pIter.index());
-			}
+				pIter.setIndex(vertIdA[i], prevIndex);
+				MIntArray connVerts;
+				pIter.getConnectedVertices(connVerts);
 
-			// 
+				int connCount = 0;
 
-			MIntArray connpA;
-			int currIndex = oldPIndexA[0];
-			int connIndex;
-			int previndex;
-
-			pIter.reset();
-
-			for (unsigned int z = 0; z < oldPIndexA.length(); z++)
-			{
-				MIntArray connVertsA;
-				pIter.setIndex(currIndex,previndex);
-				pIter.getConnectedVertices(connVertsA);
-
-				bool ff = false;
-
-				for (unsigned int i = 0; i < connVertsA.length(); i++)
+				for (int x = 0; x < connVerts.length(); x++)
 				{
 
-					for (unsigned int p = 0; p < oldPIndexA.length(); p++)
+					for (int z = 0; z < vertIdA.length(); z++)
 					{
-						if (connVertsA[i] == oldPIndexA[p] )
+						if (vertIdA[z] == connVerts[x])
 						{
-							connIndex = connVertsA[i];
-							currIndex = connIndex;
-
-							connpA.append(connIndex);
-							ff=true;
+							connCount += 1;
 							break;
 						}
-
-						if (ff)
-						{
-							break;
-						}
-					}
-
-					if (ff)
-					{
-						break;
 					}
 
 				}
+
+				if (connCount == 1)
+				{
+					vertId = vertIdA[i];
+					// MGlobal::displayInfo(MString() + "First: " + vertId);
+					break;
+				}
+
 			}
+
+
+
+
+			MIntArray vertIdA_sub = vertIdA;
+
+			if (vertId != -1)
+			{
+
+				connpA.append(vertId);
+
+				for (int i = 0; i < vertIdA_sub.length(); i++)
+				{
+					if (vertIdA_sub[i] == vertId)
+					{
+						vertIdA_sub.remove(i);
+						break;
+					}
+				}
+
+				pIter.reset();
+
+				for (int i = 0; i < vertIdA.length(); i++)
+				{
+					pIter.setIndex(vertId, prevIndex);
+					MIntArray connVerts;
+					pIter.getConnectedVertices(connVerts);
+
+
+					int connCount = -1;
+
+					for (int x = 0; x < connVerts.length(); x++)
+					{
+
+
+
+						for (int z = 0; z < vertIdA_sub.length(); z++)
+						{
+							if (connVerts[x] == vertIdA_sub[z])
+							{
+								connCount = vertIdA_sub[z];
+								vertId = vertIdA_sub[z];;
+								vertIdA_sub.remove(z);
+								break;
+							}
+						}
+
+						if (connCount != -1)
+						{
+							
+							
+
+							bool ff = false;
+
+							for (int p = 0; p < connpA.length(); p++)
+							{
+								if (vertId == connpA[p])
+								{
+									ff = true;
+									break;
+								}
+							}
+
+							if (!ff)
+							{
+								connpA.append(vertId);
+							}
+
+
+							break;
+						}
+
+					}
+				}
+
+
+
+
+				//for (int i = 0; i < connA.length(); i++)
+				//{
+				//	MGlobal::displayInfo(MString() + connA[i]);
+				//}
+
+
+
+				//	if (connCount == 1)
+				//	{
+				//		vertId = vertIdA[i];
+
+				//		MGlobal::displayInfo(MString() + vertId);
+
+				//		//bool ff = false;
+
+				//		//for (int v = 0; v < connA.length(); v++)
+				//		//{
+				//		//	if (connA[v] == vertId)
+				//		//	{
+				//		//		ff = true;
+				//		//		break;
+				//		//	}
+				//		//}
+
+				//		//if (!ff)
+				//		//{
+				//		//	connA.append(vertId);
+				//		//}
+
+				//		
+				//	}
+
+				//}
+
+
+				//for (int i = 0; i < connA.length(); i++)
+				//{
+				//	MGlobal::displayInfo(MString() + connA[i]);
+				//}
+
+
+				// MGlobal::displayInfo(MString() + vertId);
+
+				/*
+				eIter.setIndex(edgeId,prevIndex);
+				MIntArray connEdges;
+				eIter.getConnectedEdges(connEdges);
+
+				for (int x = 0; x < connEdges.length(); x++)
+				{
+				for (int z = 0; z < edgeIdA.length(); z++)
+				{
+				if (connEdges[x] == edgeIdA[z])
+				{
+
+				edgeIdA.remove(z);
+				MGlobal::displayInfo(MString() + edgeIdA[z]);
+				break;
+				}
+				}
+
+
+				}*/
+
+
+			}
+
+
+			//eIter.setIndex(edgeId,prevIndex);
+			//		int firstIndex = eIter.index(0);
+
+
+			//		MItMeshVertex pIter(m_pathBaseMeshShape);
+			//		pIter.setIndex(firstIndex, prevIndex);
+
+			//		connpA.append(firstIndex);
+
+
+			//		MIntArray connEdges;
+			//		pIter.getConnectedEdges(connEdges);
+
+
+			//		bool ff = false;
+
+			//		for (int i = 0; i < edgeIdA.length(); i++)
+			//		{
+
+
+			//			for (int x = 0; x < connEdges.length(); x++)
+			//			{
+
+			//				if (connEdges[x] == edgeIdA[i])
+			//				{
+			//					ff=true;
+			//					break;
+			//				}
+
+			//			}
+
+
+			//			if (ff)
+			//			{
+			//				int vertexId;
+			//				status = pIter.getOppositeVertex(vertexId, edgeIdA[i]);
+
+			//				if (status)
+			//				{
+			//					connpA.append(vertexId);
+			//				}
+
+			//				edgeIdA.remove(i);
+			//				break;
+			//			}
+
+			//		}
+
+
+
+
+
+			//MIntArray vertIDArray;
+
+			//for ( eIter.reset() ; !eIter.isDone() ; eIter.next() )
+			//{
+			//	//int lastInd = eIter.index(0);
+			//	vertIDArray.append( eIter.index(0));
+			//	vertIDArray.append( eIter.index(1));
+
+			//}
+
+			//MFnComponentListData fnComponentList;
+			//MObject componentData = fnComponentList.create();
+
+			//MFnSingleIndexedComponent fnSingleComponent;
+			//component = fnSingleComponent.create( MFn::kMeshVertComponent );
+			//fnSingleComponent.addElements( vertIDArray );
+			//fnComponentList.add( component );
+
+			//MItMeshVertex pIter(m_pathBaseMeshShape, component, &status);
+
+			//if(status != MS::kSuccess)
+			//{
+			//	return MS::kFailure;
+			//}
+
+
+			////
+
+			//MIntArray oldPIndexA;
+
+			//for (pIter.reset() ; !pIter.isDone(); pIter.next() )
+			//{
+			//	oldPIndexA.append(pIter.index());
+			//}
+
+			//// 
+
+			//MIntArray connpA;
+			//int currIndex = oldPIndexA[0];
+			//int connIndex;
+			//int previndex;
+
+			//pIter.reset();
+
+			//for (unsigned int z = 0; z < oldPIndexA.length(); z++)
+			//{
+			//	MIntArray connVertsA;
+			//	pIter.setIndex(currIndex,previndex);
+
+			//	pIter.getOppositeVertex(
+
+			//	//pIter.getConnectedVertices(connVertsA);
+
+			//	//bool ff = false;
+
+			//	//for (unsigned int i = 0; i < connVertsA.length(); i++)
+			//	//{
+
+			//	//	for (unsigned int p = 0; p < oldPIndexA.length(); p++)
+			//	//	{
+			//	//		if (connVertsA[i] == oldPIndexA[p] )
+			//	//		{
+			//	//			connIndex = connVertsA[i];
+			//	//			currIndex = connIndex;
+
+			//	//			connpA.append(connIndex);
+			//	//			ff=true;
+			//	//			break;
+			//	//		}
+
+			//	//		if (ff)
+			//	//		{
+			//	//			break;
+			//	//		}
+			//	//	}
+
+			//	//	if (ff)
+			//	//	{
+			//	//		break;
+			//	//	}
+
+			//	//}
+			//}
 
 
 			/*MGlobal::displayInfo(MString() + "---------");*/

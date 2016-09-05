@@ -173,6 +173,7 @@ public:
 	static MObject              aFirstUpVecZ;
 
 	static MObject				aConnectPieces;
+	static MObject				aConnectLoop;
 	static MObject				aConnectArrayA;
 	static MObject				aConnectArrayB;
 
@@ -358,6 +359,7 @@ private:
 	bool						m_outputMeshDisplayOverride;
 	bool						m_displayProxy;
 	bool						m_connectPieces;
+	bool						m_connectLoop;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;

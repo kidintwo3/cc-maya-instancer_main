@@ -15,7 +15,6 @@
 MString mel_AETemplate()
 {
 	MString s_aeTemplate = MString() + 
-
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"	\r\n"
@@ -116,6 +115,7 @@ MString mel_AETemplate()
 		"	\r\n"
 		"	editorTemplate -beginLayout \"Snap vert pairs\" -collapse 0;\r\n"
 		"	editorTemplate -addControl \"connectPieces\";\r\n"
+		"	editorTemplate -addControl \"connectLoop\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
 		"    editorTemplate -addControl \"connectArrayA\";\r\n"
 		"	editorTemplate -addControl \"connectArrayB\";\r\n"
@@ -943,9 +943,7 @@ MString mel_AETemplate()
 		"    iconTextButton -label \"Creative Case website\" -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_CCLogo.png\" -c \"AE_cm_launch_website()\";\r\n"
 		"    setParent ..;\r\n"
 		"}\r\n"
-		"global proc AE_cm_website_edit(string $attrName)\r\n"
-		"{\r\n"
-		"}\r\n";
+		"global proc AE\r\n";
 
 
 	return s_aeTemplate;

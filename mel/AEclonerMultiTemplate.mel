@@ -1,4 +1,4 @@
-//deleteUI AttrEdclonerMultiFormLayout;
+deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	
@@ -99,6 +99,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	
 	editorTemplate -beginLayout "Snap vert pairs" -collapse 0;
 	editorTemplate -addControl "connectPieces";
+	editorTemplate -addControl "connectLoop";
 	editorTemplate -addSeparator;
     editorTemplate -addControl "connectArrayA";
 	editorTemplate -addControl "connectArrayB";

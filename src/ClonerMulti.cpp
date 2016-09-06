@@ -416,16 +416,12 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 			for (int m = 0; m < m_numDup - 1; m++)
 			{
 
-				// MGlobal::displayInfo(MString() + idOffset);
-
 				for (int v = 0; v < i_vertexArray[idA[m]].length(); v++) 
 				{
 					for (int x = 0; x < m_ConnectArrayA.length(); x++)
 					{
 						if (v == m_ConnectArrayA[x])
 						{
-							// MGlobal::displayInfo(MString() + (m_ConnectArrayA[x] + idOffset) + " -> " + (m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length()) );
-
 							MPoint aP =  o_vertexArray[m_ConnectArrayA[x] + idOffset];
 							MPoint bP =  o_vertexArray[m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length()];
 
@@ -434,8 +430,6 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 							o_vertexArray.set(nP, m_ConnectArrayA[x] + idOffset );
 							o_vertexArray.set(nP, m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length() );
 						}
-						//MPoint currentPoint = (o_vertexArray[m_ConnectArrayA[x] + idOffset] + o_vertexArray[m_ConnectArrayB[x] + (idOffset + i_vertexArray[idA[m]].length() )]) * 0.5;
-						//o_vertexArray.set(currentPoint, v + idOffset );
 					}
 				}
 
@@ -443,9 +437,34 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 			}
 
+			// Connect End loops
+
+			if (m_connectLoop)
+			{
+
+				int m = m_numDup - 1;
+
+				for (int x = 0; x < m_ConnectArrayA.length(); x++)
+				{
+					MPoint aP =  o_vertexArray[m_ConnectArrayA[x] + idOffset];
+					MPoint bP =  o_vertexArray[m_ConnectArrayB[x] ];
+
+					MPoint nP = (aP + bP) * 0.5;
+
+					o_vertexArray.set(nP, m_ConnectArrayA[x] + idOffset );
+					o_vertexArray.set(nP, m_ConnectArrayB[x]  );
+				}
+
+			}
+
+
 		}
 
 	}
+
+
+
+
 
 
 	// Flip normals if set
@@ -1087,7 +1106,7 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_orientationType = data.inputValue(aOrientationType, &status).asShort();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	
+
 	m_id = data.inputValue(aIDType, &status).asInt();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_rand_seed = data.inputValue(aSeedVal, &status).asInt();

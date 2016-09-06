@@ -226,13 +226,19 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				if (connCount == 1)
 				{
 					vertId = vertIdA[i];
-					// MGlobal::displayInfo(MString() + "First: " + vertId);
 					break;
 				}
 
 			}
 
+			if (vertId == -1)
+			{
 
+				vertId = vertIdA[0];
+				//MGlobal::displayInfo(MString() + "First: " + vertId);
+			}
+
+			
 
 
 			MIntArray vertIdA_sub = vertIdA;

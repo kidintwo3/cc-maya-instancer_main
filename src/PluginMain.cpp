@@ -15,7 +15,7 @@ MStatus initializePlugin( MObject obj )
 
 	icons_data_write();
 
-	MFnPlugin fnPlugin( obj, "Creative Case", "1.21", "Any" );
+	MFnPlugin fnPlugin( obj, "Creative Case", "1.25", "Any" );
 
 	MGlobal::executeCommand( mel_AETemplate() );
 	MGlobal::executeCommand( mel_createShelf() );

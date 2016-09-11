@@ -186,6 +186,7 @@ public:
 	static MObject				aConnectLoop;
 	static MObject				aConnectArrayA;
 	static MObject				aConnectArrayB;
+	static MObject				aInterpolate;
 
 	// Output string for baking
 	static MObject				aOutMatrixArray;
@@ -376,6 +377,7 @@ private:
 	bool						m_displayProxy;
 	bool						m_connectPieces;
 	bool						m_connectLoop;
+	bool						m_interpolate;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;

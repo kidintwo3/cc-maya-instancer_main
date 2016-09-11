@@ -87,6 +87,7 @@ MObject		ClonerMultiThread::aConnectPieces;
 MObject		ClonerMultiThread::aConnectLoop;
 MObject		ClonerMultiThread::aConnectArrayA;
 MObject		ClonerMultiThread::aConnectArrayB;
+MObject		ClonerMultiThread::aInterpolate;
 
 
 MString		ClonerMultiThread::drawDbClassification("drawdb/geometry/ClonerMultiThread");
@@ -176,7 +177,7 @@ void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
 		}
 
 
-		
+
 	}
 
 
@@ -524,12 +525,20 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 		{
 
 			idOffset = 0;
+			MPoint ptClosest;
+
+			// curve data
+			MFnNurbsCurve curveFn(m_inCurve, &status);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+			MVector vecMove;
+			double dUValue;
 
 			for (int m = 0; m < m_numDup - 1; m++)
 			{
 
 				for (int v = 0; v < i_vertexArray[idA[m]].length(); v++) 
 				{
+
 					for (int x = 0; x < m_ConnectArrayA.length(); x++)
 					{
 						if (v == m_ConnectArrayA[x])
@@ -543,6 +552,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 							o_vertexArray.set(nP, m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length() );
 						}
 					}
+
 				}
 
 				idOffset += i_vertexArray[idA[m]].length();
@@ -550,7 +560,6 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 			}
 
 			// Connect End loops
-
 			if (m_connectLoop)
 			{
 
@@ -569,12 +578,89 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 			}
 
-
 		}
 
 	}
 
 
+	if (m_connectPieces)
+	{
+
+
+		// Interpolate
+		if (m_interpolate)
+		{
+			//// Only calculate if type is set to spline
+			//if (m_instanceType == 4)
+			//{
+			//	idOffset = 0;
+
+			//	// curve data
+			//	MFnNurbsCurve curveFn(m_inCurve, &status);
+			//	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+			//	MPoint ptClosest;
+			//	double dUValue;
+			//	MVector normal;
+			//	MVector tan;
+			//	// m_firstUpVec;
+			//	double param;
+
+			//	// vertexArray
+
+			//	for (int i = 0; i < o_vertexArray.length(); i++)
+			//	{
+
+			//		MPoint pt = o_vertexArray[i];
+
+
+			//		ptClosest = curveFn.closestPoint( pt, &dUValue, 0.0, MSpace::kObject, &status );
+			//		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+			//		status = curveFn.getParamAtPoint(ptClosest,param);
+			//		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+			//		tan = curveFn.tangent(param, MSpace::kObject, &status );
+			//		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+			//		normal = pt - ptClosest;
+			//		normal.normalize();
+
+			//		MVector cross1 = normal^tan;
+			//		cross1.normalize();
+
+			//		MVector cross2 =  tan^cross1;
+			//		cross2.normalize();
+
+
+			//		double m[4][4] = {{tan.x, tan.y , tan.z, 0.0},
+			//		{ cross2.x, cross2.y, cross2.z, 0.0},
+			//		{ cross1.x, cross1.y, cross1.z, 0.0},
+			//		{ ptClosest.x, ptClosest.y, ptClosest.z, 1.0}};
+
+			//		MMatrix rotMatrix = m;
+
+
+			//		
+			//		//
+
+			//		pt *= rotMatrix;
+			//		//pt += normal;
+			//		
+
+			//		o_vertexArray.set(pt,i);
+			//	}
+
+
+
+
+			}
+
+		}
+
+
+
+	}
 
 
 
@@ -1327,6 +1413,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_connectLoop = data.inputValue(aConnectLoop, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_interpolate = data.inputValue(aInterpolate, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	// Override instace count if instance type is set to Circle
@@ -2451,6 +2540,13 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute( ClonerMultiThread::aConnectLoop );
 
+	ClonerMultiThread::aInterpolate = nAttr.create( "interpolate", "interpolate", MFnNumericData::kBoolean );
+	nAttr.setStorable(true);
+	nAttr.setDefault(false);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute( ClonerMultiThread::aInterpolate );
+
 	ClonerMultiThread::aConnectArrayA = tAttr.create( "connectArrayA", "connectArrayA", MFnData::kString, defaultStringA );
 	tAttr.setStorable(true);
 	tAttr.setChannelBox(false);
@@ -2530,6 +2626,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMesh);
 
 
 	// Output Matrix array
@@ -2585,6 +2682,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMatrixArray);
 
 	// Output ID array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutIDArray);
@@ -2638,6 +2736,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutIDArray);
 
 	return MS::kSuccess;
 }

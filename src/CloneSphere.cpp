@@ -15,19 +15,27 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 
 	MStatus status;
 
+
+	bool randomize = false;
+
+
+	float samples = float(m_numDup);
+
+
+	float offset = 2.0f/float(samples);
+	float increment = M_PI * (3. - sqrt(5.0f));
+
+
+
+
+
+	// ----------------
+
+
+
 	float rnd = 1.0f;
 	rnd = (rand() * 0.00001f) * float(m_numDup);
 
-
-	float rad = m_offsetX;
-
-	if (rad < 0.0f)
-	{
-		rad = 0.0001f;
-	}
-
-	float offset = 2.0f / float(m_numDup);
-	float increment = float(M_PI) * (3.0f - sqrt(5.0f));
 
 	m_tr_matA.clear();
 	m_tr_matA.setLength(m_numDup);
@@ -37,42 +45,45 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 	{
 
 		// TRANSFORM
-		float y = ((float(i) * offset) - 1.0f) + (offset / 2.0f);
 
-		float r = sqrt(1.0f - pow(y, 2.0f));
-		float phi = (int(float(i) + rnd) % m_numDup) * increment;
+		float  y = ((i * offset) - 1) + (offset / 2);
+		float r = sqrt(1 - pow(y,2));
+
+		float phi = ((i + int(rnd)) % m_numDup) * increment;
 
 		float x = cos(phi) * r;
 		float z = sin(phi) * r;
 
-		MPoint p;
 
 		MTransformationMatrix transMatrix; // Calc trans
 		MFloatVector v_baseV( x * m_offsetX, y * m_offsetY ,z * m_offsetZ );
 
-		p = v_baseV * 2.0f;
+		MPoint p = v_baseV * 0.5;
 
 		// ROTATION base orientation
-		MFloatVector upVec(0.0f, 1.0f, 0.0f);
 		MFloatVector ab = p;
-		MFloatVector ab_dir = ab;
-		ab_dir.normalize();
-		MFloatVector xDir = ab_dir;
-		MFloatVector yDir = xDir ^ upVec;
+		MFloatVector normal = ab-MFloatPoint::origin;
+		normal.normalize();
+
+		MFloatVector yDir = normal ^ m_firstUpVec;
 		yDir.normalize();
-		MFloatVector zDir = xDir ^ yDir;
+		MFloatVector zDir = ab ^ yDir;
 		zDir.normalize();
-		float m[4][4] = {{xDir.x, xDir.y, xDir.z, 0.0}, {yDir.x, yDir.y, yDir.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {0.0, 0.0, 0.0, 1.0}};
+
+		double m_rot[4][4] = {{yDir.x, yDir.y, yDir.z, 0.0}, {normal.x, normal.y, normal.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {0.0, 0.0, 0.0, 1.0}};
+		double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};
 
 		MMatrix mat = m;
+		MMatrix mat_rot = m_rot;
 
-		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat = m;}
-		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat = m;}
-		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat = m;}
+		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
+		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
+		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
 
 
 		// Transformation matrix
 		MTransformationMatrix tr_mat(mat);
+		MTransformationMatrix t_mat(mat_rot);
 
 
 		// Rotation
@@ -99,6 +110,12 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 		status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
+		double rot_ext[4];
+		t_mat.rotation().get(rot_ext);
+
+
+		status = tr_mat.addRotation(rot_ext,  MTransformationMatrix::kXYZ, MSpace::kObject);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addRotation(rotation,  MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);

@@ -59,6 +59,12 @@
 
 #include <maya/MDagModifier.h>
 
+#include <maya/MModelMessage.h>
+#include <maya/MNodeMessage.h>
+#include <maya/MDGMessage.h>
+
+#include <maya/MCallbackIdArray.h>
+
 // Viewport 2.0 includes
 #include <maya/MDrawRegistry.h>
 #include <maya/MPxDrawOverride.h>
@@ -96,6 +102,10 @@ public:
 	// Vp 2.0 stuff
 	static	MString				drawDbClassification;
 	static	MString				drawRegistrantId;
+
+	// Callbacks
+
+	static void					aboutToDeleteCB( MObject& node, MDGModifier& modifier, void* clientData );
 
 	// Id
 	static MTypeId				id;
@@ -182,6 +192,12 @@ public:
 	static MObject				aOutIDArray;
 
 private:
+
+	// Callbacks
+	static void					preDuplicateCB(void* data);
+	static void					postDuplicateCB(void* data);
+	static void					nodeAddedCB(MObject& node, void* clientData);
+
 
 	// Sanity check
 	MStatus						checkInputPlugs();
@@ -378,11 +394,13 @@ private:
 	MMatrix						m_refMeshMat;
 
 	// Mesh instance variables
-
 	MPointArray					mesh_pA;
 	MVectorArray				mesh_uTA;
 	MVectorArray				mesh_vTA;
 	MVectorArray				mesh_nA;
+
+	// Callback
+	MCallbackIdArray			m_callbackIDs;
 
 	
 

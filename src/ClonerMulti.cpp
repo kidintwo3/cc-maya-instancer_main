@@ -92,7 +92,7 @@ MObject		ClonerMultiThread::aConnectArrayB;
 MString		ClonerMultiThread::drawDbClassification("drawdb/geometry/ClonerMultiThread");
 MString		ClonerMultiThread::drawRegistrantId("ClonerMultiThreadPlugin");
 
-
+bool m_isDuplicating; // Callback hack
 
 // ------------- MAIN PROGRAM -------------------------------------------------------------
 
@@ -105,6 +105,8 @@ ClonerMultiThread::ClonerMultiThread()
 
 ClonerMultiThread::~ClonerMultiThread()
 {
+	MMessage::removeCallbacks(m_callbackIDs);
+	m_callbackIDs.clear();
 }
 
 void* ClonerMultiThread::creator()
@@ -115,8 +117,118 @@ void* ClonerMultiThread::creator()
 void ClonerMultiThread::postConstructor() 
 {
 	MFnDependencyNode nodeFn(thisMObject());
-
 	nodeFn.setName("clonerMultiShape#");
+
+	// delete callback
+	MCallbackId callbackID;
+	callbackID = MNodeMessage::addNodeAboutToDeleteCallback(thisMObject(), aboutToDeleteCB, this);
+	m_callbackIDs.append(callbackID);
+
+	// duplicate pre callback
+	callbackID = MModelMessage::addBeforeDuplicateCallback( ClonerMultiThread::preDuplicateCB, this );
+	m_callbackIDs.append(callbackID);
+
+	// duplicate post callback
+	callbackID = MModelMessage::addAfterDuplicateCallback( ClonerMultiThread::postDuplicateCB, this );
+	m_callbackIDs.append(callbackID);
+
+	// object added to scene callback
+	callbackID = MDGMessage::addNodeAddedCallback( ClonerMultiThread::nodeAddedCB, "dagNode", this );
+	m_callbackIDs.append(callbackID);
+
+
+	setExistWithoutOutConnections(false);
+	setExistWithoutInConnections(false);
+
+}
+
+
+// Callbacks
+
+void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
+{
+
+	if (m_isDuplicating)
+	{
+		//MFnDagNode mfDgN( node );
+		//MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
+		//p_out_overrideEnabled.setBool(false);
+
+		MFnDependencyNode nodeFn(node);
+		MPlug worldP = nodeFn.findPlug( "outMesh" );
+
+		MFnDagNode mfDgN(worldP.node());
+
+		MPlugArray destPlugs;
+		worldP.connectedTo(destPlugs, false, true);
+
+		if (destPlugs.length() != 0)
+		{
+			MPlug destPlug = destPlugs[0];
+			mfDgN.setObject(destPlug.node());
+
+
+			//MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
+			//p_out_overrideEnabled.setBool(false);
+
+			MGlobal::displayInfo(MString("[ClonerMulti] ouptut mehs: ") + mfDgN.partialPathName() );
+			//MGlobal::displayInfo(MString("[ClonerMulti] Duplicating: ") + mfDgN.name());
+		}
+
+
+		
+	}
+
+
+}
+
+void ClonerMultiThread::preDuplicateCB( void* clientData )
+{
+	m_isDuplicating = true;
+	//MObject* pLocatorData = (MObject*)clientData;
+
+	//MGlobal::displayWarning(MString() + "preDuplicateCB!!" + pLocatorData->apiTypeStr());
+
+}
+
+void ClonerMultiThread::postDuplicateCB( void* clientData )
+{
+	m_isDuplicating = false;
+	//MGlobal::displayWarning("Duplicating!!");
+
+}
+
+void ClonerMultiThread::aboutToDeleteCB(MObject& node, MDGModifier& modifier, void* pUserPtr) 
+{
+	MFnDependencyNode nodeFn(node);
+	MGlobal::displayInfo(MString("[ClonerMulti] About to delete callback for node: ") + nodeFn.name());
+
+
+	// Find the output mesh connected to the node
+	MPlug worldP = nodeFn.findPlug( "outMesh" );
+
+	MFnDagNode mfDgN(worldP.node());
+
+	MPlugArray destPlugs;
+	worldP.connectedTo(destPlugs, false, true);
+
+	if (destPlugs.length() != 0)
+	{
+		MPlug destPlug = destPlugs[0];
+
+		mfDgN.setObject(destPlug.node());
+
+
+		MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
+		p_out_overrideEnabled.setBool(false);
+
+		MGlobal::displayInfo(MString("[ClonerMulti] Deleting / Setting output mesh overrides: ") + mfDgN.partialPathName() );
+	}
+
+	else
+	{
+		MGlobal::displayInfo(MString()+ "[ClonerMulti] Deleting / No connection, or wrong connection to output mesh: " );
+	}
 
 }
 

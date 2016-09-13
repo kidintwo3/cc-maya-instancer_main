@@ -654,13 +654,10 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 
 
-			}
-
 		}
 
-
-
 	}
+
 
 
 

@@ -26,7 +26,6 @@
 #include <maya/MFnMatrixAttribute.h>
 #include <maya/MFnCompoundAttribute.h>
 #include <maya/MFnMeshData.h>
-#include <maya/MFnMatrixArrayData.h>
 #include <maya/MFnIntArrayData.h>
 #include <maya/MFnPointArrayData.h>
 #include <maya/MFnVectorArrayData.h>
@@ -56,6 +55,10 @@
 #include <maya/MFnSingleIndexedComponent.h>
 #include <maya/MMeshIntersector.h>
 #include <maya/MPxLocatorNode.h>
+
+#if MAYA_API_VERSION > 201600
+#include <maya/MFnMatrixArrayData.h>
+#endif
 
 #include <maya/MDagModifier.h>
 
@@ -237,7 +240,9 @@ private:
 
 	// Datahandles
 	MDataHandle					h_outputMesh;
+	#if MAYA_API_VERSION > 201600
 	MDataHandle					h_outputMatrix;
+#endif
 	MDataHandle					h_outputID;
 	
 

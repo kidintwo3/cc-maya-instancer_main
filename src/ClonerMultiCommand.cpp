@@ -238,7 +238,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				//MGlobal::displayInfo(MString() + "First: " + vertId);
 			}
 
-			
+
 
 
 			MIntArray vertIdA_sub = vertIdA;
@@ -286,8 +286,8 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 						if (connCount != -1)
 						{
-							
-							
+
+
 
 							bool ff = false;
 
@@ -1067,40 +1067,44 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				MFnIntArrayData idArrayData( idObject );
 				MIntArray out_idArray;
 
-				MFnMatrixArrayData worldMatrixData( matrixObject );
-				MMatrixArray out_matrixArray;
-
 				status = idArrayData.copyTo(out_idArray);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
+				// Find output mesh
+				MPlugArray destPlugs;
+				outMeshPlug.connectedTo(destPlugs, false, true);
+
+				MPlug destPlug = destPlugs[0];
+				MFnDagNode depN(destPlug.node());
+
+				MObject parent_tr = depN.parent(0, &status);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+				MFnDagNode parent_depN(parent_tr);
+
+				MFnTransform trMat(parent_tr);
+
+				MMatrix out_tr_mat = trMat.transformation().asMatrix();
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+#if MAYA_API_VERSION > 201600
+				MFnMatrixArrayData worldMatrixData( matrixObject );
+				MMatrixArray out_matrixArray;
+
 				status = worldMatrixData.copyTo(out_matrixArray);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
+
 
 
 				if (out_idArray.length() == out_matrixArray.length())
 				{
 
 
-					// Find output mesh
-					MPlugArray destPlugs;
-					outMeshPlug.connectedTo(destPlugs, false, true);
 
-					MPlug destPlug = destPlugs[0];
-					MFnDagNode depN(destPlug.node());
-
-					MObject parent_tr = depN.parent(0, &status);
-					CHECK_MSTATUS_AND_RETURN_IT(status);
-					MFnDagNode parent_depN(parent_tr);
-
-					MFnTransform trMat(parent_tr);
-
-					MMatrix out_tr_mat = trMat.transformation().asMatrix();
-					CHECK_MSTATUS_AND_RETURN_IT(status);
 
 					// MGlobal::displayInfo(MString() + parent_depN.name());
 
 					// Collect input meshes
-
 
 					for (int i = 0; i < out_idArray.length(); i++)
 					{
@@ -1184,90 +1188,91 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 					}
+				}
+#endif
+
+
+				if (inLocator_A_plug.isConnected())
+				{
 
 
 
-					if (inLocator_A_plug.isConnected())
+					// Find input locator
+					MPlugArray destPlugs;
+					inLocator_A_plug.connectedTo(destPlugs, true, false);
+
+
+					MGlobal::displayInfo(MString() + destPlugs.length());
+
+					MPlug destPlug = destPlugs[0];
+					MFnDagNode depN(destPlug.node());
+
+					MObject parent_tr = depN.parent(0, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+					MFnDagNode parent_depN(parent_tr);
+
+					if (!parent_depN.object().isNull())
 					{
-
-
-
-						// Find input locator
-						MPlugArray destPlugs;
-						inLocator_A_plug.connectedTo(destPlugs, true, false);
-
-
-						MGlobal::displayInfo(MString() + destPlugs.length());
-
-						MPlug destPlug = destPlugs[0];
-						MFnDagNode depN(destPlug.node());
-
-						MObject parent_tr = depN.parent(0, &status);
+						// Delete A locator
+						status = m_DAGMod.deleteNode(parent_depN.object());
 						CHECK_MSTATUS_AND_RETURN_IT(status);
-						MFnDagNode parent_depN(parent_tr);
-
-						if (!parent_depN.object().isNull())
-						{
-							// Delete A locator
-							status = m_DAGMod.deleteNode(parent_depN.object());
-							CHECK_MSTATUS_AND_RETURN_IT(status);
-						}
-
-
 					}
 
-					if (inLocator_B_plug.isConnected())
-					{
-						// Find input locator
-						MPlugArray destPlugs;
-						inLocator_B_plug.connectedTo(destPlugs, true, false);
-
-						MPlug destPlug = destPlugs[0];
-						MFnDagNode depN(destPlug.node());
-
-						MObject parent_tr = depN.parent(0, &status);
-						CHECK_MSTATUS_AND_RETURN_IT(status);
-						MFnDagNode parent_depN(parent_tr);
-
-						if (!parent_depN.object().isNull())
-						{
-							// Delete A locator
-							status = m_DAGMod.deleteNode(parent_depN.object());
-							CHECK_MSTATUS_AND_RETURN_IT(status);
-						}
-
-					}
-
-
-					// Delete output mesh
-					status = m_DAGMod.deleteNode(parent_depN.object());
-					CHECK_MSTATUS_AND_RETURN_IT(status);
-
-					// Delete cloner node
-					status = m_DAGMod.deleteNode(fnDepCloner.object());
-					CHECK_MSTATUS_AND_RETURN_IT(status);
-
-					status = m_DAGMod.doIt();
-					CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				}
 
+				if (inLocator_B_plug.isConnected())
+				{
+					// Find input locator
+					MPlugArray destPlugs;
+					inLocator_B_plug.connectedTo(destPlugs, true, false);
+
+					MPlug destPlug = destPlugs[0];
+					MFnDagNode depN(destPlug.node());
+
+					MObject parent_tr = depN.parent(0, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+					MFnDagNode parent_depN(parent_tr);
+
+					if (!parent_depN.object().isNull())
+					{
+						// Delete A locator
+						status = m_DAGMod.deleteNode(parent_depN.object());
+						CHECK_MSTATUS_AND_RETURN_IT(status);
+					}
+
+				}
+
+
+				// Delete output mesh
+				status = m_DAGMod.deleteNode(parent_depN.object());
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				// Delete cloner node
+				status = m_DAGMod.deleteNode(fnDepCloner.object());
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				status = m_DAGMod.doIt();
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
 			}
 
-			return::MStatus::kSuccess;
-
 		}
 
-		else
-		{
-			MGlobal::displayError(MString() + "[ClonerMulti] No/wrong ClonerMulti name set for command (use the -cm flag to set)");
-			return MStatus::kFailure;
-		}
-
-
-
+		return::MStatus::kSuccess;
 
 	}
+
+	else
+	{
+		MGlobal::displayError(MString() + "[ClonerMulti] No/wrong ClonerMulti name set for command (use the -cm flag to set)");
+		return MStatus::kFailure;
+	}
+
+
+
+
+
 
 
 

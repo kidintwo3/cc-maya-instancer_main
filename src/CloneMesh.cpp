@@ -15,7 +15,7 @@ MStatus ClonerMultiThread::overrideInstanceOnMeshSettings()
 	// Override based on scatter types
 
 	MStatus status;
-
+	#if MAYA_API_VERSION > 201600
 	// UV
 	if (m_scatterType == 0)
 	{
@@ -105,7 +105,7 @@ MStatus ClonerMultiThread::overrideInstanceOnMeshSettings()
 		// MGlobal::displayInfo(MString() + m_numDup);
 
 	}
-
+#endif
 	// Vertex
 	if (m_scatterType == 1)
 	{

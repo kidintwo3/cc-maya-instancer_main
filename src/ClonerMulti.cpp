@@ -11,7 +11,9 @@
 MTypeId     ClonerMultiThread::id( 0x00123946 );
 
 MObject     ClonerMultiThread::aOutMesh;
+#if MAYA_API_VERSION > 201600
 MObject		ClonerMultiThread::aOutMatrixArray;
+#endif
 MObject		ClonerMultiThread::aOutIDArray;
 MObject     ClonerMultiThread::aInMesh;
 MObject		ClonerMultiThread::aInCurve;
@@ -481,7 +483,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 			currentPoint *= m_tr_matA[m];
 
-			o_vertexArray.set(currentPoint,v + idOffset );
+			o_vertexArray.set(MFloatPoint(currentPoint.x,currentPoint.y,currentPoint.z,currentPoint.w),v + idOffset );
 		}
 
 #pragma omp parallel for
@@ -548,8 +550,8 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 							MPoint nP = (aP + bP) * 0.5;
 
-							o_vertexArray.set(nP, m_ConnectArrayA[x] + idOffset );
-							o_vertexArray.set(nP, m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length() );
+							o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayA[x] + idOffset );
+							o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length() );
 						}
 					}
 
@@ -572,8 +574,8 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 					MPoint nP = (aP + bP) * 0.5;
 
-					o_vertexArray.set(nP, m_ConnectArrayA[x] + idOffset );
-					o_vertexArray.set(nP, m_ConnectArrayB[x]  );
+					o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayA[x] + idOffset );
+					o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayB[x]  );
 				}
 
 			}
@@ -796,7 +798,7 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 
 			currentPoint *= m_tr_matA[m];
 
-			o_vertexArray.set(currentPoint,v + idOffset );
+			o_vertexArray.set(MFloatPoint(currentPoint.x,currentPoint.y,currentPoint.z,currentPoint.w),v + idOffset );
 		}
 #pragma omp parallel for
 		// polygonCounts
@@ -1286,10 +1288,10 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 
 	h_outputMesh = data.outputValue(aOutMesh, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-
+#if MAYA_API_VERSION > 201600
 	h_outputMatrix = data.outputValue(aOutMatrixArray, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-
+#endif
 	h_outputID = data.outputValue(aOutIDArray, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
@@ -1761,7 +1763,8 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 		}
 
-
+		
+#if MAYA_API_VERSION > 201600
 		// Output matrix
 		MFnMatrixArrayData ex_matrixDataFn;
 		MObject ex_matrixData = ex_matrixDataFn.create(m_tr_matA, &status);
@@ -1770,7 +1773,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 		// Send matrix array to output datablock
 		status = h_outputMatrix.set(ex_matrixData);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-
+#endif
 
 		// Output ID array
 		MFnIntArrayData ex_idDataFn;
@@ -1884,9 +1887,12 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 
 
 	MPointArray currPA;
-
+	#if MAYA_API_VERSION > 201600
 	MPlug pointsPlug(locatorNode, ClonerMultiThread::aOutMatrixArray);
+#endif
 	MPlug inMeshPlug(locatorNode, ClonerMultiThread::aInMesh);
+
+#if MAYA_API_VERSION > 201600
 
 
 	if (inMeshPlug.numConnectedElements() != 0)
@@ -1916,6 +1922,8 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 			}
 		}
 	}
+
+#endif
 
 	return currPA;
 }
@@ -2077,14 +2085,14 @@ MStatus ClonerMultiThread::initialize()
 	tAttr.setWritable(false);
 	tAttr.setReadable(true);
 	addAttribute( ClonerMultiThread::aOutMesh );
-
+#if MAYA_API_VERSION > 201600
 	ClonerMultiThread::aOutMatrixArray = tAttr.create( "outMatrixArray", "outMatrixArray", MFnMatrixData::kMatrixArray );
 	tAttr.setChannelBox( false );
 	tAttr.setWritable(false);
 	tAttr.setReadable(true);
 	tAttr.setHidden(true);
 	addAttribute( ClonerMultiThread::aOutMatrixArray );
-
+#endif
 	ClonerMultiThread::aOutIDArray = tAttr.create( "outIDArray", "outIDArray", MFnIntArrayData::kIntArray );
 	tAttr.setChannelBox( false );
 	tAttr.setWritable(false);
@@ -2625,7 +2633,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMesh);
 
-
+	#if MAYA_API_VERSION > 201600
 	// Output Matrix array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMatrixArray);
@@ -2680,6 +2688,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMatrixArray);
+#endif
 
 	// Output ID array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutIDArray);

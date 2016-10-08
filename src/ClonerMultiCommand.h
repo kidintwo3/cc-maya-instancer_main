@@ -11,7 +11,9 @@
 #include <maya/MFnDagNode.h>
 #include <maya/MFnDependencyNode.h>
 #include <maya/MFnIntArrayData.h>
+#if MAYA_API_VERSION > 201600
 #include <maya/MFnMatrixArrayData.h>
+#endif
 #include <maya/MFnIntArrayData.h>
 #include <maya/MMatrixArray.h>
 #include <maya/MTransformationMatrix.h>

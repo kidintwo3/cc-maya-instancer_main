@@ -124,7 +124,10 @@ void ClonerMultiThread::postConstructor()
 
 	// delete callback
 	MCallbackId callbackID;
-	callbackID = MNodeMessage::addNodeAboutToDeleteCallback(thisMObject(), aboutToDeleteCB, this);
+    
+    MObject myMObject = thisMObject();
+    
+	callbackID = MNodeMessage::addNodeAboutToDeleteCallback(myMObject, aboutToDeleteCB, this);
 	m_callbackIDs.append(callbackID);
 
 	// duplicate pre callback

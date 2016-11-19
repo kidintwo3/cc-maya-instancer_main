@@ -79,7 +79,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	// -------------------------------------------------------------
 	editorTemplate -beginLayout "Snap vert pairs" -collapse 0;
 	editorTemplate -addControl "connectPieces";
-	editorTemplate -addControl "interpolate";
+	// editorTemplate -addControl "interpolate";
 	editorTemplate -addControl "connectLoop";
 	editorTemplate -addSeparator;
     editorTemplate -addControl "connectArrayA";
@@ -119,6 +119,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -suppress "outMesh";
 	editorTemplate -suppress "locatorAPos";
 	editorTemplate -suppress "locatorBPos";
+	editorTemplate -suppress "interpolate";
 	
 	AEdependNodeTemplate $nodeName;
 	editorTemplate -addExtraControls;

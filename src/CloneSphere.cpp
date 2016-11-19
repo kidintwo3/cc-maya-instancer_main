@@ -73,13 +73,15 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 		double m_rot[4][4] = {{yDir.x, yDir.y, yDir.z, 0.0}, {normal.x, normal.y, normal.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {0.0, 0.0, 0.0, 1.0}};
 		double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};
 
-		MMatrix mat = m;
+
 		MMatrix mat_rot = m_rot;
 
 		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
 		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
 		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
 
+		MMatrix mat = m;
+		
 
 		// Transformation matrix
 		MTransformationMatrix tr_mat(mat);

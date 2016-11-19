@@ -111,6 +111,23 @@ MStatus ClonerMultiThread::instanceSpline()
 		cross1.normalize();
 
 		MVector cross2 =  tan^cross1;
+
+		if(m_orientationType == 1)
+		{
+			cross2 = MVector(1.0,0.0,0.0);
+		}
+
+		if(m_orientationType == 2)
+		{
+			cross2 = MVector(0.0,1.0,0.0);
+		}
+
+		if(m_orientationType == 3)
+		{
+			cross2 = MVector(0.0,0.0,1.0);
+		}
+
+
 		cross2.normalize();
 		currentNormal = cross2;
 
@@ -123,12 +140,12 @@ MStatus ClonerMultiThread::instanceSpline()
 		rotMatrix = m;
 
 
-		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
-		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
-		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
-		
+		//if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		//if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		//if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
 
-		
+
+
 
 
 		// Translation X

@@ -120,7 +120,7 @@ void* ClonerMultiThread::creator()
 void ClonerMultiThread::postConstructor() 
 {
 	MFnDependencyNode nodeFn(thisMObject());
-	nodeFn.setName("clonerMultiShape#");
+	nodeFn.setName("clonerMulti_nodeShape#");
 
 	// delete callback
 	MCallbackId callbackID;
@@ -1573,8 +1573,31 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 	}
 
 	if (p_inMesh.numConnectedElements() == 0)
-	{
+	{		
+
+		MFnMeshData ex_meshDataFn;
+		MObject ex_newMeshData = ex_meshDataFn.create(&status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		MFnMesh ex_meshFn;
+
+		o_numVertices = 0;
+		o_numPolygons = 0;
+		o_vertexArray.clear();
+		o_polygonCounts.clear();
+		o_polygonConnects.clear();
+
+		ex_meshFn.create(o_numVertices, o_numPolygons, o_vertexArray, o_polygonCounts, o_polygonConnects, ex_newMeshData, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		// Send mesh to output datablock
+		status = h_outputMesh.set(ex_newMeshData);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
 		// No input mesh attached so exit node.
+
+		MGlobal::displayWarning(MString() + "[ClonerMulti] No input meshes connected... ");
+
 		return MS::kSuccess;
 	}
 
@@ -1668,6 +1691,11 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 		// Construct combined Meshes
 		MFnMesh meshFn;
 		MFnMesh ex_meshFn;
+
+
+
+
+
 
 		if (!m_displayProxy)
 		{
@@ -1763,7 +1791,10 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 		}
 
-		
+
+
+
+
 #if MAYA_API_VERSION > 201600
 		// Output matrix
 		MFnMatrixArrayData ex_matrixDataFn;
@@ -1887,7 +1918,7 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 
 
 	MPointArray currPA;
-	#if MAYA_API_VERSION > 201600
+#if MAYA_API_VERSION > 201600
 	MPlug pointsPlug(locatorNode, ClonerMultiThread::aOutMatrixArray);
 #endif
 	MPlug inMeshPlug(locatorNode, ClonerMultiThread::aInMesh);
@@ -2633,7 +2664,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMesh);
 
-	#if MAYA_API_VERSION > 201600
+#if MAYA_API_VERSION > 201600
 	// Output Matrix array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMatrixArray);

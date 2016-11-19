@@ -624,10 +624,10 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 	o_outputObjectsA.clear();
 
-	MString clonerMulti_node_name("clonerMulti_node_#");
-	MString clonerMulti_mesh_name("clonerMulti_mesh_#");
-	MString clonerMulti_locA_name("clonerMulti_locA_#");
-	MString clonerMulti_locB_name("clonerMulti_locB_#");
+	MString clonerMulti_node_name("clonerMulti_node#");
+	MString clonerMulti_mesh_name("clonerMulti_mesh#");
+	MString clonerMulti_locA_name("clonerMulti_locA#");
+	MString clonerMulti_locB_name("clonerMulti_locB#");
 
 
 
@@ -637,8 +637,8 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		MString customName;
 		argData.getFlagArgument("-na", 0, customName);
 
-		clonerMulti_node_name = MString() + customName + "_node_#";
-		clonerMulti_mesh_name = MString() + customName + "_mesh_#";
+		clonerMulti_node_name = MString() + customName + "_node#";
+		clonerMulti_mesh_name = MString() + clonerMulti_node_name + "_mesh#";
 	}
 
 
@@ -649,14 +649,18 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 	{
 
 		// Create clonerMulti node
-		o_clonerMultiNode = m_DAGMod.createNode(MTypeId(0x00123946));
+		o_clonerMultiNode = m_DAGMod.createNode(MTypeId(0x00123946), MObject::kNullObj, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
 		MFnDependencyNode fnDepCloner( o_clonerMultiNode );
 		fnDepCloner.setName( clonerMulti_node_name  );
 
 		// Create clonerMulti output mesh
-		o_clonerOutputMesh = m_DAGMod.createNode("mesh");
+		o_clonerOutputMesh = m_DAGMod.createNode("mesh", MObject::kNullObj, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
 		MFnDependencyNode fnDepClonerOutputMesh( o_clonerOutputMesh );
-		fnDepClonerOutputMesh.setName( clonerMulti_mesh_name );
+		fnDepClonerOutputMesh.setName( clonerMulti_mesh_name  );
 
 		status = m_DAGMod.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -688,11 +692,14 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 		dag_outMeshShape = dag_outMesh;
 
+
 		// Connect the mesh to the node
 		MFnDependencyNode fnDepClonerOutputMeshShape( dag_outMeshShape.node() );
 		MFnDependencyNode fnDepClonerOutputMeshTransform( dag_outMeshTr.node() );
 		MFnDependencyNode fnDepClonerNodeShape( dag_clonerNodeShape.node() );
 		MFnDependencyNode fnDepClonerNodeTransform( dag_clonerNodeTr.node() );
+
+		fnDepClonerOutputMeshShape.setName( clonerMulti_mesh_name + "Shape#" );
 
 		// Mesh plugs
 		MPlug p_clonerMultiMesh_inMesh = fnDepClonerOutputMeshShape.findPlug( "inMesh", &status );

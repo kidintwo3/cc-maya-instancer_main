@@ -20,6 +20,13 @@ MString	ClonerMultiLoc::drawRegistrantId("ClonerMultiLocPlugin");
 ClonerMultiLoc::ClonerMultiLoc() {}
 ClonerMultiLoc::~ClonerMultiLoc() {}
 
+void ClonerMultiLoc::postConstructor() 
+{
+	MFnDependencyNode nodeFn(thisMObject());
+	nodeFn.setName("clonerMulti_locAShape#");
+
+}
+
 void* ClonerMultiLoc::creator() { return new ClonerMultiLoc(); }
 
 ClonerMultiLocOverride::ClonerMultiLocOverride(const MObject& obj) : MHWRender::MPxDrawOverride(obj, ClonerMultiLocOverride::draw){}

@@ -15,7 +15,7 @@ MStatus ClonerMultiThread::overrideInstanceOnMeshSettings()
 	// Override based on scatter types
 
 	MStatus status;
-	#if MAYA_API_VERSION > 201600
+#if MAYA_API_VERSION > 201600
 	// UV
 	if (m_scatterType == 0)
 	{
@@ -142,7 +142,7 @@ MStatus ClonerMultiThread::instanceOnMesh()
 	status = m_tr_matA.setLength(m_numDup);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-
+	// MGlobal::displayInfo(MString() + m_orientationType);
 
 	// UV
 	if (m_scatterType == 0)
@@ -171,6 +171,13 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			{mesh_pA[i].x, mesh_pA[i].y, mesh_pA[i].z, 1.0}};
 
 			rotMatrix = m;
+
+
+			if (m_orientationType == 1) {double m_orient[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ mesh_pA[i].x, mesh_pA[i].y, mesh_pA[i].z, 1.0}}; rotMatrix=m_orient;}
+			if (m_orientationType == 2) {double m_orient[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ mesh_pA[i].x, mesh_pA[i].y, mesh_pA[i].z, 1.0}}; rotMatrix=m_orient;}
+			if (m_orientationType == 3) {double m_orient[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ mesh_pA[i].x, mesh_pA[i].y, mesh_pA[i].z, 1.0}}; rotMatrix=m_orient;}
+
+
 
 
 			// Translation
@@ -276,6 +283,10 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				{ vertA.x, vertA.y , vertA.z, 1}};
 
 			rotMatrix = m;
+
+			if (m_orientationType == 1) {double m_orient[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}}; rotMatrix=m_orient;}
+			if (m_orientationType == 2) {double m_orient[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}}; rotMatrix=m_orient;}
+			if (m_orientationType == 3) {double m_orient[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ vertA.x, vertA.y,vertA.z, 1.0}}; rotMatrix=m_orient;}
 
 
 			// Translation
@@ -383,12 +394,14 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				{ v4.x, v4.y , v4.z, 0},
 				{ vertA.x, vertA.y , vertA.z, 1}};
 
+
 			rotMatrix = m;
 
+			if (m_orientationType == 1) {double m_orient[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}}; rotMatrix = m_orient;}
+			if (m_orientationType == 2) {double m_orient[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}}; rotMatrix = m_orient;}
+			if (m_orientationType == 3) {double m_orient[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}}; rotMatrix = m_orient;}
 
-			if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}};rotMatrix = m;}
-			if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}};rotMatrix = m;}
-			if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0}};rotMatrix = m;}
+
 
 
 			double area;

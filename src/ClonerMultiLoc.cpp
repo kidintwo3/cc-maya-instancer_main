@@ -134,7 +134,7 @@ MBoundingBox ClonerMultiLoc::boundingBox() const
 	MFnDependencyNode fnDepLocNode( thisMObject() );
 
 	MPoint corner1( -1.0, 1.0, -1.0 );
-	MPoint corner2( 1.0, 0.0, 1.0 );
+	MPoint corner2( 1.0, -1.0, 1.0 );
 	return MBoundingBox( corner1, corner2 );
 
 
@@ -174,7 +174,7 @@ MBoundingBox ClonerMultiLocOverride::boundingBox( const MDagPath& objPath, const
 
 
 	MPoint corner1( -1.0, 1.0, -1.0 );
-	MPoint corner2( 1.0, 0.0, 1.0 );
+	MPoint corner2( 1.0, -1.0, 1.0 );
 
 	return MBoundingBox( corner1, corner2 );
 

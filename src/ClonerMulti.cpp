@@ -533,7 +533,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 			MFnNurbsCurve curveFn(m_inCurve, &status);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 			MVector vecMove;
-			double dUValue;
+			//double dUValue;
 
 			for (int m = 0; m < m_numDup - 1; m++)
 			{
@@ -565,7 +565,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 			if (m_connectLoop)
 			{
 
-				int m = m_numDup - 1;
+				//int m = m_numDup - 1;
 
 				for (int x = 0; x < m_ConnectArrayA.length(); x++)
 				{

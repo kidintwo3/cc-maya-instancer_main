@@ -124,9 +124,9 @@ void ClonerMultiThread::postConstructor()
 
 	// delete callback
 	MCallbackId callbackID;
-    
-    MObject myMObject = thisMObject();
-    
+
+	MObject myMObject = thisMObject();
+
 	callbackID = MNodeMessage::addNodeAboutToDeleteCallback(myMObject, aboutToDeleteCB, this);
 	m_callbackIDs.append(callbackID);
 
@@ -154,34 +154,57 @@ void ClonerMultiThread::postConstructor()
 void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
 {
 
+	MStatus status;
+
 	if (m_isDuplicating)
 	{
-		//MFnDagNode mfDgN( node );
-		//MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
-		//p_out_overrideEnabled.setBool(false);
 
-		MFnDependencyNode nodeFn(node);
-		MPlug worldP = nodeFn.findPlug( "outMesh" );
-
-		MFnDagNode mfDgN(worldP.node());
-
-		MPlugArray destPlugs;
-		worldP.connectedTo(destPlugs, false, true);
-
-		if (destPlugs.length() != 0)
+		if (! node.isNull()) 
 		{
-			MPlug destPlug = destPlugs[0];
-			mfDgN.setObject(destPlug.node());
 
 
-			//MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
-			//p_out_overrideEnabled.setBool(false);
+			MDagPath path;
+			status = MDagPath::getAPathTo(node, path);
 
-			MGlobal::displayInfo(MString("[ClonerMulti] ouptut mehs: ") + mfDgN.partialPathName() );
-			//MGlobal::displayInfo(MString("[ClonerMulti] Duplicating: ") + mfDgN.name());
+			if ( status.error() ) 
+			{
+				MGlobal::displayInfo("[ClonerMulti] Error: failed to get dag path to node.");
+			}
+
+			else
+			{
+				MString s = path.partialPathName();
+
+				s.substituteFirst("__PrenotatoPerDuplicare_", "");
+
+				MGlobal::displayInfo(s); 
+			}
+
+
+			//MFnDependencyNode nodeFn(node);
+			//MPlug worldP = nodeFn.findPlug( "outMesh" );
+
+			//MFnDagNode mfDgN(worldP.node());
+
+			//MPlugArray destPlugs;
+			//worldP.connectedTo(destPlugs, false, true);
+
+			//if (destPlugs.length() != 0)
+			//{
+			//	MPlug destPlug = destPlugs[0];
+			//	mfDgN.setObject(destPlug.node());
+
+
+			//	//MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
+			//	//p_out_overrideEnabled.setBool(false);
+
+			//	MGlobal::displayInfo(MString("[ClonerMulti] ouptut mehs: ") + mfDgN.partialPathName() );
+			//	//MGlobal::displayInfo(MString("[ClonerMulti] Duplicating: ") + mfDgN.name());
+			//}
+
 		}
 
-
+		MGlobal::displayInfo("------");
 
 	}
 

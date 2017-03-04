@@ -662,8 +662,8 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		MFnDependencyNode fnDepClonerOutputMesh( o_clonerOutputMesh );
 		fnDepClonerOutputMesh.setName( clonerMulti_mesh_name  );
 
-		status = m_DAGMod.doIt();
-		CHECK_MSTATUS_AND_RETURN_IT(status);
+		//status = m_DAGMod.doIt();
+		//CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
 		// Find shape node of node
@@ -748,7 +748,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		status = m_DAGMod.connect( p_clonerMultiNode_scale, p_clonerMultiMesh_scale );
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		m_DAGMod.doIt();
+		/*m_DAGMod.doIt();*/
 
 
 		// Assign Same material as input mesh
@@ -771,7 +771,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 			status = m_DAGMod.connect( plugSource, plugTarget );
 			CHECK_MSTATUS_AND_RETURN_IT(status);
-			m_DAGMod.doIt();
+			/*m_DAGMod.doIt();*/
 
 
 
@@ -779,7 +779,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 		// Add selected curves
 		for (int i = 0; i < p_currSelShapeA_curves.length(); i++)
-		{
+		 {
 
 			if (i==0)
 			{
@@ -796,7 +796,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 				status = m_DAGMod.connect( plugSource, p_clonerMultiNode_inCurve );
 				CHECK_MSTATUS_AND_RETURN_IT(status);
-				m_DAGMod.doIt();
+				/*m_DAGMod.doIt();*/
 
 				// Plugs of the clonerMulti node
 				MPlug p_instancetype = fnDepClonerNodeShape.findPlug("instanceType", &status);
@@ -815,6 +815,9 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 		}
+
+		status = m_DAGMod.doIt();
+		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		return::MStatus::kSuccess;
 	}
@@ -894,7 +897,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 					MFnDependencyNode fnDepLocB( o_locB );
 					fnDepLocB.setName( clonerMulti_locB_name );
 
-					m_DAGMod.doIt();
+					//m_DAGMod.doIt();
 
 
 
@@ -937,12 +940,12 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 					// Connect Loc A 
 					status = m_DAGMod.connect( p_locA_wm, inLocator_A_plug );
 					CHECK_MSTATUS_AND_RETURN_IT(status);
-					m_DAGMod.doIt();
+					//m_DAGMod.doIt();
 
 					// Connect Loc B
 					status = m_DAGMod.connect( p_locB_wm, inLocator_B_plug );
 					CHECK_MSTATUS_AND_RETURN_IT(status);
-					m_DAGMod.doIt();
+					//m_DAGMod.doIt();
 
 
 					// Move locators to its deafault positions
@@ -969,6 +972,10 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 			}
+
+
+					status = m_DAGMod.doIt();
+		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			return::MStatus::kSuccess;
 		}
@@ -1195,6 +1202,27 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 					}
+
+
+				// Create group for output meshes
+				MObject o_groupNode = m_DAGMod.createNode("transform", MObject::kNullObj, &status);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				
+				MFnDependencyNode fnDep_group( o_groupNode );
+				fnDep_group.setName( "clonerMulti_instance#"  );
+
+				if(status)
+				{
+
+					for (int i = 0; i < o_outputObjectsA.length(); i++)
+					{
+						m_DAGMod.reparentNode(o_outputObjectsA[i], o_groupNode);
+					}
+				}
+
+				o_outputObjectsA.append(o_groupNode);
+
 				}
 #endif
 
@@ -1251,16 +1279,26 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				}
 
 
-				// Delete output mesh
-				status = m_DAGMod.deleteNode(parent_depN.object());
-				CHECK_MSTATUS_AND_RETURN_IT(status);
+				//// Delete output mesh
+				//status = m_DAGMod.deleteNode(parent_depN.object());
+				//CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				// Delete cloner node
-				status = m_DAGMod.deleteNode(fnDepCloner.object());
-				CHECK_MSTATUS_AND_RETURN_IT(status);
+				//// Delete cloner node
+				//status = m_DAGMod.deleteNode(fnDepCloner.object());
+				//CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				status = m_DAGMod.doIt();
 				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+				MSelectionList currSel_list;
+
+				for (int i = 0; i < o_outputObjectsA.length(); i++)
+				{
+					currSel_list.add(o_outputObjectsA[i]);
+				}
+
+				MGlobal::setActiveSelectionList(currSel_list);
 
 			}
 
@@ -1305,9 +1343,11 @@ MStatus ClonerMultiCommand::undoIt()
 
 	for (int i = 0; i < o_outputObjectsA.length(); i++)
 	{
-		MDagModifier		m_DAGMod_bake;
+		MDagModifier m_DAGMod_bake;
+
 		status = m_DAGMod_bake.deleteNode(o_outputObjectsA[i]);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
+
 		status = m_DAGMod_bake.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 	}

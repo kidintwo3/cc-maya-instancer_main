@@ -4,7 +4,9 @@
 #include "AETemplate.h"
 #include "icons.h"
 
+
 #include <maya/MFnPlugin.h>
+#include <maya/MCommonSystemUtils.h>
 
 
 
@@ -13,12 +15,25 @@ MStatus initializePlugin( MObject obj )
 {
 	MStatus status;
 
-	icons_data_write();
-
-	MFnPlugin fnPlugin( obj, "Creative Case", "1.3", "Any" );
+	MFnPlugin fnPlugin( obj, "Creative Case", "1.4", "Any" );
 
 	MGlobal::executeCommand( mel_AETemplate() );
-	MGlobal::executeCommand( mel_createShelf() );
+
+
+	MString rebuild_icons = MCommonSystemUtils::getEnv("CLONERMULTI_REBUILD_ICONS", &status);
+
+	if( !rebuild_icons.asShort() )
+	{
+		icons_data_write();
+	}
+
+	MString rebuild_shelf = MCommonSystemUtils::getEnv("CLONERMULTI_REBUILD_SHELF", &status);
+
+	if( !rebuild_shelf.asShort() )
+	{
+		MGlobal::executeCommand( mel_createShelf() );
+	}
+
 
 	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiCommand::creator, ClonerMultiCommand::newSyntax );
 	CHECK_MSTATUS_AND_RETURN_IT( status );

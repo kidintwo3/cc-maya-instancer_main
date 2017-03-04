@@ -529,14 +529,9 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 		if (m_numInputMeshes == 1)
 		{
 
+
 			idOffset = 0;
 			MPoint ptClosest;
-
-			// curve data
-			MFnNurbsCurve curveFn(m_inCurve, &status);
-			CHECK_MSTATUS_AND_RETURN_IT(status);
-			MVector vecMove;
-			//double dUValue;
 
 			for (int m = 0; m < m_numDup - 1; m++)
 			{
@@ -564,21 +559,27 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 			}
 
+
+
 			// Connect End loops
 			if (m_connectLoop)
 			{
 
-				//int m = m_numDup - 1;
 
-				for (int x = 0; x < m_ConnectArrayA.length(); x++)
+				if (m_instanceType == 1 || m_instanceType == 4)
 				{
-					MPoint aP =  o_vertexArray[m_ConnectArrayA[x] + idOffset];
-					MPoint bP =  o_vertexArray[m_ConnectArrayB[x] ];
 
-					MPoint nP = (aP + bP) * 0.5;
+					for (int x = 0; x < m_ConnectArrayA.length(); x++)
+					{
+						MPoint aP =  o_vertexArray[m_ConnectArrayA[x] + idOffset];
+						MPoint bP =  o_vertexArray[m_ConnectArrayB[x] ];
 
-					o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayA[x] + idOffset );
-					o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayB[x]  );
+						MPoint nP = (aP + bP) * 0.5;
+
+						o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayA[x] + idOffset );
+						o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayB[x]  );
+					}
+
 				}
 
 			}

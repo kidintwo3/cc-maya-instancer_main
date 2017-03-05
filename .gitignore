@@ -87,3 +87,12 @@ scene/locators.ma
 # Build rules
 make/build/*
 !*.vcxproj
+*.plist
+
+*.xcscheme
+
+*.xcuserstate
+
+*.xcworkspacedata
+
+*.xcsettings

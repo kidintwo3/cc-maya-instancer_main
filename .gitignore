@@ -8,9 +8,6 @@
 *.gch
 *.pch
 
-# Build folders
-build/*
-
 # Compiled Dynamic libraries
 *.dylib
 *.dll
@@ -28,6 +25,7 @@ build/*
 *.exe
 *.out
 *.app
+
 
 # =========================
 # Operating System Files
@@ -81,3 +79,11 @@ $RECYCLE.BIN/
 *.lnk
 *.swatches
 scene/locators.ma
+*.tlog
+*.log
+
+!.gitignore
+
+# Build rules
+make/build/*
+!*.vcxproj

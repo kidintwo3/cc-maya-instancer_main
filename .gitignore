@@ -96,3 +96,7 @@ make/build/*
 *.xcworkspacedata
 
 *.xcsettings
+*.db
+*.opendb
+*.exp
+*.pdb

@@ -36,14 +36,17 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -label "World Space Input" -addControl "worldSpace";
 	editorTemplate -label "Loop Curve Offset" -addControl "loopOffset";
 	editorTemplate -addSeparator;
+	AEaddRampControl( $nodeName + ".offsetRamp" );
 	editorTemplate -addControl "offsetX";
 	editorTemplate -addControl "offsetY";
 	editorTemplate -addControl "offsetZ";
 	editorTemplate -addSeparator;
+	AEaddRampControl( $nodeName + ".rotateRamp" );
 	editorTemplate -addControl "rotateX";
 	editorTemplate -addControl "rotateY";
 	editorTemplate -addControl "rotateZ";
 	editorTemplate -addSeparator;
+	AEaddRampControl( $nodeName + ".scaleRamp" );
 	editorTemplate -addControl "scaleX";
 	editorTemplate -addControl "scaleY";
 	editorTemplate -addControl "scaleZ";

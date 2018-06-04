@@ -24,6 +24,9 @@ MStatus ClonerMultiThread::instanceGrid()
 
 
 
+
+
+
 	MTransformationMatrix transTMatrix;
 
 	for (int z = 0; z < m_instanceZ; z++)
@@ -33,28 +36,53 @@ MStatus ClonerMultiThread::instanceGrid()
 			for (int x = 0; x < m_instanceX; x++)
 			{
 
+
+
+				double off_ramp_mult = 1.0;
+
+				if (f < int(m_offsetProfileA.length()))
+				{
+					off_ramp_mult = m_offsetProfileA[f];
+				}
+
+
+				double rot_ramp_mult = 1.0;
+
+				if (f < int(m_rotateProfileA.length()))
+				{
+					rot_ramp_mult = m_rotateProfileA[f];
+				}
+
+				double scale_ramp_mult = 1.0;
+
+				if (f < int(m_scaleProfileA.length()))
+				{
+					scale_ramp_mult = m_scaleProfileA[f];
+				}
+
+
 				// Translation
-				MFloatVector v_baseOffV((m_offsetX * float(x)), (m_offsetY * float(y)), (m_offsetZ * float(z))  );
+				MFloatVector v_baseOffV((m_offsetX * float(x)) * off_ramp_mult, (m_offsetY * float(y)) * off_ramp_mult, (m_offsetZ * float(z)) *off_ramp_mult);
 
 				// Rotation
 
-				double rot[3] = {m_rotateX * 0.5f * ( M_PI / 180.0f ), m_rotateY * 0.5f * ( M_PI / 180.0f ),  m_rotateZ * 0.5f * ( M_PI / 180.0f )};
+				double rot[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
 				// Scale
-				const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
+				const double scaleV[3] = { double(m_scaleX)*scale_ramp_mult,  double(m_scaleY)*scale_ramp_mult,  double(m_scaleZ)*scale_ramp_mult };
 
 
 
 
 
 				// Random Transform
-				MFloatVector v_rndOffV(m_rndOffsetXA[f], m_rndOffsetYA[f] ,m_rndOffsetZA[f]);
+				MFloatVector v_rndOffV(m_rndOffsetXA[f] * off_ramp_mult, m_rndOffsetYA[f] * off_ramp_mult, m_rndOffsetZA[f] * off_ramp_mult);
 				// Random Rotate
 
-				double rot_rnd[3] = {m_rndRotateXA[f] * 0.5f * ( M_PI / 180.0f ), m_rndRotateYA[f] * 0.5f * ( M_PI / 180.0f ),  m_rndRotateZA[f] * 0.5f * ( M_PI / 180.0f )};
+				double rot_rnd[3] = { m_rndRotateXA[f] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult, m_rndRotateYA[f] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult,  m_rndRotateZA[f] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult };
 
-			// Random Scale
-			const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[f]),  double(1.0+m_rndScaleYA[f]),  double(1.0+m_rndScaleZA[f]) };
+				// Random Scale
+				const double scaleV_rnd[3] = { double(1.0 + m_rndScaleXA[f])*scale_ramp_mult,  double(1.0 + m_rndScaleYA[f])*scale_ramp_mult,  double(1.0 + m_rndScaleZA[f]) *scale_ramp_mult };
 
 
 

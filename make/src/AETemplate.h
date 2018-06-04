@@ -52,14 +52,17 @@ MString mel_AETemplate()
 		"	editorTemplate -label \"World Space Input\" -addControl \"worldSpace\";\r\n"
 		"	editorTemplate -label \"Loop Curve Offset\" -addControl \"loopOffset\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
+		"	AEaddRampControl( $nodeName + \".offsetRamp\" );\r\n"
 		"	editorTemplate -addControl \"offsetX\";\r\n"
 		"	editorTemplate -addControl \"offsetY\";\r\n"
 		"	editorTemplate -addControl \"offsetZ\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
+		"	AEaddRampControl( $nodeName + \".rotateRamp\" );\r\n"
 		"	editorTemplate -addControl \"rotateX\";\r\n"
 		"	editorTemplate -addControl \"rotateY\";\r\n"
 		"	editorTemplate -addControl \"rotateZ\";\r\n"
 		"	editorTemplate -addSeparator;\r\n"
+		"	AEaddRampControl( $nodeName + \".scaleRamp\" );\r\n"
 		"	editorTemplate -addControl \"scaleX\";\r\n"
 		"	editorTemplate -addControl \"scaleY\";\r\n"
 		"	editorTemplate -addControl \"scaleZ\";\r\n"
@@ -809,7 +812,7 @@ MString mel_AETemplate()
 MString mel_createShelf()
 {
 
-	MString s_shelf = 
+	MString s_shelf =
 		"int $cc_doesShelfExist = `shelfLayout -query -ex \"CreativeCase\"`;\r\n"
 		"if ($cc_doesShelfExist == 1)\r\n"
 		"{\r\n"

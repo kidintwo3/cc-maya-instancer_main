@@ -1,7 +1,7 @@
 $versions = @("2016","2016.5","2017","2018")
 $op_system = "win"
 $plugin_name = "clonerMulti"
-$destination_dir = "c:/WORK/_admin/git/cc-maya-instancer_main/build/"+$op_system+"/"
+$destination_dir = "C:/Users/janos.hunyadi/Documents/GitHub/cc-maya-instancer_main/build/"+$op_system+"/"
 
 
 

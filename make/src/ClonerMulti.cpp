@@ -39,16 +39,19 @@ MObject     ClonerMultiThread::aGridInstanceZ;
 MObject     ClonerMultiThread::aGridOffsetX;
 MObject     ClonerMultiThread::aGridOffsetY;
 MObject     ClonerMultiThread::aGridOffsetZ;
+MObject     ClonerMultiThread::aGridOffsetRamp;
 
 // Rotate
 MObject     ClonerMultiThread::aRotateX;
 MObject     ClonerMultiThread::aRotateY;
 MObject     ClonerMultiThread::aRotateZ;
+MObject     ClonerMultiThread::aRotateRamp;
 
 // Scale
 MObject     ClonerMultiThread::aScaleX;
 MObject     ClonerMultiThread::aScaleY;
 MObject     ClonerMultiThread::aScaleZ;
+MObject     ClonerMultiThread::aScaleRamp;
 
 // Random
 MObject     ClonerMultiThread::aRndOffsetX;
@@ -1444,12 +1447,29 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_interpolate = data.inputValue(aInterpolate, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+
 	// Override instace count if instance type is set to Circle
 	if (m_instanceType == 1) { m_instanceZ = 1;}
 	if (m_instanceType == 5) { m_instanceZ = 1;}
 	//if (m_instanceType == 4) { m_rotateX+=180.0;}
 
 	m_numDup = m_instanceX * m_instanceY * m_instanceZ; if (m_numDup < 1) { m_numDup = 1;}
+
+
+
+	// Ramp attribute
+	MRampAttribute a_offsetAttribute(this->thisMObject(), aGridOffsetRamp, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_offsetProfileA = storeProfileCurveData(a_offsetAttribute, m_numDup);
+
+	MRampAttribute a_rotateAttribute(this->thisMObject(), aRotateRamp, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_rotateProfileA = storeProfileCurveData(a_rotateAttribute, m_numDup);
+
+	MRampAttribute a_scaleAttribute(this->thisMObject(), aScaleRamp, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_scaleProfileA = storeProfileCurveData(a_scaleAttribute, m_numDup);
+
 
 
 	// Override instace count if instance type is set to Mesh
@@ -1459,6 +1479,28 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 
 }
 
+
+MFloatArray ClonerMultiThread::storeProfileCurveData(MRampAttribute a_segmentsAttribute, int segments)
+{
+	MStatus status;
+
+	MFloatArray curve_segments_values;
+
+	for (int i = 0; i < segments + 1; i++)
+	{
+		float rampPosition = (1.0f / float(segments + 1)) * float(i);
+		float curveRampValue;
+
+		a_segmentsAttribute.getValueAtPosition(rampPosition, curveRampValue, &status);
+		CHECK_MSTATUS(status);
+
+		curve_segments_values.append(curveRampValue);
+
+	}
+
+	return curve_segments_values;
+
+}
 
 MFloatArray ClonerMultiThread::generateRndArray(float& surfaceNoise, int& numValues, int& seedVal)
 {
@@ -2123,6 +2165,7 @@ MStatus ClonerMultiThread::initialize()
 	MFnEnumAttribute			eAttr;
 	MFnCompoundAttribute        cAttr;
 	MFnMatrixAttribute			mAttr;
+	MRampAttribute				rAttr;
 
 	MFnStringData      fnStringData;
 	MObject            defaultStringA;
@@ -2621,9 +2664,23 @@ MStatus ClonerMultiThread::initialize()
 	ClonerMultiThread::addAttribute( aConnectArrayB );
 
 
+	ClonerMultiThread::aGridOffsetRamp = rAttr.createCurveRamp("offsetRamp", "offsetRamp");
+	ClonerMultiThread::addAttribute(aGridOffsetRamp);
+
+	ClonerMultiThread::aRotateRamp = rAttr.createCurveRamp("rotateRamp", "rotateRamp");
+	ClonerMultiThread::addAttribute(aRotateRamp);
+
+	ClonerMultiThread::aScaleRamp = rAttr.createCurveRamp("scaleRamp", "scaleRamp");
+	ClonerMultiThread::addAttribute(aScaleRamp);
+
+
 	// Attribute affects
 	// Output mesh
 
+
+	attributeAffects(ClonerMultiThread::aGridOffsetRamp, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRotateRamp, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aScaleRamp, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMesh);

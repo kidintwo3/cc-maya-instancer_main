@@ -55,6 +55,7 @@
 #include <maya/MFnSingleIndexedComponent.h>
 #include <maya/MMeshIntersector.h>
 #include <maya/MPxLocatorNode.h>
+#include <maya/MRampAttribute.h>
 
 #if MAYA_API_VERSION > 201600
 #include <maya/MFnMatrixArrayData.h>
@@ -100,7 +101,9 @@ public:
 	virtual MStatus				compute(const MPlug& plug, MDataBlock& data);
 	static  MStatus				initialize();
     
-    virtual void            draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status );
+	MFloatArray					storeProfileCurveData(MRampAttribute a_segmentsAttribute, int segments);
+
+    virtual void				draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status );
 
 	// Vp 2.0 stuff
 	static	MString				drawDbClassification;
@@ -161,6 +164,11 @@ public:
 	static MObject				aRndScaleZ;
 	static MObject				aSeedVal;
 	static MObject				aRandIDLev;
+
+	// Ramps
+	static MObject				aGridOffsetRamp;
+	static MObject				aRotateRamp;
+	static MObject				aScaleRamp;
 
 	// UV
 	static MObject				aUVOffsetU;
@@ -324,6 +332,11 @@ private:
 	int                         m_instanceY;
 	int                         m_instanceZ;
 
+	// Ramps
+
+	MFloatArray					m_offsetProfileA;
+	MFloatArray					m_rotateProfileA;
+	MFloatArray					m_scaleProfileA;
 
 	// Transforms
 	float					    m_offsetX;

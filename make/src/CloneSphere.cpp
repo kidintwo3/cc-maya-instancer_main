@@ -22,7 +22,7 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 	float samples = float(m_numDup);
 
 
-	float offset = 2.0f/float(samples);
+	float offset = 2.0f / float(samples);
 	float increment = M_PI * (3. - sqrt(5.0f));
 
 
@@ -44,10 +44,37 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 	for (int i = 0; i < m_numDup; i++)
 	{
 
+
+		double off_ramp_mult = 1.0;
+
+		if (i < int(m_offsetProfileA.length()))
+		{
+			off_ramp_mult = m_offsetProfileA[i];
+		}
+
+
+		double rot_ramp_mult = 1.0;
+
+		if (i < int(m_rotateProfileA.length()))
+		{
+			rot_ramp_mult = m_rotateProfileA[i];
+		}
+
+		double scale_ramp_mult = 1.0;
+
+		if (i < int(m_scaleProfileA.length()))
+		{
+			scale_ramp_mult = m_scaleProfileA[i];
+		}
+
+
+
+
+
 		// TRANSFORM
 
 		float  y = ((i * offset) - 1) + (offset / 2);
-		float r = sqrt(1 - pow(y,2));
+		float r = sqrt(1 - pow(y, 2));
 
 		float phi = ((i + int(rnd)) % m_numDup) * increment;
 
@@ -56,13 +83,13 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 
 
 		MTransformationMatrix transMatrix; // Calc trans
-		MFloatVector v_baseV( x * m_offsetX, y * m_offsetY ,z * m_offsetZ );
+		MFloatVector v_baseV(x * m_offsetX, y * m_offsetY, z * m_offsetZ);
 
-		MPoint p = v_baseV * 0.5;
+		MPoint p = v_baseV * 0.5 * off_ramp_mult;
 
 		// ROTATION base orientation
 		MFloatVector ab = p;
-		MFloatVector normal = ab-MFloatPoint::origin;
+		MFloatVector normal = ab - MFloatPoint::origin;
 		normal.normalize();
 
 		MFloatVector yDir = normal ^ m_firstUpVec;
@@ -70,18 +97,18 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 		MFloatVector zDir = ab ^ yDir;
 		zDir.normalize();
 
-		double m_rot[4][4] = {{yDir.x, yDir.y, yDir.z, 0.0}, {normal.x, normal.y, normal.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {0.0, 0.0, 0.0, 1.0}};
-		double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};
+		double m_rot[4][4] = { {yDir.x, yDir.y, yDir.z, 0.0}, {normal.x, normal.y, normal.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {0.0, 0.0, 0.0, 1.0} };
+		double m[4][4] = { {1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0} };
 
 
 		MMatrix mat_rot = m_rot;
 
-		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
-		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
-		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};mat_rot = m;}
+		if (m_orientationType == 1) { double m[4][4] = { {0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0} }; mat_rot = m; }
+		if (m_orientationType == 2) { double m[4][4] = { {1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0} }; mat_rot = m; }
+		if (m_orientationType == 3) { double m[4][4] = { {1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0} }; mat_rot = m; }
 
 		MMatrix mat = m;
-		
+
 
 		// Transformation matrix
 		MTransformationMatrix tr_mat(mat);
@@ -89,20 +116,20 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 
 
 		// Rotation
-		double rotation[3] = {m_rotateX * 0.5f * ( M_PI / 180.0f ), m_rotateY * 0.5f * ( M_PI / 180.0f ),  m_rotateZ * 0.5f * ( M_PI / 180.0f )};
+		double rotation[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
 
 		// Scale
-		const double scaleV[3] = {  double(m_scaleX),  double(m_scaleY),  double(m_scaleZ) };
+		const double scaleV[3] = { double(m_scaleX) * scale_ramp_mult,  double(m_scaleY) * scale_ramp_mult,  double(m_scaleZ) * scale_ramp_mult };
 
 		// Random Transform
-		MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i] ,m_rndOffsetZA[i]);
+		MFloatVector v_rndOffV(m_rndOffsetXA[i] * off_ramp_mult, m_rndOffsetYA[i] * off_ramp_mult, m_rndOffsetZA[i] * off_ramp_mult);
 		// Random Rotate
 
-		double rot_rnd[3] = {m_rndRotateXA[i] * 0.5f * ( M_PI / 180.0f ), m_rndRotateYA[i] * 0.5f * ( M_PI / 180.0f ),  m_rndRotateZA[i] * 0.5f * ( M_PI / 180.0f )};
+		double rot_rnd[3] = { m_rndRotateXA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult, m_rndRotateYA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult,  m_rndRotateZA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult };
 
 		// Random Scale
-		const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[i]),  double(1.0+m_rndScaleYA[i]),  double(1.0+m_rndScaleZA[i]) };
+		const double scaleV_rnd[3] = { double(1.0 + m_rndScaleXA[i])* scale_ramp_mult,  double(1.0 + m_rndScaleYA[i])* scale_ramp_mult,  double(1.0 + m_rndScaleZA[i])* scale_ramp_mult };
 
 
 
@@ -116,9 +143,9 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 		t_mat.rotation().get(rot_ext);
 
 
-		status = tr_mat.addRotation(rot_ext,  MTransformationMatrix::kXYZ, MSpace::kObject);
+		status = tr_mat.addRotation(rot_ext, MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		status = tr_mat.addRotation(rotation,  MTransformationMatrix::kXYZ, MSpace::kObject);
+		status = tr_mat.addRotation(rotation, MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);

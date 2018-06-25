@@ -2251,6 +2251,7 @@ MStatus ClonerMultiThread::initialize()
 	eAttr.addField("UV", 0);
 	eAttr.addField("Vertex", 1);
 	eAttr.addField("Polygon", 2);
+	eAttr.addField("Polygon Borders", 3);
 	eAttr.setStorable(true);
 	addAttribute(ClonerMultiThread::aScatterType);
 

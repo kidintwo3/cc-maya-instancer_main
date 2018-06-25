@@ -21,21 +21,21 @@ MSyntax ClonerMultiCommand::newSyntax()
 {
 	MSyntax syntax;
 
-	syntax.addFlag( "-na", "-name", MSyntax::kString);
-	syntax.addFlag( "-ab", "-atob");
-	syntax.addFlag( "-ac", "-aconn");
-	syntax.addFlag( "-bc", "-bconn");
-	syntax.addFlag( "-s", "-shift", MSyntax::kString);
-	syntax.addFlag( "-r", "-reverse", MSyntax::kString);
-	syntax.addFlag( "-b", "-bake");
-	syntax.addFlag( "-no", "-node", MSyntax::kString  );
+	syntax.addFlag("-na", "-name", MSyntax::kString);
+	syntax.addFlag("-ab", "-atob");
+	syntax.addFlag("-ac", "-aconn");
+	syntax.addFlag("-bc", "-bconn");
+	syntax.addFlag("-s", "-shift", MSyntax::kString);
+	syntax.addFlag("-r", "-reverse", MSyntax::kString);
+	syntax.addFlag("-b", "-bake");
+	syntax.addFlag("-no", "-node", MSyntax::kString);
 
 	// syntax.setObjectType( MSyntax::kSelectionList, 1, 1 );
 
-	syntax.useSelectionAsDefault( true );
+	syntax.useSelectionAsDefault(true);
 
-	syntax.enableEdit( false );
-	syntax.enableQuery( false );
+	syntax.enableEdit(false);
+	syntax.enableQuery(false);
 
 	return syntax;
 }
@@ -44,16 +44,17 @@ MSyntax ClonerMultiCommand::newSyntax()
 
 
 
-MStatus ClonerMultiCommand::doIt( const MArgList& argList )
+MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 {
 	MStatus status;
 
-	MArgDatabase argData( syntax(), argList, &status );
+	MArgDatabase argData(syntax(), argList, &status);
 
 
 	// Get Selected Object
 	MSelectionList selectedObjects;
 	MGlobal::getActiveSelectionList(selectedObjects);
+
 
 
 	// Shift string
@@ -69,16 +70,16 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 		// put user input array into an mIntarray
 		MIntArray connectArrayA;
-		for(int i = 0; i < stringDataAArray.length(); i++ ){ connectArrayA.append(stringDataAArray[i].asInt()); }
+		for (int i = 0; i < stringDataAArray.length(); i++) { connectArrayA.append(stringDataAArray[i].asInt()); }
 
 		int size = connectArrayA.length();
 
 		int temp;
 
-		for (int i=0; i<(size -1); i++)
+		for (int i = 0; i < (size - 1); i++)
 		{
-			temp = connectArrayA[size-1];
-			connectArrayA[size-1] = connectArrayA[i];
+			temp = connectArrayA[size - 1];
+			connectArrayA[size - 1] = connectArrayA[i];
 			connectArrayA[i] = temp;
 		}
 
@@ -91,7 +92,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 			outputString += MString() + connectArrayA[i];
 
-			if (i < connectArrayA.length()-1)
+			if (i < connectArrayA.length() - 1)
 			{
 				outputString += MString() + ",";
 			}
@@ -118,15 +119,15 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 		// put user input array into an mIntarray
 		MIntArray connectArrayA;
-		for(int i = 0; i < stringDataAArray.length(); i++ ){ connectArrayA.append(stringDataAArray[i].asInt()); }
+		for (int i = 0; i < stringDataAArray.length(); i++) { connectArrayA.append(stringDataAArray[i].asInt()); }
 
 		int size = connectArrayA.length();
 
 		int temp, i;
 
-		for (i = 0; i < size/2; ++i) {
-			temp = connectArrayA[size-i-1];
-			connectArrayA[size-i-1] = connectArrayA[i];
+		for (i = 0; i < size / 2; ++i) {
+			temp = connectArrayA[size - i - 1];
+			connectArrayA[size - i - 1] = connectArrayA[i];
 			connectArrayA[i] = temp;
 		}
 
@@ -139,7 +140,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 			outputString += MString() + connectArrayA[i];
 
-			if (i < connectArrayA.length()-1)
+			if (i < connectArrayA.length() - 1)
 			{
 				outputString += MString() + ",";
 			}
@@ -163,7 +164,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		MDagPath m_pathBaseMeshShape;
 		iter.getDagPath(m_pathBaseMeshShape, component);
 
-		if (component.apiType() ==  MFn::kMeshPolygonComponent )
+		if (component.apiType() == MFn::kMeshPolygonComponent)
 		{
 			MGlobal::displayWarning(MString() + "Select verts or edges");
 			return MS::kFailure;
@@ -171,13 +172,13 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 
-		if (component.apiType() ==  MFn::kMeshEdgeComponent )
+		if (component.apiType() == MFn::kMeshEdgeComponent)
 		{
-			MGlobal::displayInfo(MString() + "Converting edges to Verts" );
+			MGlobal::displayInfo(MString() + "Converting edges to Verts");
 			MItMeshEdge eIter(m_pathBaseMeshShape, component, &status);
 			MItMeshVertex pIter(m_pathBaseMeshShape);
 
-			if(status != MS::kSuccess)
+			if (status != MS::kSuccess)
 			{
 				return MS::kFailure;
 			}
@@ -190,7 +191,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 			int prevIndex;
 
-			for ( eIter.reset() ; !eIter.isDone() ; eIter.next() )
+			for (eIter.reset(); !eIter.isDone(); eIter.next())
 			{
 				vertIdA.append(eIter.index(0));
 				vertIdA.append(eIter.index(1));
@@ -530,7 +531,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 				outputString += MString() + connpA[i];
 
-				if (i < connpA.length()-1)
+				if (i < connpA.length() - 1)
 				{
 					outputString += MString() + ",";
 				}
@@ -632,7 +633,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 	// Setting the name
-	if ( argData.isFlagSet( "-na" ) )
+	if (argData.isFlagSet("-na"))
 	{
 		MString customName;
 		argData.getFlagArgument("-na", 0, customName);
@@ -645,8 +646,11 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 	// Default node creation
-	if ( !argData.isFlagSet( "-no" ) )
+	if (!argData.isFlagSet("-no"))
 	{
+
+
+		MStringArray outputStringA;
 
 		// Create clonerMulti node
 		o_clonerMultiNode = m_DAGMod.createNode(MTypeId(0x00123946), MObject::kNullObj, &status);
@@ -655,8 +659,8 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		status = m_DAGMod.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MFnDependencyNode fnDepCloner( o_clonerMultiNode );
-		fnDepCloner.setName( clonerMulti_node_name  );
+		MFnDependencyNode fnDepCloner(o_clonerMultiNode);
+		fnDepCloner.setName(clonerMulti_node_name);
 
 		// Create clonerMulti output mesh
 		o_clonerOutputMesh = m_DAGMod.createNode("mesh", MObject::kNullObj, &status);
@@ -665,8 +669,8 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		status = m_DAGMod.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MFnDependencyNode fnDepClonerOutputMesh( o_clonerOutputMesh );
-		fnDepClonerOutputMesh.setName( clonerMulti_mesh_name  );
+		MFnDependencyNode fnDepClonerOutputMesh(o_clonerOutputMesh);
+		fnDepClonerOutputMesh.setName(clonerMulti_mesh_name);
 
 		status = m_DAGMod.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -679,7 +683,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		MSelectionList sel_list;
 		sel_list.clear();
 		sel_list.add(fnDepCloner.name());
-		sel_list.getDagPath(0,dag_clonerNode);
+		sel_list.getDagPath(0, dag_clonerNode);
 		dag_clonerNodeTr = dag_clonerNode;
 		dag_clonerNode.extendToShape();
 		dag_clonerNodeShape = dag_clonerNode;
@@ -691,7 +695,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		sel_list.clear();
 		status = sel_list.add(fnDepClonerOutputMesh.name());
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		status = sel_list.getDagPath(0,dag_outMesh);
+		status = sel_list.getDagPath(0, dag_outMesh);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 		dag_outMeshTr = dag_outMesh;
 		status = dag_outMesh.extendToShape();
@@ -700,58 +704,64 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 		// Connect the mesh to the node
-		MFnDependencyNode fnDepClonerOutputMeshShape( dag_outMeshShape.node() );
-		MFnDependencyNode fnDepClonerOutputMeshTransform( dag_outMeshTr.node() );
-		MFnDependencyNode fnDepClonerNodeShape( dag_clonerNodeShape.node() );
-		MFnDependencyNode fnDepClonerNodeTransform( dag_clonerNodeTr.node() );
+		MFnDependencyNode fnDepClonerOutputMeshShape(dag_outMeshShape.node());
+		MFnDependencyNode fnDepClonerOutputMeshTransform(dag_outMeshTr.node());
+		MFnDependencyNode fnDepClonerNodeShape(dag_clonerNodeShape.node());
+		MFnDependencyNode fnDepClonerNodeTransform(dag_clonerNodeTr.node());
 
-		fnDepClonerOutputMeshShape.setName( clonerMulti_mesh_name + "Shape#" );
+		fnDepClonerOutputMeshShape.setName(clonerMulti_mesh_name + "Shape#");
+
+		// Set outputs
+		outputStringA.append(fnDepClonerNodeTransform.name());
+		outputStringA.append(fnDepClonerNodeShape.name());
+		outputStringA.append(fnDepClonerOutputMeshTransform.name());
+		outputStringA.append(fnDepClonerOutputMeshShape.name());
 
 		// Mesh plugs
-		MPlug p_clonerMultiMesh_inMesh = fnDepClonerOutputMeshShape.findPlug( "inMesh", &status );
+		MPlug p_clonerMultiMesh_inMesh = fnDepClonerOutputMeshShape.findPlug("inMesh", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiMesh_translate = fnDepClonerOutputMeshTransform.findPlug( "translate", &status );
+		MPlug p_clonerMultiMesh_translate = fnDepClonerOutputMeshTransform.findPlug("translate", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiMesh_rotate = fnDepClonerOutputMeshTransform.findPlug( "rotate", &status );
+		MPlug p_clonerMultiMesh_rotate = fnDepClonerOutputMeshTransform.findPlug("rotate", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiMesh_scale = fnDepClonerOutputMeshTransform.findPlug( "scale", &status );
+		MPlug p_clonerMultiMesh_scale = fnDepClonerOutputMeshTransform.findPlug("scale", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
 
 		// Node plugs
 
-		MPlug p_clonerMultiNode_translate = fnDepClonerNodeTransform.findPlug( "translate", &status );
+		MPlug p_clonerMultiNode_translate = fnDepClonerNodeTransform.findPlug("translate", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiNode_rotate = fnDepClonerNodeTransform.findPlug( "rotate", &status );
+		MPlug p_clonerMultiNode_rotate = fnDepClonerNodeTransform.findPlug("rotate", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiNode_scale = fnDepClonerNodeTransform.findPlug( "scale", &status );
+		MPlug p_clonerMultiNode_scale = fnDepClonerNodeTransform.findPlug("scale", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiNode_outMesh = fnDepClonerNodeShape.findPlug( "outMesh", &status );
+		MPlug p_clonerMultiNode_outMesh = fnDepClonerNodeShape.findPlug("outMesh", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiNode_inMesh = fnDepClonerNodeShape.findPlug( "inMesh", &status );
+		MPlug p_clonerMultiNode_inMesh = fnDepClonerNodeShape.findPlug("inMesh", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		MPlug p_clonerMultiNode_inCurve = fnDepClonerNodeShape.findPlug( "inCurve", &status );
+		MPlug p_clonerMultiNode_inCurve = fnDepClonerNodeShape.findPlug("inCurve", &status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		status = m_DAGMod.connect( p_clonerMultiNode_outMesh, p_clonerMultiMesh_inMesh );
+		status = m_DAGMod.connect(p_clonerMultiNode_outMesh, p_clonerMultiMesh_inMesh);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		status = m_DAGMod.connect( p_clonerMultiNode_translate, p_clonerMultiMesh_translate );
+		status = m_DAGMod.connect(p_clonerMultiNode_translate, p_clonerMultiMesh_translate);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		status = m_DAGMod.connect( p_clonerMultiNode_rotate, p_clonerMultiMesh_rotate );
+		status = m_DAGMod.connect(p_clonerMultiNode_rotate, p_clonerMultiMesh_rotate);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
-		status = m_DAGMod.connect( p_clonerMultiNode_scale, p_clonerMultiMesh_scale );
+		status = m_DAGMod.connect(p_clonerMultiNode_scale, p_clonerMultiMesh_scale);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		status = m_DAGMod.doIt();
@@ -762,21 +772,53 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		assignInitialShadingGroup(o_clonerOutputMesh);
 
 
+
+		// Load initial values
+
+		MFloatArray	m_curve_values;
+		MFloatArray	m_curve_positions;
+		MIntArray m_curve_interps;
+
+		m_curve_values.append(1.0);
+		m_curve_values.append(1.0);
+
+		m_curve_positions.append(0.0);
+		m_curve_positions.append(1.0);
+
+		m_curve_interps.append(MRampAttribute::kLinear);
+		m_curve_interps.append(MRampAttribute::kLinear);
+
+		MPlug p_offsetRamp = fnDepClonerNodeShape.findPlug("offsetRamp", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_offsetRamp(p_offsetRamp);
+		a_offsetRamp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		MPlug p_rotateRamp = fnDepClonerNodeShape.findPlug("rotateRamp", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_rotateRamp(p_rotateRamp);
+		a_rotateRamp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		MPlug p_scaleRamp = fnDepClonerNodeShape.findPlug("scaleRamp", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_scaleRamp(p_scaleRamp);
+		a_scaleRamp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+
 		// Add selected objects
 		for (int i = 0; i < p_currSelShapeA.length(); i++)
 		{
 
 
-			MFnDagNode fnDepSource( p_currSelShapeA[i].node() );
-			MPlug plugSource = fnDepSource.findPlug( "worldMesh" );
+			MFnDagNode fnDepSource(p_currSelShapeA[i].node());
+			MPlug plugSource = fnDepSource.findPlug("worldMesh");
 			plugSource = plugSource.elementByLogicalIndex(0);
 
 
 			MPlug plugTarget = p_clonerMultiNode_inMesh.elementByLogicalIndex(i);
 
-			MGlobal::displayInfo(MString() + "[ClonerMulti] connected: " + plugSource.name() + " -> " + p_clonerMultiNode_inMesh.name()  );
+			MGlobal::displayInfo(MString() + "[ClonerMulti] connected: " + plugSource.name() + " -> " + p_clonerMultiNode_inMesh.name());
 
-			status = m_DAGMod.connect( plugSource, plugTarget );
+			status = m_DAGMod.connect(plugSource, plugTarget);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			status = m_DAGMod.doIt();
@@ -790,20 +832,20 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		for (int i = 0; i < p_currSelShapeA_curves.length(); i++)
 		{
 
-			if (i==0)
+			if (i == 0)
 			{
 
-				MFnDagNode fnDepSource( p_currSelShapeA_curves[i].node() );
-				MPlug plugSource = fnDepSource.findPlug( "worldSpace" );
+				MFnDagNode fnDepSource(p_currSelShapeA_curves[i].node());
+				MPlug plugSource = fnDepSource.findPlug("worldSpace");
 				plugSource = plugSource.elementByLogicalIndex(0);
 
 
 
 
 
-				MGlobal::displayInfo(MString() + "[ClonerMulti] connected: " + plugSource.name() + " -> " + p_clonerMultiNode_inCurve.name()  );
+				MGlobal::displayInfo(MString() + "[ClonerMulti] connected: " + plugSource.name() + " -> " + p_clonerMultiNode_inCurve.name());
 
-				status = m_DAGMod.connect( plugSource, p_clonerMultiNode_inCurve );
+				status = m_DAGMod.connect(plugSource, p_clonerMultiNode_inCurve);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				status = m_DAGMod.doIt();
@@ -830,6 +872,9 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 		status = m_DAGMod.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
+
+		MPxCommand::setResult(outputStringA);
+
 		return::MStatus::kSuccess;
 	}
 
@@ -853,7 +898,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 			MObject MObj;
 			MSelectionList selList;
 			selList.add(s_clonerMultiNodeName);
-			selList.getDependNode(0,MObj);
+			selList.getDependNode(0, MObj);
 			MFnDependencyNode mfDgN(MObj);
 			o_clonerMultiNode = mfDgN.object();
 
@@ -871,7 +916,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				sel_list.clear();
 				status = sel_list.add(fnDepCloner.name());
 				CHECK_MSTATUS_AND_RETURN_IT(status);
-				status = sel_list.getDagPath(0,dag_clonerNode);
+				status = sel_list.getDagPath(0, dag_clonerNode);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 				dag_clonerNodeTr = dag_clonerNode;
 				status = dag_clonerNode.extendToShape();
@@ -879,20 +924,20 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 				dag_clonerNodeShape = dag_clonerNode;
 
-				MFnDependencyNode fnDepClonerNodeShape( dag_clonerNodeShape.node() );
+				MFnDependencyNode fnDepClonerNodeShape(dag_clonerNodeShape.node());
 
 
 
 				// Get it's locator A plug
-				MObject inLocator_A_Attr = fnDepClonerNodeShape.attribute( "locatorAPos", &status );
+				MObject inLocator_A_Attr = fnDepClonerNodeShape.attribute("locatorAPos", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				// Get it's locator B plug
-				MObject inLocator_B_Attr = fnDepClonerNodeShape.attribute( "locatorBPos", &status );
+				MObject inLocator_B_Attr = fnDepClonerNodeShape.attribute("locatorBPos", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				MPlug inLocator_A_plug = MPlug( fnDepClonerNodeShape.object(), inLocator_A_Attr );
-				MPlug inLocator_B_plug = MPlug( fnDepClonerNodeShape.object(), inLocator_B_Attr );
+				MPlug inLocator_A_plug = MPlug(fnDepClonerNodeShape.object(), inLocator_A_Attr);
+				MPlug inLocator_B_plug = MPlug(fnDepClonerNodeShape.object(), inLocator_B_Attr);
 
 
 				if (!inLocator_A_plug.isConnected() && !inLocator_B_plug.isConnected())
@@ -900,16 +945,16 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 					// Create clonerMulti locator A
 					o_locA = m_DAGMod.createNode(MTypeId(0x00123947));
-					MFnDependencyNode fnDepLocA( o_locA );
-					fnDepLocA.setName( clonerMulti_locA_name );
+					MFnDependencyNode fnDepLocA(o_locA);
+					fnDepLocA.setName(clonerMulti_locA_name);
 
 					status = m_DAGMod.doIt();
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 
 					// Create clonerMulti locator B
 					o_locB = m_DAGMod.createNode(MTypeId(0x00123947));
-					MFnDependencyNode fnDepLocB( o_locB );
-					fnDepLocB.setName( clonerMulti_locB_name );
+					MFnDependencyNode fnDepLocB(o_locB);
+					fnDepLocB.setName(clonerMulti_locB_name);
 
 					status = m_DAGMod.doIt();
 					CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -921,7 +966,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 					MDagPath dag_LocA;
 					sel_list.clear();
 					sel_list.add(fnDepLocA.name());
-					sel_list.getDagPath(0,dag_LocA);
+					sel_list.getDagPath(0, dag_LocA);
 					dag_LocATr = dag_LocA;
 					dag_LocA.extendToShape();
 					dag_LocAShape = dag_LocA;
@@ -932,7 +977,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 					MDagPath dag_LocB;
 					sel_list.clear();
 					sel_list.add(fnDepLocB.name());
-					sel_list.getDagPath(0,dag_LocB);
+					sel_list.getDagPath(0, dag_LocB);
 					dag_LocBTr = dag_LocB;
 					dag_LocB.extendToShape();
 					dag_LocBShape = dag_LocB;
@@ -943,34 +988,34 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 					// Get loc B Plug and loc A plug
-					MFnDependencyNode fnDepLocBShape( dag_LocBShape.node() );
-					MFnDependencyNode fnDepLocAShape( dag_LocAShape.node() );
+					MFnDependencyNode fnDepLocBShape(dag_LocBShape.node());
+					MFnDependencyNode fnDepLocAShape(dag_LocAShape.node());
 
-					MPlug p_locA_wm = fnDepLocAShape.findPlug( "worldMatrix" );
+					MPlug p_locA_wm = fnDepLocAShape.findPlug("worldMatrix");
 					p_locA_wm = p_locA_wm.elementByLogicalIndex(p_locA_wm.numConnectedElements());
 
-					MPlug p_locB_wm = fnDepLocBShape.findPlug( "worldMatrix" );
+					MPlug p_locB_wm = fnDepLocBShape.findPlug("worldMatrix");
 					p_locB_wm = p_locB_wm.elementByLogicalIndex(p_locB_wm.numConnectedElements());
 
 					// Connect Loc A 
-					status = m_DAGMod.connect( p_locA_wm, inLocator_A_plug );
+					status = m_DAGMod.connect(p_locA_wm, inLocator_A_plug);
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 					status = m_DAGMod.doIt();
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 
 					// Connect Loc B
-					status = m_DAGMod.connect( p_locB_wm, inLocator_B_plug );
+					status = m_DAGMod.connect(p_locB_wm, inLocator_B_plug);
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 					status = m_DAGMod.doIt();
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
 					// Move locators to its deafault positions
-					MFnTransform fnTrLocA( dag_LocATr );
-					MFnTransform fnTrLocB( dag_LocBTr );
+					MFnTransform fnTrLocA(dag_LocATr);
+					MFnTransform fnTrLocB(dag_LocBTr);
 
-					fnTrLocA.translateBy( MVector(-10.0,0.0,0.0), MSpace::kWorld );
-					fnTrLocB.translateBy( MVector( 10.0,0.0,0.0), MSpace::kWorld );
+					fnTrLocA.translateBy(MVector(-10.0, 0.0, 0.0), MSpace::kWorld);
+					fnTrLocB.translateBy(MVector(10.0, 0.0, 0.0), MSpace::kWorld);
 
 
 					// Plugs of the clonerMulti node
@@ -1021,7 +1066,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 			MObject MObj;
 			MSelectionList selList;
 			selList.add(s_clonerMultiNodeName);
-			selList.getDependNode(0,MObj);
+			selList.getDependNode(0, MObj);
 			MFnDependencyNode mfDgN(MObj);
 			o_clonerMultiNode = mfDgN.object();
 
@@ -1039,7 +1084,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				sel_list.clear();
 				status = sel_list.add(fnDepCloner.name());
 				CHECK_MSTATUS_AND_RETURN_IT(status);
-				status = sel_list.getDagPath(0,dag_clonerNode);
+				status = sel_list.getDagPath(0, dag_clonerNode);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 				dag_clonerNodeTr = dag_clonerNode;
 				status = dag_clonerNode.extendToShape();
@@ -1047,41 +1092,41 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 				dag_clonerNodeShape = dag_clonerNode;
 
-				MFnDependencyNode fnDepClonerNodeShape( dag_clonerNodeShape.node() );
+				MFnDependencyNode fnDepClonerNodeShape(dag_clonerNodeShape.node());
 
 
 
 				// Get it's world matrix plug
-				MObject worldMatrixAttr = fnDepClonerNodeShape.attribute( "outMatrixArray", &status );
+				MObject worldMatrixAttr = fnDepClonerNodeShape.attribute("outMatrixArray", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				MObject idArrayAttr = fnDepClonerNodeShape.attribute( "outIDArray", &status );
+				MObject idArrayAttr = fnDepClonerNodeShape.attribute("outIDArray", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				MObject inMeshAttr = fnDepClonerNodeShape.attribute( "inMesh", &status );
+				MObject inMeshAttr = fnDepClonerNodeShape.attribute("inMesh", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				MObject outMeshAttr = fnDepClonerNodeShape.attribute( "outMesh", &status );
+				MObject outMeshAttr = fnDepClonerNodeShape.attribute("outMesh", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				// Get it's locator A plug
-				MObject inLocator_A_Attr = fnDepClonerNodeShape.attribute( "locatorAPos", &status );
+				MObject inLocator_A_Attr = fnDepClonerNodeShape.attribute("locatorAPos", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				// Get it's locator B plug
-				MObject inLocator_B_Attr = fnDepClonerNodeShape.attribute( "locatorBPos", &status );
+				MObject inLocator_B_Attr = fnDepClonerNodeShape.attribute("locatorBPos", &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
 
 
 				// Getting mPlug by plugging in our MObject and attribute
-				MPlug matrixPlug = MPlug( fnDepClonerNodeShape.object(), worldMatrixAttr );
-				MPlug idPlug = MPlug( fnDepClonerNodeShape.object(), idArrayAttr );
-				MPlug inMeshPlug = MPlug( fnDepClonerNodeShape.object(), inMeshAttr );
-				MPlug outMeshPlug = MPlug( fnDepClonerNodeShape.object(), outMeshAttr );
-				MPlug inLocator_A_plug = MPlug( fnDepClonerNodeShape.object(), inLocator_A_Attr );
-				MPlug inLocator_B_plug = MPlug( fnDepClonerNodeShape.object(), inLocator_B_Attr );
+				MPlug matrixPlug = MPlug(fnDepClonerNodeShape.object(), worldMatrixAttr);
+				MPlug idPlug = MPlug(fnDepClonerNodeShape.object(), idArrayAttr);
+				MPlug inMeshPlug = MPlug(fnDepClonerNodeShape.object(), inMeshAttr);
+				MPlug outMeshPlug = MPlug(fnDepClonerNodeShape.object(), outMeshAttr);
+				MPlug inLocator_A_plug = MPlug(fnDepClonerNodeShape.object(), inLocator_A_Attr);
+				MPlug inLocator_B_plug = MPlug(fnDepClonerNodeShape.object(), inLocator_B_Attr);
 
 				//o_locA = inLocator_A_plug.asMObject();
 				//o_locB = inLocator_B_plug.asMObject();
@@ -1093,7 +1138,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 				MObject idObject = idPlug.asMObject();
 
 
-				MFnIntArrayData idArrayData( idObject );
+				MFnIntArrayData idArrayData(idObject);
 				MIntArray out_idArray;
 
 				status = idArrayData.copyTo(out_idArray);
@@ -1117,7 +1162,7 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 
 
 #if MAYA_API_VERSION > 201600
-				MFnMatrixArrayData worldMatrixData( matrixObject );
+				MFnMatrixArrayData worldMatrixData(matrixObject);
 				MMatrixArray out_matrixArray;
 
 				status = worldMatrixData.copyTo(out_matrixArray);
@@ -1227,10 +1272,10 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 					CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
-					MFnDependencyNode fnDep_group( o_groupNode );
-					fnDep_group.setName( "clonerMulti_instance#"  );
+					MFnDependencyNode fnDep_group(o_groupNode);
+					fnDep_group.setName("clonerMulti_instance#");
 
-					if(status)
+					if (status)
 					{
 
 						for (int i = 0; i < o_outputObjectsA.length(); i++)
@@ -1321,6 +1366,10 @@ MStatus ClonerMultiCommand::doIt( const MArgList& argList )
 			}
 
 		}
+
+
+
+
 
 		return::MStatus::kSuccess;
 

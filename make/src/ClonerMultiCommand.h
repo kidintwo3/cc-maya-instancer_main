@@ -40,6 +40,7 @@
 #include <maya/MFnComponentListData.h>
 #include <maya/MFnSingleIndexedComponent.h>
 #include <maya/MItMeshVertex.h>
+#include <maya/MRampAttribute.h>
 
 class ClonerMultiCommand : public MPxCommand
 {

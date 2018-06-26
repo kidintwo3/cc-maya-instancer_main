@@ -100,3 +100,4 @@ make/build/*
 *.opendb
 *.exp
 *.pdb
+*.TMP

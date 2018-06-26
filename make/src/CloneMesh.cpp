@@ -384,38 +384,33 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 			MVector currN;
 
-			status = itPoly.getNormal(currN, MSpace::kObject);
+
+			MVector uTangent, vTangent;
+			float2 uvP;
+
+			itPoly.getUVAtPoint(vertA, uvP);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			MIntArray connVerts;
-			status = itPoly.getConnectedVertices(connVerts);
+			status = itPoly.getAxisAtUV(currN, uTangent, vTangent, uvP, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			if (connVerts.length() < 1)
-			{
-				return MStatus::kFailure;
-			}
+			MVector tan = uTangent;
+			tan.normalize();
 
-			MVector v1 = currN;
+			MVector cross1 = tan ^ vTangent;
+			cross1.normalize();
+			MVector cross2 = tan ^ cross1;
+			cross2.normalize();
 
-			MPoint vertB = pA[connVerts[0]];
-
-			MVector v2 = vertB - vertA;
-			v2.normalize();
-
-			MVector v3 = currN ^ v2;
-			v3.normalize();
-
-			MVector v4 = v3 ^ currN;
-
-			double m[4][4] = {
-				{ v3.x, v3.y , v3.z, 0},
-				{ v1.x, v1.y , v1.z, 0},
-				{ v4.x, v4.y , v4.z, 0},
-				{ vertA.x, vertA.y , vertA.z, 1} };
-
+			double m[4][4] = { { cross2.x, cross2.y , cross2.z, 0 },
+			{ cross1.x, cross1.y , cross1.z, 0 },
+			{ -tan.x, -tan.y , -tan.z, 0 },
+			{ vertA.x, vertA.y , vertA.z, 1.0 } };
 
 			rotMatrix = m;
+
+
+			//rotMatrix = m;
 
 			if (m_orientationType == 1) { double m_orient[4][4] = { {0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0} }; rotMatrix = m_orient; }
 			if (m_orientationType == 2) { double m_orient[4][4] = { {1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ vertA.x, vertA.y, vertA.z, 1.0} }; rotMatrix = m_orient; }
@@ -504,44 +499,36 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			if (itPoly.onBoundary())
 			{
 
-
 				MPoint vertA = itPoly.center(MSpace::kObject, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				MVector currN;
 
-				status = itPoly.getNormal(currN, MSpace::kObject);
+
+				MVector uTangent, vTangent;
+				float2 uvP;
+
+				itPoly.getUVAtPoint(vertA, uvP);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				MIntArray connVerts;
-				status = itPoly.getConnectedVertices(connVerts);
+				status = itPoly.getAxisAtUV(currN, uTangent, vTangent, uvP, MSpace::kObject);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				if (connVerts.length() < 1)
-				{
-					return MStatus::kFailure;
-				}
+				MVector tan = uTangent;
+				tan.normalize();
 
-				MVector v1 = currN;
+				MVector cross1 = tan ^ vTangent;
+				cross1.normalize();
+				MVector cross2 = tan ^ cross1;
+				cross2.normalize();
 
-				MPoint vertB = pA[connVerts[0]];
-
-				MVector v2 = vertB - vertA;
-				v2.normalize();
-
-				MVector v3 = currN ^ v2;
-				v3.normalize();
-
-				MVector v4 = v3 ^ currN;
-
-				double m[4][4] = {
-					{ v3.x, v3.y , v3.z, 0 },
-				{ v1.x, v1.y , v1.z, 0 },
-				{ v4.x, v4.y , v4.z, 0 },
-				{ vertA.x, vertA.y , vertA.z, 1 } };
-
+				double m[4][4] = { { cross2.x, cross2.y , cross2.z, 0 },
+				{ cross1.x, cross1.y , cross1.z, 0 },
+				{ -tan.x, -tan.y , -tan.z, 0 },
+				{ vertA.x, vertA.y , vertA.z, 1.0 } };
 
 				rotMatrix = m;
+
 
 				if (m_orientationType == 1) { double m_orient[4][4] = { { 0.0, 1.0 , 0.0, 0.0 },{ 1.0, 0.0, 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ vertA.x, vertA.y, vertA.z, 1.0 } }; rotMatrix = m_orient; }
 				if (m_orientationType == 2) { double m_orient[4][4] = { { 1.0, 0.0 , 0.0, 0.0 },{ 0.0, 1.0, 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ vertA.x, vertA.y, vertA.z, 1.0 } }; rotMatrix = m_orient; }
@@ -588,8 +575,11 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				//MGlobal::displayInfo(MString() + area);
 
 				// Translation
-				MFloatVector v_baseOffV(m_offsetX * off_ramp_mult, m_offsetY * off_ramp_mult , m_offsetZ * off_ramp_mult);
+				MVector v_baseOffV(m_offsetX * off_ramp_mult, m_offsetY * off_ramp_mult , m_offsetZ * off_ramp_mult);
 
+				//v_baseOffV *= rotMatrix;
+
+	
 				// Rotation
 				double rot[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
@@ -598,7 +588,7 @@ MStatus ClonerMultiThread::instanceOnMesh()
 
 
 				// Random Transform
-				MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i], m_rndOffsetZA[i]);
+				MVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i], m_rndOffsetZA[i]);
 				// Random Rotate
 
 				double rot_rnd[3] = { m_rndRotateXA[i] * 0.5f * (M_PI / 180.0f), m_rndRotateYA[i] * 0.5f * (M_PI / 180.0f),  m_rndRotateZA[i] * 0.5f * (M_PI / 180.0f) };

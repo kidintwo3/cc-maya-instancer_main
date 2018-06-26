@@ -15,6 +15,7 @@
 #include <maya/MPointArray.h>
 #include <maya/MFloatPointArray.h>
 #include <maya/MVectorArray.h>
+#include <maya/MVector.h>
 #include <maya/MFnMesh.h>
 #include <maya/MItMeshEdge.h>
 #include <maya/MMatrix.h>

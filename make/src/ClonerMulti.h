@@ -200,6 +200,8 @@ public:
 	static MObject				aConnectArrayB;
 	static MObject				aInterpolate;
 
+	static MObject				aOrientCurveToRefGeo;
+
 	// Output string for baking
 	static MObject				aOutMatrixArray;
 	static MObject				aOutIDArray;
@@ -322,7 +324,7 @@ private:
 	short						m_instanceType;
 	short						m_patternType;
 	short						m_scatterType;
-	short						m_orientationType;
+	bool						m_orientationType;
 	int							m_id;
 
 	// Display
@@ -397,6 +399,7 @@ private:
 	bool						m_connectPieces;
 	bool						m_connectLoop;
 	bool						m_interpolate;
+	bool						m_orientCurveToRefGeo;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;

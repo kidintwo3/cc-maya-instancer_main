@@ -15,7 +15,7 @@ MStatus initializePlugin( MObject obj )
 {
 	MStatus status;
 
-	MFnPlugin fnPlugin( obj, "Creative Case", "1.5", "Any" );
+	MFnPlugin fnPlugin( obj, "Creative Case", "1.65", "Any" );
 
 	MGlobal::executeCommand( mel_AETemplate() );
 

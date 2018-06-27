@@ -98,14 +98,37 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		// Calculate matrix
 		MPoint p;
+		MVector tan;
+		MPoint closestPoint;
 
 		double param = curveFn.findParamFromLength( tempLength  );
 
 		curveFn.getPointAtParam(param, p, MSpace::kObject );
 
-
-		MVector tan = curveFn.tangent(param , MSpace::kObject);
+		tan = curveFn.tangent(param , MSpace::kObject);
 		tan.normalize();
+
+
+		if (m_orientCurveToRefGeo)
+		{
+			if (!m_refMesh.isNull())
+			{
+				// curve data
+				MFnMesh meshFn(m_refMesh, &status);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				status = meshFn.getClosestPointAndNormal(p, closestPoint, tan);
+
+				if (status)
+				{
+					tan.normalize();
+					p = closestPoint;
+				}
+
+			}
+
+		}
+
 
 		MVector cross1 = currentNormal^tan;
 		cross1.normalize();

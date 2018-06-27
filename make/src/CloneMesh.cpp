@@ -535,10 +535,6 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				if (m_orientationType == 3) { double m_orient[4][4] = { { 1.0, 0.0 , 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ 0.0, -1.0, 0.0, 0.0 },{ vertA.x, vertA.y, vertA.z, 1.0 } }; rotMatrix = m_orient; }
 
 
-
-
-
-
 				double off_ramp_mult = 1.0;
 
 				if (i < int(m_offsetProfileA.length()))
@@ -562,12 +558,6 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				}
 
 
-
-
-
-
-
-
 				double area;
 				status = itPoly.getArea(area);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -578,7 +568,6 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				MVector v_baseOffV(m_offsetX * off_ramp_mult, m_offsetY * off_ramp_mult , m_offsetZ * off_ramp_mult);
 
 				//v_baseOffV *= rotMatrix;
-
 	
 				// Rotation
 				double rot[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };

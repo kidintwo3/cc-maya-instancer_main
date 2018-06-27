@@ -87,6 +87,7 @@ MObject     ClonerMultiThread::aFirstUpVecX;
 MObject     ClonerMultiThread::aFirstUpVecY;
 MObject     ClonerMultiThread::aFirstUpVecZ;
 
+MObject		ClonerMultiThread::aOrientCurveToRefGeo;
 
 MObject		ClonerMultiThread::aConnectPieces;
 MObject		ClonerMultiThread::aConnectLoop;
@@ -1331,7 +1332,7 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_scatterType = data.inputValue(aScatterType, &status).asShort();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_orientationType = data.inputValue(aOrientationType, &status).asShort();
+	m_orientationType = data.inputValue(aOrientationType, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_id = data.inputValue(aIDType, &status).asInt();
@@ -1447,6 +1448,11 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_interpolate = data.inputValue(aInterpolate, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+	m_orientCurveToRefGeo = data.inputValue(aOrientCurveToRefGeo, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+	
 
 	// Override instace count if instance type is set to Circle
 	if (m_instanceType == 1) { m_instanceZ = 1;}
@@ -2654,6 +2660,13 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute( ClonerMultiThread::aInterpolate );
 
+
+	ClonerMultiThread::aOrientCurveToRefGeo = nAttr.create("orientCurveToRefGeo", "orientCurveToRefGeo", MFnNumericData::kBoolean, false);
+	nAttr.setStorable(true);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aOrientCurveToRefGeo);
+
 	ClonerMultiThread::aConnectArrayA = tAttr.create( "connectArrayA", "connectArrayA", MFnData::kString, defaultStringA );
 	tAttr.setStorable(true);
 	tAttr.setChannelBox(false);
@@ -2702,6 +2715,8 @@ MStatus ClonerMultiThread::initialize()
 
 
 	attributeAffects(ClonerMultiThread::aLimitDisplay, ClonerMultiThread::aOutMesh);
+
+	attributeAffects(ClonerMultiThread::aOrientCurveToRefGeo, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aGridInstanceX, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aGridInstanceY, ClonerMultiThread::aOutMesh);
@@ -2763,6 +2778,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aIDType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aFirstUpVec, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aLimitDisplay, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aOrientCurveToRefGeo, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aGridInstanceX, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aGridInstanceY, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aGridInstanceZ, ClonerMultiThread::aOutMatrixArray);
@@ -2819,6 +2835,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aIDType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aFirstUpVec, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aLimitDisplay, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aOrientCurveToRefGeo, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aGridInstanceX, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aGridInstanceY, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aGridInstanceZ, ClonerMultiThread::aOutIDArray);

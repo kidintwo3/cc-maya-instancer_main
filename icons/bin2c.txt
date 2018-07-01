@@ -1,0 +1,2 @@
+.\bin2c.exe -t -o icons_repo.h .\out_clonerMultiLoc.png .\out_clonerMulti.png .\clonerMulti_Trash.png .\clo
+nerMulti_Refresh.png .\clonerMulti_Plus.png .\clonerMulti_Minus.png .\clonerMulti_CCLogo.png .\clonerMulti_Apply.png .\clonerMulti.png

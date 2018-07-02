@@ -47,6 +47,8 @@ MObject     ClonerMultiThread::aRotateY;
 MObject     ClonerMultiThread::aRotateZ;
 MObject     ClonerMultiThread::aRotateRamp;
 
+MObject     ClonerMultiThread::aRotateXRule;
+
 // Scale
 MObject     ClonerMultiThread::aScaleX;
 MObject     ClonerMultiThread::aScaleY;
@@ -1452,7 +1454,8 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
-	
+	m_rotateXRule = data.inputValue(aRotateXRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	// Override instace count if instance type is set to Circle
 	if (m_instanceType == 1) { m_instanceZ = 1;}
@@ -2677,6 +2680,11 @@ MStatus ClonerMultiThread::initialize()
 	tAttr.setChannelBox(false);
 	ClonerMultiThread::addAttribute( aConnectArrayB );
 
+	ClonerMultiThread::aRotateXRule = tAttr.create("rotateXRule", "rotateXRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	addAttribute(ClonerMultiThread::aRotateXRule);
+
 
 	ClonerMultiThread::aGridOffsetRamp = rAttr.createCurveRamp("offsetRamp", "offsetRamp");
 	ClonerMultiThread::addAttribute(aGridOffsetRamp);
@@ -2764,6 +2772,8 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMesh);
 
+	attributeAffects(ClonerMultiThread::aRotateXRule, ClonerMultiThread::aOutMesh);
+
 #if MAYA_API_VERSION > 201600
 	// Output Matrix array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMatrixArray);
@@ -2820,6 +2830,9 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMatrixArray);
+
+	attributeAffects(ClonerMultiThread::aRotateXRule, ClonerMultiThread::aOutMatrixArray);
+
 #endif
 
 	// Output ID array
@@ -2876,6 +2889,8 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutIDArray);
+
+	attributeAffects(ClonerMultiThread::aRotateXRule, ClonerMultiThread::aOutIDArray);
 
 	return MS::kSuccess;
 }

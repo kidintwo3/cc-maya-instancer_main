@@ -56,6 +56,9 @@ MStatus ClonerMultiThread::instanceSpline()
 	double offsetV = m_offsetZ;
 	if (offsetV == 0.0) { offsetV = 0.001; }
 
+
+	int rule_counter = 0;
+
 	for (unsigned int i = 0; i < m_numDup; i++)
 	{
 
@@ -102,7 +105,7 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		// Calculate matrix
 		MPoint p;
-		MVector tan, snap_tan;
+		MVector tan, closest_normal;
 		MPoint closestPoint;
 
 		double param = curveFn.findParamFromLength(tempLength);
@@ -111,6 +114,23 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		tan = curveFn.tangent(param, MSpace::kObject);
 		tan.normalize();
+
+
+		MVector cross1 = currentNormal ^ tan;
+		cross1.normalize();
+
+		MVector cross2 = tan ^ cross1;
+
+		cross2.normalize();
+		currentNormal = cross2;
+
+
+		double m[4][4] = { { tan.x, tan.y , tan.z, 0.0 },
+		{ cross2.x, cross2.y, cross2.z, 0.0 },
+		{ cross1.x, cross1.y, cross1.z, 0.0 },
+		{ p.x, p.y, p.z, 1.0 } };
+
+		rotMatrix = m;
 
 
 		if (m_orientCurveToRefGeo)
@@ -122,35 +142,28 @@ MStatus ClonerMultiThread::instanceSpline()
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				int closestPolygon;
-				status = meshFn.getClosestPointAndNormal(p, closestPoint, snap_tan, MSpace::kObject, &closestPolygon);
+				status = meshFn.getClosestPointAndNormal(p, closestPoint, closest_normal, MSpace::kObject, &closestPolygon);
 
 				if (status)
 				{
 
 					p = closestPoint;
-					currentNormal = snap_tan;
-					tan.normalize();
 
 
-					//MVector cross1 = currentNormal^tan;
-					//cross1.normalize();
+					MVector cross1 = closest_normal ^ tan;
+					cross1.normalize();
 
-					//MVector cross2 = tan^cross1;
-					//cross2.normalize();
-
-
-
-					//double m[4][4] = { { tan.x, tan.y , tan.z, 0.0 },
-					//{ cross2.x, cross2.y, cross2.z, 0.0 },
-					//{ cross1.x, cross1.y, cross1.z, 0.0 },
-					//{ p.x, p.y, p.z, 1.0 } };
-
-					//rotMatrix_orient = m;
+					MVector cross2 = closest_normal ^ cross1;
+					cross2.normalize();
 
 
-					//if (m_orientationType == 1) { double m[4][4] = { { 0.0, 1.0 , 0.0, 0.0 },{ 1.0, 0.0, 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ p.x, p.y, p.z, 1.0 } }; rotMatrix_orient = m; }
-					//if (m_orientationType == 2) { double m[4][4] = { { 1.0, 0.0 , 0.0, 0.0 },{ 0.0, 1.0, 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ p.x, p.y, p.z, 1.0 } }; rotMatrix_orient = m; }
-					//if (m_orientationType == 3) { double m[4][4] = { { 1.0, 0.0 , 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ 0.0, -1.0, 0.0, 0.0 },{ p.x, p.y, p.z, 1.0 } }; rotMatrix_orient = m; }
+					double m[4][4] = { { closest_normal.x, closest_normal.y , closest_normal.z, 0.0 },
+					{ cross2.x, cross2.y, cross2.z, 0.0 },
+					{ cross1.x, cross1.y, cross1.z, 0.0 },
+					{ p.x, p.y, p.z, 1.0 } };
+
+					rotMatrix = m;
+
 
 				}
 
@@ -158,26 +171,50 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		}
 
-
-
 		//
 
+		MIntArray rotA_X;
 
-		MVector cross1 = currentNormal^tan;
-		cross1.normalize();
-
-		MVector cross2 = tan^cross1;
-
-		cross2.normalize();
-		currentNormal = cross2;
+		double rule_rot_X;
 
 
-		double m[4][4] = { {tan.x, tan.y , tan.z, 0.0},
-		{ cross2.x, cross2.y, cross2.z, 0.0},
-		{ cross1.x, cross1.y, cross1.z, 0.0},
-		{ p.x, p.y, p.z, 1.0} };
+		if (m_rotateXRule.length() > 0)
+		{
+			MStringArray optionList;
+			status = m_rotateXRule.split(';', optionList);
 
-		rotMatrix = m;
+			if (status)
+			{
+
+				
+				
+
+				for (int i = 0; i < optionList.length(); i++)
+				{
+					rotA_X.append(optionList[i].asInt());
+				}
+
+				if (rotA_X.length() >0)
+				{
+
+					rule_rot_X = rotA_X[rule_counter];
+
+					//MGlobal::displayInfo(MString() + rule_rot_X);
+				
+				}
+
+			}
+
+		}
+
+		rule_counter += 1;
+
+		if (rule_counter >= rotA_X.length())
+		{
+			rule_counter = 0;
+		}
+
+		//
 
 
 		if (m_orientationType == 1) { double m[4][4] = { { 0.0, 1.0 , 0.0, 0.0 },{ 1.0, 0.0, 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ p.x, p.y, p.z, 1.0 } }; rotMatrix = m; }
@@ -224,7 +261,7 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		//double rot_orient[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
-		double rot[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
+		double rot[3] = { (rule_rot_X + m_rotateX) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
 		// Scale
 		const double scaleV[3] = { double(m_scaleX) * scale_ramp_mult,  double(m_scaleY) * scale_ramp_mult,  double(m_scaleZ) * scale_ramp_mult };
@@ -247,7 +284,7 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		// Matrix
 		MTransformationMatrix tr_mat(rotMatrix);
-		
+
 
 
 

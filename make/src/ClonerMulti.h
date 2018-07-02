@@ -149,6 +149,8 @@ public:
 	static MObject				aRotateY;
 	static MObject				aRotateZ;
 
+	static MObject				aRotateXRule;
+
 	static MObject				aScaleX;
 	static MObject				aScaleY;
 	static MObject				aScaleZ;
@@ -426,7 +428,7 @@ private:
 	// Callback
 	MCallbackIdArray			m_callbackIDs;
 
-	
+	MString						m_rotateXRule;
 
 };
 

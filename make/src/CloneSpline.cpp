@@ -62,8 +62,45 @@ MStatus ClonerMultiThread::instanceSpline()
 	for (unsigned int i = 0; i < m_numDup; i++)
 	{
 
+
+
+		double off_ramp_mult = 1.0;
+
+		if (i < int(m_offsetProfileA.length()))
+		{
+			off_ramp_mult = m_offsetProfileA[i];
+		}
+
+
+
+		double scale_ramp_mult = 1.0;
+
+		if (i < int(m_scaleProfileA.length()))
+		{
+			scale_ramp_mult = m_scaleProfileA[i];
+		}
+
+
+		double rot_ramp_mult = 1.0;
+
+		if (i < int(m_rotateProfileA.length()))
+		{
+			rot_ramp_mult = m_rotateProfileA[i];
+		}
+
+
+
+
+
 		double tempLength = double(i) * length_section;
 		tempLength += offsetV;
+
+		//if (i=0)
+		//{
+		//	tempLength += (m_offsetZ + m_rule_off_A_Z[rc]) * off_ramp_mult;
+		//}
+
+
 
 
 		if (m_loopOffset)
@@ -180,36 +217,11 @@ MStatus ClonerMultiThread::instanceSpline()
 		if (m_orientationType == 3) { double m[4][4] = { { 1.0, 0.0 , 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ 0.0, -1.0, 0.0, 0.0 },{ p.x, p.y, p.z, 1.0 } }; rotMatrix = m; }
 
 
-		double off_ramp_mult = 1.0;
-
-		if (i < int(m_offsetProfileA.length()))
-		{
-			off_ramp_mult = m_offsetProfileA[i];
-		}
-
-
-
-		double scale_ramp_mult = 1.0;
-
-		if (i < int(m_scaleProfileA.length()))
-		{
-			scale_ramp_mult = m_scaleProfileA[i];
-		}
-
-
-		double rot_ramp_mult = 1.0;
-
-		if (i < int(m_rotateProfileA.length()))
-		{
-			rot_ramp_mult = m_rotateProfileA[i];
-		}
-
-
 
 
 
 		// Translation 
-		MFloatVector v_baseOff((m_offsetX + m_rule_off_A_X[rc]) * off_ramp_mult, (m_offsetY + m_rule_off_A_Y[rc])  * off_ramp_mult, (m_offsetZ + m_rule_off_A_Z[rc]) * off_ramp_mult);
+		MFloatVector v_baseOff((m_offsetX + m_rule_off_A_X[rc]) * off_ramp_mult, (m_offsetY + m_rule_off_A_Y[rc])  * off_ramp_mult, m_rule_off_A_Z[rc] * off_ramp_mult);
 
 
 		// Rotation

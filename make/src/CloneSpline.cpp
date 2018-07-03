@@ -57,7 +57,7 @@ MStatus ClonerMultiThread::instanceSpline()
 	if (offsetV == 0.0) { offsetV = 0.001; }
 
 
-	int rule_counter = 0;
+	int rc = 0;
 
 	for (unsigned int i = 0; i < m_numDup; i++)
 	{
@@ -173,48 +173,6 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		//
 
-		MIntArray rotA_X;
-
-		double rule_rot_X;
-
-
-		if (m_rotateXRule.length() > 0)
-		{
-			MStringArray optionList;
-			status = m_rotateXRule.split(';', optionList);
-
-			if (status)
-			{
-
-				
-				
-
-				for (int i = 0; i < optionList.length(); i++)
-				{
-					rotA_X.append(optionList[i].asInt());
-				}
-
-				if (rotA_X.length() >0)
-				{
-
-					rule_rot_X = rotA_X[rule_counter];
-
-					//MGlobal::displayInfo(MString() + rule_rot_X);
-				
-				}
-
-			}
-
-		}
-
-		rule_counter += 1;
-
-		if (rule_counter >= rotA_X.length())
-		{
-			rule_counter = 0;
-		}
-
-		//
 
 
 		if (m_orientationType == 1) { double m[4][4] = { { 0.0, 1.0 , 0.0, 0.0 },{ 1.0, 0.0, 0.0, 0.0 },{ 0.0, 0.0, 1.0, 0.0 },{ p.x, p.y, p.z, 1.0 } }; rotMatrix = m; }
@@ -249,22 +207,19 @@ MStatus ClonerMultiThread::instanceSpline()
 
 
 
-		// Translation X
-		MFloatVector v_baseOffX(m_offsetX * off_ramp_mult, 0.0, 0.0);
 
-
-		// Translation Y
-		MFloatVector v_baseOffY(0.0, m_offsetY * off_ramp_mult, 0.0);
+		// Translation 
+		MFloatVector v_baseOff((m_offsetX + m_rule_off_A_X[rc]) * off_ramp_mult, (m_offsetY + m_rule_off_A_Y[rc])  * off_ramp_mult, (m_offsetZ + m_rule_off_A_Z[rc]) * off_ramp_mult);
 
 
 		// Rotation
 
 		//double rot_orient[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
-		double rot[3] = { (rule_rot_X + m_rotateX) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
+		double rot[3] = { (m_rotateX + m_rule_rot_A_X[rc]) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, (m_rotateY + m_rule_rot_A_Y[rc]) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  (m_rotateZ + m_rule_rot_A_Z[rc]) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
 		// Scale
-		const double scaleV[3] = { double(m_scaleX) * scale_ramp_mult,  double(m_scaleY) * scale_ramp_mult,  double(m_scaleZ) * scale_ramp_mult };
+		const double scaleV[3] = { double(m_scaleX * m_rule_scl_A_X[rc])  * scale_ramp_mult,  double(m_scaleY * m_rule_scl_A_Y[rc])  * scale_ramp_mult,  double(m_scaleZ *  m_rule_scl_A_Z[rc])  * scale_ramp_mult };
 
 
 
@@ -288,10 +243,10 @@ MStatus ClonerMultiThread::instanceSpline()
 
 
 
-		status = tr_mat.addTranslation(v_baseOffX, MSpace::kObject);
+		status = tr_mat.addTranslation(v_baseOff, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		status = tr_mat.addTranslation(v_baseOffY, MSpace::kObject);
-		CHECK_MSTATUS_AND_RETURN_IT(status);
+		//status = tr_mat.addTranslation(v_baseOffY, MSpace::kObject);
+		//CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
@@ -325,7 +280,7 @@ MStatus ClonerMultiThread::instanceSpline()
 		m_tr_matA.set(tr_mat.asMatrix() * m_curveTrMat, i);
 
 
-
+		rc += 1;
 
 
 	}

@@ -8,7 +8,7 @@
 
 #include "ClonerMulti.h"
 
-MTypeId     ClonerMultiThread::id( 0x00123946 );
+MTypeId     ClonerMultiThread::id(0x00123946);
 
 MObject     ClonerMultiThread::aOutMesh;
 #if MAYA_API_VERSION > 201600
@@ -47,7 +47,17 @@ MObject     ClonerMultiThread::aRotateY;
 MObject     ClonerMultiThread::aRotateZ;
 MObject     ClonerMultiThread::aRotateRamp;
 
+MObject     ClonerMultiThread::aTransformXRule;
+MObject     ClonerMultiThread::aTransformYRule;
+MObject     ClonerMultiThread::aTransformZRule;
+
 MObject     ClonerMultiThread::aRotateXRule;
+MObject     ClonerMultiThread::aRotateYRule;
+MObject     ClonerMultiThread::aRotateZRule;
+
+MObject     ClonerMultiThread::aScaleXRule;
+MObject     ClonerMultiThread::aScaleYRule;
+MObject     ClonerMultiThread::aScaleZRule;
 
 // Scale
 MObject     ClonerMultiThread::aScaleX;
@@ -105,8 +115,8 @@ bool m_isDuplicating; // Callback hack
 
 // ------------- MAIN PROGRAM -------------------------------------------------------------
 
-ClonerMultiThreadOverride::ClonerMultiThreadOverride(const MObject& obj) : MHWRender::MPxDrawOverride(obj, ClonerMultiThreadOverride::draw){}
-ClonerMultiThreadOverride::~ClonerMultiThreadOverride(){}
+ClonerMultiThreadOverride::ClonerMultiThreadOverride(const MObject& obj) : MHWRender::MPxDrawOverride(obj, ClonerMultiThreadOverride::draw) {}
+ClonerMultiThreadOverride::~ClonerMultiThreadOverride() {}
 
 ClonerMultiThread::ClonerMultiThread()
 {
@@ -123,7 +133,7 @@ void* ClonerMultiThread::creator()
 	return new ClonerMultiThread();
 }
 
-void ClonerMultiThread::postConstructor() 
+void ClonerMultiThread::postConstructor()
 {
 	MFnDependencyNode nodeFn(thisMObject());
 	nodeFn.setName("clonerMulti_nodeShape#");
@@ -137,15 +147,15 @@ void ClonerMultiThread::postConstructor()
 	m_callbackIDs.append(callbackID);
 
 	// duplicate pre callback
-	callbackID = MModelMessage::addBeforeDuplicateCallback( ClonerMultiThread::preDuplicateCB, this );
+	callbackID = MModelMessage::addBeforeDuplicateCallback(ClonerMultiThread::preDuplicateCB, this);
 	m_callbackIDs.append(callbackID);
 
 	// duplicate post callback
-	callbackID = MModelMessage::addAfterDuplicateCallback( ClonerMultiThread::postDuplicateCB, this );
+	callbackID = MModelMessage::addAfterDuplicateCallback(ClonerMultiThread::postDuplicateCB, this);
 	m_callbackIDs.append(callbackID);
 
 	// object added to scene callback
-	callbackID = MDGMessage::addNodeAddedCallback( ClonerMultiThread::nodeAddedCB, "dagNode", this );
+	callbackID = MDGMessage::addNodeAddedCallback(ClonerMultiThread::nodeAddedCB, "dagNode", this);
 	m_callbackIDs.append(callbackID);
 
 
@@ -157,7 +167,7 @@ void ClonerMultiThread::postConstructor()
 
 // Callbacks
 
-void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
+void ClonerMultiThread::nodeAddedCB(MObject& node, void* clientData)
 {
 
 	MStatus status;
@@ -165,14 +175,14 @@ void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
 	if (m_isDuplicating)
 	{
 
-		if (! node.isNull()) 
+		if (!node.isNull())
 		{
 
 
 			MDagPath path;
 			status = MDagPath::getAPathTo(node, path);
 
-			if ( status.error() ) 
+			if (status.error())
 			{
 				MGlobal::displayInfo("[ClonerMulti] Error: failed to get dag path to node.");
 			}
@@ -183,7 +193,7 @@ void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
 
 				s.substituteFirst("__PrenotatoPerDuplicare_", "");
 
-				MGlobal::displayInfo(s); 
+				MGlobal::displayInfo(s);
 			}
 
 
@@ -217,7 +227,7 @@ void ClonerMultiThread::nodeAddedCB( MObject& node, void* clientData  )
 
 }
 
-void ClonerMultiThread::preDuplicateCB( void* clientData )
+void ClonerMultiThread::preDuplicateCB(void* clientData)
 {
 	m_isDuplicating = true;
 	//MObject* pLocatorData = (MObject*)clientData;
@@ -226,21 +236,21 @@ void ClonerMultiThread::preDuplicateCB( void* clientData )
 
 }
 
-void ClonerMultiThread::postDuplicateCB( void* clientData )
+void ClonerMultiThread::postDuplicateCB(void* clientData)
 {
 	m_isDuplicating = false;
 	//MGlobal::displayWarning("Duplicating!!");
 
 }
 
-void ClonerMultiThread::aboutToDeleteCB(MObject& node, MDGModifier& modifier, void* pUserPtr) 
+void ClonerMultiThread::aboutToDeleteCB(MObject& node, MDGModifier& modifier, void* pUserPtr)
 {
 	MFnDependencyNode nodeFn(node);
 	MGlobal::displayInfo(MString("[ClonerMulti] About to delete callback for node: ") + nodeFn.name());
 
 
 	// Find the output mesh connected to the node
-	MPlug worldP = nodeFn.findPlug( "outMesh" );
+	MPlug worldP = nodeFn.findPlug("outMesh");
 
 	MFnDagNode mfDgN(worldP.node());
 
@@ -257,17 +267,338 @@ void ClonerMultiThread::aboutToDeleteCB(MObject& node, MDGModifier& modifier, vo
 		MPlug p_out_overrideEnabled = mfDgN.findPlug("overrideEnabled", false);
 		p_out_overrideEnabled.setBool(false);
 
-		MGlobal::displayInfo(MString("[ClonerMulti] Deleting / Setting output mesh overrides: ") + mfDgN.partialPathName() );
+		MGlobal::displayInfo(MString("[ClonerMulti] Deleting / Setting output mesh overrides: ") + mfDgN.partialPathName());
 	}
 
 	else
 	{
-		MGlobal::displayInfo(MString()+ "[ClonerMulti] Deleting / No connection, or wrong connection to output mesh: " );
+		MGlobal::displayInfo(MString() + "[ClonerMulti] Deleting / No connection, or wrong connection to output mesh: ");
 	}
 
 }
 
+MStatus ClonerMultiThread::storeRules()
+{
 
+	MStatus status;
+
+	// Global rule Arrays
+
+	m_rule_off_A_X.clear();
+	m_rule_off_A_Y.clear();
+	m_rule_off_A_Z.clear();
+
+	m_rule_rot_A_X.clear();
+	m_rule_rot_A_Y.clear();
+	m_rule_rot_A_Z.clear();
+
+	m_rule_scl_A_X.clear();
+	m_rule_scl_A_Y.clear();
+	m_rule_scl_A_Z.clear();
+
+	// Rule loops
+
+	MFloatArray loop_rule_off_A_X;
+	MFloatArray loop_rule_off_A_Y;
+	MFloatArray loop_rule_off_A_Z;
+
+	MFloatArray loop_rule_rot_A_X;
+	MFloatArray loop_rule_rot_A_Y;
+	MFloatArray loop_rule_rot_A_Z;
+
+	MFloatArray loop_rule_scl_A_X;
+	MFloatArray loop_rule_scl_A_Y;
+	MFloatArray loop_rule_scl_A_Z;
+
+	// Gather rules
+
+	MStringArray optionList;
+
+	//
+	// Gather offset rules
+	//
+
+	// X
+
+	if (m_transformXRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_transformXRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_off_A_X.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+	// Y
+
+	if (m_transformYRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_transformYRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_off_A_Y.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+
+	// Z
+
+	if (m_transformZRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_transformZRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_off_A_Z.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+
+	//
+	// Gather rotate rules
+	//
+
+	// X
+
+	if (m_rotateXRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_rotateXRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_rot_A_X.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+	// Y
+
+	if (m_rotateYRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_rotateYRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_rot_A_Y.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+	// Z
+
+	if (m_rotateZRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_rotateZRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_rot_A_Z.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+
+
+
+	//
+	// Gather scale rules
+	//
+
+	// X
+
+	if (m_scaleXRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_scaleXRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_scl_A_X.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+
+
+	// Y
+
+	if (m_scaleYRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_scaleYRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_scl_A_Y.append(optionList[i].asFloat());
+
+			}
+		}
+	}
+
+
+
+
+	// Z
+
+	if (m_scaleZRule.length() > 0)
+	{
+
+		optionList.clear();
+		status = m_scaleZRule.split(';', optionList);
+
+		if (status)
+		{
+			for (int i = 0; i < optionList.length(); i++)
+			{
+				loop_rule_scl_A_Z.append(optionList[i].asFloat());
+			}
+		}
+	}
+
+
+
+
+
+
+
+
+	double rule_rot_X;
+
+	int rule_off_A_X_counter = 0;
+	int rule_off_A_Y_counter = 0;
+	int rule_off_A_Z_counter = 0;
+
+	int rule_rot_A_X_counter = 0;
+	int rule_rot_A_Y_counter = 0;
+	int rule_rot_A_Z_counter = 0;
+
+	int rule_scl_A_X_counter = 0;
+	int rule_scl_A_Y_counter = 0;
+	int rule_scl_A_Z_counter = 0;
+
+	for (unsigned int i = 0; i < m_numDup; i++)
+	{
+
+		//if (m_rotateXRule.length() > 0)
+		//{
+		//	MStringArray optionList;
+		//	status = m_rotateXRule.split(';', optionList);
+
+		//	if (status)
+		//	{
+		//		for (int i = 0; i < optionList.length(); i++)
+		//		{
+		//			m_rule_off_A_X.append(optionList[i].asInt());
+		//		}
+
+		//		if (m_rule_off_A_X.length() > 0)
+		//		{
+
+		//			rule_rot_X = m_rule_off_A_X[rule_counter];
+
+		//		}
+		//	}
+		//}
+
+
+		if (loop_rule_off_A_X.length() > 0) { m_rule_off_A_X.append(loop_rule_off_A_X[rule_off_A_X_counter]); }
+		else { m_rule_off_A_X.append(0.0); }
+
+		if (loop_rule_off_A_Y.length() > 0) { m_rule_off_A_Y.append(loop_rule_off_A_Y[rule_off_A_Y_counter]); }
+		else { m_rule_off_A_Y.append(0.0); }
+
+		if (loop_rule_off_A_Z.length() > 0) { m_rule_off_A_Z.append(loop_rule_off_A_Z[rule_off_A_Z_counter]); }
+		else { m_rule_off_A_Z.append(0.0); }
+
+
+		//
+
+		if (loop_rule_rot_A_X.length() > 0) { m_rule_rot_A_X.append(loop_rule_rot_A_X[rule_rot_A_X_counter]); }
+		else { m_rule_rot_A_X.append(0.0); }
+
+		if (loop_rule_rot_A_Y.length() > 0) { m_rule_rot_A_Y.append(loop_rule_rot_A_Y[rule_rot_A_Y_counter]); }
+		else { m_rule_rot_A_Y.append(0.0); }
+
+		if (loop_rule_rot_A_Z.length() > 0) { m_rule_rot_A_Z.append(loop_rule_rot_A_Z[rule_rot_A_Z_counter]); }
+		else { m_rule_rot_A_Z.append(0.0); }
+
+		//
+
+		if (loop_rule_scl_A_X.length() > 0) { m_rule_scl_A_X.append(loop_rule_scl_A_X[rule_scl_A_X_counter]); }
+		else { m_rule_scl_A_X.append(1.0); }
+
+		if (loop_rule_scl_A_Y.length() > 0) { m_rule_scl_A_Y.append(loop_rule_scl_A_Y[rule_scl_A_Y_counter]); }
+		else { m_rule_scl_A_Y.append(1.0); }
+
+		if (loop_rule_scl_A_Z.length() > 0) { m_rule_scl_A_Z.append(loop_rule_scl_A_Z[rule_scl_A_Z_counter]); }
+		else { m_rule_scl_A_Z.append(1.0); }
+
+		//
+
+		rule_off_A_X_counter += 1;
+		rule_off_A_Y_counter += 1;
+		rule_off_A_Z_counter += 1;
+
+		rule_rot_A_X_counter += 1;
+		rule_rot_A_Y_counter += 1;
+		rule_rot_A_Z_counter += 1;
+
+		rule_scl_A_X_counter += 1;
+		rule_scl_A_Y_counter += 1;
+		rule_scl_A_Z_counter += 1;
+
+		if (rule_off_A_X_counter >= loop_rule_off_A_X.length()) { rule_off_A_X_counter = 0; }
+		if (rule_off_A_Y_counter >= loop_rule_off_A_Y.length()) { rule_off_A_Y_counter = 0; }
+		if (rule_off_A_Z_counter >= loop_rule_off_A_Z.length()) { rule_off_A_Z_counter = 0; }
+
+		if (rule_rot_A_X_counter >= loop_rule_rot_A_X.length()) { rule_rot_A_X_counter = 0; }
+		if (rule_rot_A_Y_counter >= loop_rule_rot_A_Y.length()) { rule_rot_A_Y_counter = 0; }
+		if (rule_rot_A_Z_counter >= loop_rule_rot_A_Z.length()) { rule_rot_A_Z_counter = 0; }
+
+		if (rule_scl_A_X_counter >= loop_rule_scl_A_X.length()) { rule_scl_A_X_counter = 0; }
+		if (rule_scl_A_Y_counter >= loop_rule_scl_A_Y.length()) { rule_scl_A_Y_counter = 0; }
+		if (rule_scl_A_Z_counter >= loop_rule_scl_A_Z.length()) { rule_scl_A_Z_counter = 0; }
+
+	}
+
+	return MStatus::kSuccess;
+
+}
 
 
 MStatus ClonerMultiThread::mergeInputMeshes()
@@ -291,7 +622,7 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 		i_numPolygons[m] = mfnMesh.numPolygons();
 
 
-		mfnMesh.getPoints(i_vertexArray[m],MSpace::kWorld);
+		mfnMesh.getPoints(i_vertexArray[m], MSpace::kWorld);
 		mfnMesh.getVertices(i_polygonCounts[m], i_polygonConnects[m]);
 
 
@@ -299,21 +630,21 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 
 	// Allocate memory for vector
 	int id = 0;
-	int len_o_vertexArray=0;
-	int len_o_polygonCounts=0;
-	int len_o_polygonConnects=0;
+	int len_o_vertexArray = 0;
+	int len_o_polygonCounts = 0;
+	int len_o_polygonConnects = 0;
 
 	for (int m = 0; m < m_numInputMeshes; m++)
 	{
 		id = m;
 		for (unsigned v = 0; v < i_vertexArray[id].length(); v++) {
-			len_o_vertexArray+=1;
+			len_o_vertexArray += 1;
 		}
 		for (unsigned v = 0; v < i_polygonCounts[id].length(); v++) {
-			len_o_polygonCounts+=1;
+			len_o_polygonCounts += 1;
 		}
 		for (unsigned v = 0; v < i_polygonConnects[id].length(); v++) {
-			len_o_polygonConnects+=1;
+			len_o_polygonConnects += 1;
 		}
 
 	}
@@ -355,15 +686,15 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 		for (int v = 0; v < i_vertexArray[id].length(); v++) {
 			MFloatPoint currP = i_vertexArray[id][v];
 
-			MFloatPoint currentPoint( currP.x, currP.y, currP.z, currP.w  );
+			MFloatPoint currentPoint(currP.x, currP.y, currP.z, currP.w);
 
 
-			o_vertexArray.set(currentPoint,v + idOffset );
+			o_vertexArray.set(currentPoint, v + idOffset);
 		}
 #pragma omp parallel for
 		// polygonCounts
 		for (int v = 0; v < i_polygonCounts[id].length(); v++) {
-			o_polygonCounts.set(i_polygonCounts[id][v], v+polycOffset);
+			o_polygonCounts.set(i_polygonCounts[id][v], v + polycOffset);
 		}
 
 
@@ -371,7 +702,7 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 #pragma omp parallel for
 		// polygonConnects
 		for (int v = 0; v < i_polygonConnects[id].length(); v++) {
-			o_polygonConnects.set(i_polygonConnects[id][v] +  idOffset,  v + polyConnOffset );
+			o_polygonConnects.set(i_polygonConnects[id][v] + idOffset, v + polyConnOffset);
 
 
 		}
@@ -424,27 +755,27 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 		i_numPolygons[m] = mfnMesh.numPolygons();
 
 
-		mfnMesh.getPoints(i_vertexArray[m],MSpace::kWorld);
+		mfnMesh.getPoints(i_vertexArray[m], MSpace::kWorld);
 		mfnMesh.getVertices(i_polygonCounts[m], i_polygonConnects[m]);
 
 
 	}
 
 	// Allocate memory for vector
-	int len_o_vertexArray=0;
-	int len_o_polygonCounts=0;
-	int len_o_polygonConnects=0;
+	int len_o_vertexArray = 0;
+	int len_o_polygonCounts = 0;
+	int len_o_polygonConnects = 0;
 
 	for (int m = 0; m < m_numDup; m++)
 	{
 		for (unsigned v = 0; v < i_vertexArray[idA[m]].length(); v++) {
-			len_o_vertexArray+=1;
+			len_o_vertexArray += 1;
 		}
 		for (unsigned v = 0; v < i_polygonCounts[idA[m]].length(); v++) {
-			len_o_polygonCounts+=1;
+			len_o_polygonCounts += 1;
 		}
 		for (unsigned v = 0; v < i_polygonConnects[idA[m]].length(); v++) {
-			len_o_polygonConnects+=1;
+			len_o_polygonConnects += 1;
 		}
 
 	}
@@ -506,22 +837,22 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 #pragma omp parallel for
 		// vertexArray
-		for (int v = 0; v < i_vertexArray[idA[m]].length(); v++) 
+		for (int v = 0; v < i_vertexArray[idA[m]].length(); v++)
 		{
 			MFloatPoint currP = i_vertexArray[idA[m]][v];
-			MPoint currentPoint( currP.x, currP.y, currP.z, currP.w  );
+			MPoint currentPoint(currP.x, currP.y, currP.z, currP.w);
 
 			if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
 
 			currentPoint *= m_tr_matA[m];
 
-			o_vertexArray.set(MFloatPoint(currentPoint.x,currentPoint.y,currentPoint.z,currentPoint.w),v + idOffset );
+			o_vertexArray.set(MFloatPoint(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.w), v + idOffset);
 		}
 
 #pragma omp parallel for
 		// polygonCounts
 		for (int v = 0; v < i_polygonCounts[idA[m]].length(); v++) {
-			o_polygonCounts.set(i_polygonCounts[idA[m]][v], v+polycOffset);
+			o_polygonCounts.set(i_polygonCounts[idA[m]][v], v + polycOffset);
 		}
 
 
@@ -529,7 +860,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 #pragma omp parallel for
 		// polygonConnects
 		for (int v = 0; v < i_polygonConnects[idA[m]].length(); v++) {
-			o_polygonConnects.set(i_polygonConnects[idA[m]][v] +  idOffset,  v + polyConnOffset );
+			o_polygonConnects.set(i_polygonConnects[idA[m]][v] + idOffset, v + polyConnOffset);
 
 
 		}
@@ -565,20 +896,20 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 			for (int m = 0; m < m_numDup - 1; m++)
 			{
 
-				for (int v = 0; v < i_vertexArray[idA[m]].length(); v++) 
+				for (int v = 0; v < i_vertexArray[idA[m]].length(); v++)
 				{
 
 					for (int x = 0; x < m_ConnectArrayA.length(); x++)
 					{
 						if (v == m_ConnectArrayA[x])
 						{
-							MPoint aP =  o_vertexArray[m_ConnectArrayA[x] + idOffset];
-							MPoint bP =  o_vertexArray[m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length()];
+							MPoint aP = o_vertexArray[m_ConnectArrayA[x] + idOffset];
+							MPoint bP = o_vertexArray[m_ConnectArrayB[x] + idOffset + i_vertexArray[idA[m]].length()];
 
 							MPoint nP = (aP + bP) * 0.5;
 
-							o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayA[x] + idOffset );
-							o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayB[x]  + idOffset + i_vertexArray[idA[m]].length() );
+							o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayA[x] + idOffset);
+							o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayB[x] + idOffset + i_vertexArray[idA[m]].length());
 						}
 					}
 
@@ -600,13 +931,13 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 					for (int x = 0; x < m_ConnectArrayA.length(); x++)
 					{
-						MPoint aP =  o_vertexArray[m_ConnectArrayA[x] + idOffset];
-						MPoint bP =  o_vertexArray[m_ConnectArrayB[x] ];
+						MPoint aP = o_vertexArray[m_ConnectArrayA[x] + idOffset];
+						MPoint bP = o_vertexArray[m_ConnectArrayB[x]];
 
 						MPoint nP = (aP + bP) * 0.5;
 
-						o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayA[x] + idOffset );
-						o_vertexArray.set(MFloatPoint(nP.x,nP.y,nP.z,nP.w), m_ConnectArrayB[x]  );
+						o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayA[x] + idOffset);
+						o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayB[x]);
 					}
 
 				}
@@ -721,10 +1052,10 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 	i_polygonConnects.resize(m_numInputMeshes);
 
 
-	int bbPCountA[6] = {4,4,4,4,4,4};
+	int bbPCountA[6] = { 4,4,4,4,4,4 };
 	int bbPConnA[24] = { 0, 1, 2, 3, 4, 5, 6, 7, 3, 2, 6, 5, 0, 3, 5, 4, 0, 4, 7, 1, 1, 7, 6, 2 };
 
-	float w,h,d;
+	float w, h, d;
 
 
 
@@ -742,14 +1073,14 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 
 		MFloatPointArray bbPA;
 
-		bbPA.append(MFloatPoint( -w,-h,-d, 1.0f ));
-		bbPA.append(MFloatPoint( w,-h,-d, 1.0f ));
-		bbPA.append(MFloatPoint( w,-h,d, 1.0f ));
-		bbPA.append(MFloatPoint( -w,-h,d, 1.0f ));
-		bbPA.append(MFloatPoint( -w,h,-d, 1.0f ));
-		bbPA.append(MFloatPoint( -w,h,d, 1.0f ));
-		bbPA.append(MFloatPoint( w,h,d, 1.0f ));
-		bbPA.append(MFloatPoint( w,h,-d, 1.0f ));
+		bbPA.append(MFloatPoint(-w, -h, -d, 1.0f));
+		bbPA.append(MFloatPoint(w, -h, -d, 1.0f));
+		bbPA.append(MFloatPoint(w, -h, d, 1.0f));
+		bbPA.append(MFloatPoint(-w, -h, d, 1.0f));
+		bbPA.append(MFloatPoint(-w, h, -d, 1.0f));
+		bbPA.append(MFloatPoint(-w, h, d, 1.0f));
+		bbPA.append(MFloatPoint(w, h, d, 1.0f));
+		bbPA.append(MFloatPoint(w, h, -d, 1.0f));
 
 		i_numVertices[m] = 8;
 		i_numPolygons[m] = 6;
@@ -757,27 +1088,27 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 
 
 		i_vertexArray[m] = bbPA;
-		i_polygonCounts[m] = MIntArray(bbPCountA,6);
-		i_polygonConnects[m] = MIntArray(bbPConnA,24);
+		i_polygonCounts[m] = MIntArray(bbPCountA, 6);
+		i_polygonConnects[m] = MIntArray(bbPConnA, 24);
 
 
 	}
 
 	// Allocate memory for vector
-	int len_o_vertexArray=0;
-	int len_o_polygonCounts=0;
-	int len_o_polygonConnects=0;
+	int len_o_vertexArray = 0;
+	int len_o_polygonCounts = 0;
+	int len_o_polygonConnects = 0;
 
 	for (int m = 0; m < m_numDup; m++)
 	{
 		for (unsigned v = 0; v < i_vertexArray[idA[m]].length(); v++) {
-			len_o_vertexArray+=1;
+			len_o_vertexArray += 1;
 		}
 		for (unsigned v = 0; v < i_polygonCounts[idA[m]].length(); v++) {
-			len_o_polygonCounts+=1;
+			len_o_polygonCounts += 1;
 		}
 		for (unsigned v = 0; v < i_polygonConnects[idA[m]].length(); v++) {
-			len_o_polygonConnects+=1;
+			len_o_polygonConnects += 1;
 		}
 
 	}
@@ -823,7 +1154,7 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 		for (int v = 0; v < i_vertexArray[idA[m]].length(); v++) {
 			MFloatPoint currP = i_vertexArray[idA[m]][v];
 
-			MPoint currentPoint( currP.x, currP.y, currP.z, currP.w  );
+			MPoint currentPoint(currP.x, currP.y, currP.z, currP.w);
 
 
 
@@ -831,12 +1162,12 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 
 			currentPoint *= m_tr_matA[m];
 
-			o_vertexArray.set(MFloatPoint(currentPoint.x,currentPoint.y,currentPoint.z,currentPoint.w),v + idOffset );
+			o_vertexArray.set(MFloatPoint(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.w), v + idOffset);
 		}
 #pragma omp parallel for
 		// polygonCounts
 		for (int v = 0; v < i_polygonCounts[idA[m]].length(); v++) {
-			o_polygonCounts.set(i_polygonCounts[idA[m]][v], v+polycOffset);
+			o_polygonCounts.set(i_polygonCounts[idA[m]][v], v + polycOffset);
 		}
 
 
@@ -844,7 +1175,7 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 #pragma omp parallel for
 		// polygonConnects
 		for (int v = 0; v < i_polygonConnects[idA[m]].length(); v++) {
-			o_polygonConnects.set(i_polygonConnects[idA[m]][v] +  idOffset,  v + polyConnOffset );
+			o_polygonConnects.set(i_polygonConnects[idA[m]][v] + idOffset, v + polyConnOffset);
 
 
 		}
@@ -880,8 +1211,8 @@ MStatus ClonerMultiThread::reverseNormals()
 	{
 
 		MIntArray revFCA;
-		int co = o_polygonCounts.length() -1;
-		for (unsigned i = 0; i <  o_polygonCounts.length() ; i++)
+		int co = o_polygonCounts.length() - 1;
+		for (unsigned i = 0; i < o_polygonCounts.length(); i++)
 		{
 			revFCA.append(o_polygonCounts[co]);
 			co -= 1;
@@ -889,24 +1220,24 @@ MStatus ClonerMultiThread::reverseNormals()
 
 
 		MIntArray revPCA;
-		co = o_polygonConnects.length() -1;
-		for (unsigned i = 0; i <  o_polygonConnects.length() ; i++)
+		co = o_polygonConnects.length() - 1;
+		for (unsigned i = 0; i < o_polygonConnects.length(); i++)
 		{
 			revPCA.append(o_polygonConnects[co]);
 			co -= 1;
 		}
 
 		MIntArray revUVCA;
-		co = o_uvCountsA.length() -1;
-		for (unsigned i = 0; i <  o_uvCountsA.length() ; i++)
+		co = o_uvCountsA.length() - 1;
+		for (unsigned i = 0; i < o_uvCountsA.length(); i++)
 		{
 			revUVCA.append(o_uvCountsA[co]);
 			co -= 1;
 		}
 
 		MIntArray revUVIDA;
-		co = o_uvIdsA.length() -1;
-		for (unsigned i = 0; i <  o_uvIdsA.length() ; i++)
+		co = o_uvIdsA.length() - 1;
+		for (unsigned i = 0; i < o_uvIdsA.length(); i++)
 		{
 			revUVIDA.append(o_uvIdsA[co]);
 			co -= 1;
@@ -965,7 +1296,7 @@ MStatus ClonerMultiThread::mergeUVs()
 		MFnMesh mFnA(m_inMeshArray[i]);
 
 		//mFnA.getCurrentUVSetName(defaultUVSetName);
-		mFnA.getUVs(in_uArray,in_vArray);
+		mFnA.getUVs(in_uArray, in_vArray);
 		//mFnA.getAssignedUVs(in_uvCounts, in_uvIds, &defaultUVSetName);
 		mFnA.getAssignedUVs(in_uvCounts, in_uvIds);
 
@@ -981,10 +1312,10 @@ MStatus ClonerMultiThread::mergeUVs()
 	// Calculate the outpout array size
 
 	int id = 0;
-	int len_uArray=0;
-	int len_vArray=0;
-	int len_uvCounts=0;
-	int len_uvIds=0;
+	int len_uArray = 0;
+	int len_vArray = 0;
+	int len_uvCounts = 0;
+	int len_uvIds = 0;
 	for (int m = 0; m < m_numInputMeshes; m++)
 	{
 		id = m;
@@ -1086,7 +1417,7 @@ MStatus ClonerMultiThread::duplicateUVs(MIntArray& idA)
 		MFnMesh mFnA(m_inMeshArray[i]);
 
 		//mFnA.getCurrentUVSetName(defaultUVSetName);
-		mFnA.getUVs(in_uArray,in_vArray);
+		mFnA.getUVs(in_uArray, in_vArray);
 		//mFnA.getAssignedUVs(in_uvCounts, in_uvIds, &defaultUVSetName);
 		mFnA.getAssignedUVs(in_uvCounts, in_uvIds);
 
@@ -1102,10 +1433,10 @@ MStatus ClonerMultiThread::duplicateUVs(MIntArray& idA)
 	// Calculate the outpout array size
 
 	int id = 0;
-	int len_uArray=0;
-	int len_vArray=0;
-	int len_uvCounts=0;
-	int len_uvIds=0;
+	int len_uArray = 0;
+	int len_vArray = 0;
+	int len_uvCounts = 0;
+	int len_uvIds = 0;
 
 	for (int m = 0; m < m_numDup; m++)
 	{
@@ -1191,11 +1522,11 @@ MStatus ClonerMultiThread::smoothNormals(MFnMesh &meshFn)
 	MStatus status;
 
 	// Set edge smoothing globally
-	for (int loop = 0; loop < meshFn.numEdges(); loop++) 
+	for (int loop = 0; loop < meshFn.numEdges(); loop++)
 	{
 
-		if (m_smoothNorm == true){ meshFn.setEdgeSmoothing(loop, true); }
-		if (m_smoothNorm == false){ meshFn.setEdgeSmoothing(loop, false); }
+		if (m_smoothNorm == true) { meshFn.setEdgeSmoothing(loop, true); }
+		if (m_smoothNorm == false) { meshFn.setEdgeSmoothing(loop, false); }
 	}
 
 	meshFn.cleanupEdgeSmoothing();
@@ -1221,7 +1552,7 @@ MStatus ClonerMultiThread::collectInputMeshes(MDataBlock& data)
 	p_outMesh = MPlug(this->thisMObject(), aOutMesh);
 
 
-	MArrayDataHandle h_inMeshes = data.inputArrayValue( aInMesh );
+	MArrayDataHandle h_inMeshes = data.inputArrayValue(aInMesh);
 
 	for (unsigned int i = 0; i < h_inMeshes.elementCount(); i++)
 	{
@@ -1235,7 +1566,7 @@ MStatus ClonerMultiThread::collectInputMeshes(MDataBlock& data)
 			m_inMeshArray.append(m_inMesh);
 
 			MMatrix trMat = h_inMeshes.inputValue(&status).geometryTransformMatrix();
-			CHECK_MSTATUS_AND_RETURN_IT( status );
+			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 			m_inMeshMatrixArray.append(trMat);
 
@@ -1277,7 +1608,7 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	status = stringDataA.split(',', stringDataAArray);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	MString stringDataB = data.inputValue (aConnectArrayB, &status).asString();
+	MString stringDataB = data.inputValue(aConnectArrayB, &status).asString();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	MStringArray stringDataBArray;
 	status = stringDataB.split(',', stringDataBArray);
@@ -1287,12 +1618,12 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_ConnectArrayA.clear();
 	m_ConnectArrayB.clear();
 
-	for(int i = 0; i < stringDataAArray.length(); i++ ){ m_ConnectArrayA.append(stringDataAArray[i].asInt()); }
-	for(int i = 0; i < stringDataAArray.length(); i++ ){ m_ConnectArrayB.append(stringDataBArray[i].asInt()); }
+	for (int i = 0; i < stringDataAArray.length(); i++) { m_ConnectArrayA.append(stringDataAArray[i].asInt()); }
+	for (int i = 0; i < stringDataAArray.length(); i++) { m_ConnectArrayB.append(stringDataBArray[i].asInt()); }
 
 	// If one vertex array is larger than the other expand it's size
-	int maxValues[2] = {int(m_ConnectArrayA.length()), int(m_ConnectArrayB.length())};
-	int maxValue = *std::min_element(maxValues,maxValues+2);
+	int maxValues[2] = { int(m_ConnectArrayA.length()), int(m_ConnectArrayB.length()) };
+	int maxValue = *std::min_element(maxValues, maxValues + 2);
 
 	m_ConnectArrayA.setLength(maxValue);
 	m_ConnectArrayB.setLength(maxValue);
@@ -1309,10 +1640,10 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_refMeshMat = data.inputValue(aRefMesh, &status).geometryTransformMatrix();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_inLocA_posMat = data.inputValue( aInLocAPos, &status ).asMatrix();
+	m_inLocA_posMat = data.inputValue(aInLocAPos, &status).asMatrix();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_inLocB_posMat = data.inputValue( aInLocBPos, &status ).asMatrix();
+	m_inLocB_posMat = data.inputValue(aInLocBPos, &status).asMatrix();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_firstUpVec = data.inputValue(aFirstUpVec, &status).asVector();
@@ -1345,66 +1676,66 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_polyLimit = data.inputValue(aLimitDisplay, &status).asInt();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_instanceX = data.inputValue( aGridInstanceX, &status ).asInt();
+	m_instanceX = data.inputValue(aGridInstanceX, &status).asInt();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_instanceY = data.inputValue( aGridInstanceY, &status ).asInt();
+	m_instanceY = data.inputValue(aGridInstanceY, &status).asInt();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_instanceZ = data.inputValue( aGridInstanceZ, &status ).asInt();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-
-
-	m_offsetX = data.inputValue( aGridOffsetX, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_offsetY = data.inputValue( aGridOffsetY, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_offsetZ = data.inputValue( aGridOffsetZ, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	m_rotateX = data.inputValue( aRotateX, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_rotateY = data.inputValue( aRotateY, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_rotateZ = data.inputValue( aRotateZ, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	m_scaleX = data.inputValue( aScaleX, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_scaleY = data.inputValue( aScaleY, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_scaleZ = data.inputValue( aScaleZ, &status ).asFloat();
+	m_instanceZ = data.inputValue(aGridInstanceZ, &status).asInt();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
-	m_randomOffsetX = data.inputValue( aRndOffsetX, &status ).asFloat();
+
+	m_offsetX = data.inputValue(aGridOffsetX, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_randomOffsetY = data.inputValue( aRndOffsetY, &status ).asFloat();
+	m_offsetY = data.inputValue(aGridOffsetY, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_randomOffsetZ = data.inputValue( aRndOffsetZ, &status ).asFloat();
+	m_offsetZ = data.inputValue(aGridOffsetZ, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_randomRotateX = data.inputValue( aRndRotateX, &status ).asFloat();
+	m_rotateX = data.inputValue(aRotateX, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_randomRotateY = data.inputValue( aRndRotateY, &status ).asFloat();
+	m_rotateY = data.inputValue(aRotateY, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_randomRotateZ = data.inputValue( aRndRotateZ, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-	m_randomScaleX = data.inputValue( aRndScaleX, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_randomScaleY = data.inputValue( aRndScaleY, &status ).asFloat();
-	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_randomScaleZ = data.inputValue( aRndScaleZ, &status ).asFloat();
+	m_rotateZ = data.inputValue(aRotateZ, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_uvOffsetU = data.inputValue(aUVOffsetU, &status ).asFloat();
+	m_scaleX = data.inputValue(aScaleX, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_uvOffsetV = data.inputValue(aUVOffsetV, &status ).asFloat();
+	m_scaleY = data.inputValue(aScaleY, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_scaleZ = data.inputValue(aScaleZ, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
-	m_rndUvOffsetU = data.inputValue(aRndUVOffsetU, &status ).asFloat();
+
+	m_randomOffsetX = data.inputValue(aRndOffsetX, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_rndUvOffsetV = data.inputValue(aRndUVOffsetV, &status ).asFloat();
+	m_randomOffsetY = data.inputValue(aRndOffsetY, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_randomOffsetZ = data.inputValue(aRndOffsetZ, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_randomRotateX = data.inputValue(aRndRotateX, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_randomRotateY = data.inputValue(aRndRotateY, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_randomRotateZ = data.inputValue(aRndRotateZ, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_randomScaleX = data.inputValue(aRndScaleX, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_randomScaleY = data.inputValue(aRndScaleY, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_randomScaleZ = data.inputValue(aRndScaleZ, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_uvOffsetU = data.inputValue(aUVOffsetU, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_uvOffsetV = data.inputValue(aUVOffsetV, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_rndUvOffsetU = data.inputValue(aRndUVOffsetU, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_rndUvOffsetV = data.inputValue(aRndUVOffsetV, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
@@ -1454,15 +1785,39 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
+	m_transformXRule = data.inputValue(aTransformXRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_transformYRule = data.inputValue(aTransformYRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_transformZRule = data.inputValue(aTransformZRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
 	m_rotateXRule = data.inputValue(aRotateXRule, &status).asString();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+	m_rotateYRule = data.inputValue(aRotateYRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_rotateZRule = data.inputValue(aRotateZRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_scaleXRule = data.inputValue(aScaleXRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_scaleYRule = data.inputValue(aScaleYRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_scaleZRule = data.inputValue(aScaleZRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
 	// Override instace count if instance type is set to Circle
-	if (m_instanceType == 1) { m_instanceZ = 1;}
-	if (m_instanceType == 5) { m_instanceZ = 1;}
+	if (m_instanceType == 1) { m_instanceZ = 1; }
+	if (m_instanceType == 5) { m_instanceZ = 1; }
 	//if (m_instanceType == 4) { m_rotateX+=180.0;}
 
-	m_numDup = m_instanceX * m_instanceY * m_instanceZ; if (m_numDup < 1) { m_numDup = 1;}
+	m_numDup = m_instanceX * m_instanceY * m_instanceZ; if (m_numDup < 1) { m_numDup = 1; }
 
 
 
@@ -1482,7 +1837,7 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 
 
 	// Override instace count if instance type is set to Mesh
-	if (m_instanceType == 5) {overrideInstanceOnMeshSettings();}
+	if (m_instanceType == 5) { overrideInstanceOnMeshSettings(); }
 
 	return MStatus::kSuccess;
 
@@ -1521,9 +1876,9 @@ MFloatArray ClonerMultiThread::generateRndArray(float& surfaceNoise, int& numVal
 
 	float randVal;
 
-	for (int i=0; i < numValues; i++) {
+	for (int i = 0; i < numValues; i++) {
 
-		randVal = (rand() / ((float) RAND_MAX)) * surfaceNoise;
+		randVal = (rand() / ((float)RAND_MAX)) * surfaceNoise;
 		randArray.append(randVal);
 
 	}
@@ -1562,7 +1917,7 @@ MStatus ClonerMultiThread::checkInputPlugs()
 		return MStatus::kSuccess;
 	}
 
-	if (m_instanceType==3)
+	if (m_instanceType == 3)
 	{
 
 		if (!p_inLocA.isConnected())
@@ -1577,7 +1932,7 @@ MStatus ClonerMultiThread::checkInputPlugs()
 	}
 
 
-	if (m_instanceType==4)
+	if (m_instanceType == 4)
 	{
 		if (!p_inCurve.isConnected())
 		{
@@ -1585,7 +1940,7 @@ MStatus ClonerMultiThread::checkInputPlugs()
 		}
 	}
 
-	if (m_instanceType==5)
+	if (m_instanceType == 5)
 	{
 		if (!p_refMesh.isConnected())
 		{
@@ -1637,7 +1992,7 @@ MStatus ClonerMultiThread::displayOverride()
 
 
 // --- COMPUTE ----------------------------------------------------------------------------------
-MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
+MStatus ClonerMultiThread::compute(const MPlug& plug, MDataBlock& data)
 {
 	MStatus status;
 
@@ -1651,7 +2006,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 	}
 
 	if (p_inMesh.numConnectedElements() == 0)
-	{		
+	{
 
 		MFnMeshData ex_meshDataFn;
 		MObject ex_newMeshData = ex_meshDataFn.create(&status);
@@ -1682,14 +2037,16 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 
 
-	if ( plug == aOutMesh ) 
+	if (plug == aOutMesh)
 	{
 
 		// Collect input meshes
 		status = collectInputMeshes(data);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
+		// Generate rule arrays
 
+		storeRules();
 
 		// Generate IDs
 		m_idA = generatePatternIDs(m_patternType, m_numDup);
@@ -1709,12 +2066,12 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 		m_rndOffsetVA = generateRndArray(m_rndUvOffsetV, m_numDup, m_rand_seed);
 
 		// Generate transormation matrix array
-		if (m_instanceType == 0) { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status);}
-		else if (m_instanceType == 1) { status = instanceCircle(); CHECK_MSTATUS_AND_RETURN_IT(status);}
-		else if (m_instanceType == 2) { status = instanceFibonacciSphere(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+		if (m_instanceType == 0) { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status); }
+		else if (m_instanceType == 1) { status = instanceCircle(); CHECK_MSTATUS_AND_RETURN_IT(status); }
+		else if (m_instanceType == 2) { status = instanceFibonacciSphere(); CHECK_MSTATUS_AND_RETURN_IT(status); }
 
-		else if (m_instanceType == 3) 
-		{ 
+		else if (m_instanceType == 3)
+		{
 
 			if (p_inLocA.isConnected() && p_inLocB.isConnected())
 			{
@@ -1727,7 +2084,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 			}
 		}
 
-		else if (m_instanceType == 4) 
+		else if (m_instanceType == 4)
 		{
 			if (p_inCurve.isConnected())
 			{
@@ -1742,7 +2099,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 		}
 
 		else if (m_instanceType == 5)
-		{ 
+		{
 			if (p_refMesh.isConnected())
 			{
 				status = instanceOnMesh(); CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -1754,7 +2111,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 			}
 		}
 
-		else { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status);}
+		else { status = instanceGrid(); CHECK_MSTATUS_AND_RETURN_IT(status); }
 
 
 		// Create output mobject
@@ -1800,7 +2157,7 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 				m_inMeshArray.clear();
 				m_inMeshArray.append(newMeshData);
 				m_numInputMeshes = 1;
-				m_idA.clear(); for (int i = 0; i < m_numDup; i++) {m_idA.append(0);}
+				m_idA.clear(); for (int i = 0; i < m_numDup; i++) { m_idA.append(0); }
 
 
 				status = duplicateUVs(m_idA);
@@ -1918,25 +2275,26 @@ MStatus ClonerMultiThread::compute( const MPlug& plug, MDataBlock& data )
 
 
 // VP 1.0 Functions
-void ClonerMultiThread::draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style,  M3dView::DisplayStatus status )
+void ClonerMultiThread::draw(M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status)
 {
 	MObject thisNode = thisMObject();
 
-	MFnDependencyNode fnDepCloner( thisNode );
+	MFnDependencyNode fnDepCloner(thisNode);
 
 	// Draw locator
 	view.beginGL();
 
-	glPushAttrib( GL_CURRENT_BIT );
+	glPushAttrib(GL_CURRENT_BIT);
 
-	if ( status == M3dView::kActive ) {
-		view.setDrawColor( 13, M3dView::kActiveColors );
-	} else {
-		view.setDrawColor( 13, M3dView::kDormantColors );
+	if (status == M3dView::kActive) {
+		view.setDrawColor(13, M3dView::kActiveColors);
+	}
+	else {
+		view.setDrawColor(13, M3dView::kDormantColors);
 	}
 
 
-	view.drawText( ".", MPoint::origin, M3dView::kCenter );
+	view.drawText(".", MPoint::origin, M3dView::kCenter);
 
 
 
@@ -1954,10 +2312,10 @@ MHWRender::DrawAPI ClonerMultiThreadOverride::supportedDrawAPIs() const
 
 #if MAYA_API_VERSION > 201600
 
-	return (MHWRender::kOpenGL | MHWRender::kDirectX11 | MHWRender::kOpenGLCoreProfile );
+	return (MHWRender::kOpenGL | MHWRender::kDirectX11 | MHWRender::kOpenGLCoreProfile);
 
 #else
-	return (MHWRender::kOpenGL | MHWRender::kDirectX11 );
+	return (MHWRender::kOpenGL | MHWRender::kDirectX11);
 #endif
 
 }
@@ -1967,7 +2325,7 @@ bool ClonerMultiThreadOverride::isBounded(const MDagPath& /*objPath*/, const MDa
 	return true;
 }
 
-MBoundingBox ClonerMultiThreadOverride::boundingBox( const MDagPath& objPath, const MDagPath& cameraPath) const
+MBoundingBox ClonerMultiThreadOverride::boundingBox(const MDagPath& objPath, const MDagPath& cameraPath) const
 {
 
 
@@ -1975,10 +2333,10 @@ MBoundingBox ClonerMultiThreadOverride::boundingBox( const MDagPath& objPath, co
 	MObject CLonerMultiNode = objPath.node(&status);
 
 
-	MPoint corner1( -1.0, 1.0, -1.0 );
-	MPoint corner2( 1.0, 0.0, 1.0 );
+	MPoint corner1(-1.0, 1.0, -1.0);
+	MPoint corner2(1.0, 0.0, 1.0);
 
-	return MBoundingBox( corner1, corner2 );
+	return MBoundingBox(corner1, corner2);
 
 	//return m_bbP;
 }
@@ -2016,7 +2374,7 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 			if (status)
 			{
 
-				MFnMatrixArrayData worldMatrixData( matrixObject );
+				MFnMatrixArrayData worldMatrixData(matrixObject);
 				MMatrixArray out_matrixArray;
 
 				worldMatrixData.copyTo(out_matrixArray);
@@ -2040,7 +2398,7 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 
 
 // Called by Maya each time the object needs to be drawn.
-MUserData* ClonerMultiThreadOverride::prepareForDraw( const MDagPath& objPath, const MDagPath& cameraPath, const MHWRender::MFrameContext& frameContext, MUserData* oldData)
+MUserData* ClonerMultiThreadOverride::prepareForDraw(const MDagPath& objPath, const MDagPath& cameraPath, const MHWRender::MFrameContext& frameContext, MUserData* oldData)
 {
 
 	// Get outside data from plugs
@@ -2073,7 +2431,7 @@ MUserData* ClonerMultiThreadOverride::prepareForDraw( const MDagPath& objPath, c
 }
 
 
-void ClonerMultiThreadOverride::addUIDrawables( const MDagPath& objPath, MHWRender::MUIDrawManager& drawManager, const MHWRender::MFrameContext& frameContext, const MUserData* data)
+void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRender::MUIDrawManager& drawManager, const MHWRender::MFrameContext& frameContext, const MUserData* data)
 {
 	ClonerMultiThreadData* pLocatorData = (ClonerMultiThreadData*)data;
 	if (!pLocatorData)
@@ -2087,33 +2445,33 @@ void ClonerMultiThreadOverride::addUIDrawables( const MDagPath& objPath, MHWRend
 
 	MColor fillCol, lineCol;
 
-	fillCol = MColor( 1.0f, 0.5f, 0.3f, 1.0f );
+	fillCol = MColor(1.0f, 0.5f, 0.3f, 1.0f);
 
 
 
-	if ( frameContext.getDisplayStyle() & MHWRender::MDrawContext::kWireFrame ) {
+	if (frameContext.getDisplayStyle() & MHWRender::MDrawContext::kWireFrame) {
 
 
-		fillCol = MColor( pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, 0.0 );
-
-	}
-
-	if ( MHWRender::MGeometryUtilities::displayStatus(objPath) == M3dView::kLead ) {
-
-
-		fillCol = MColor( pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, fillCol.a );
+		fillCol = MColor(pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, 0.0);
 
 	}
 
-	if ( MHWRender::MGeometryUtilities::displayStatus(objPath) == M3dView::kActive ) {
+	if (MHWRender::MGeometryUtilities::displayStatus(objPath) == M3dView::kLead) {
 
-		fillCol = MColor( pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, fillCol.a );
+
+		fillCol = MColor(pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, fillCol.a);
 
 	}
 
-	if ( MHWRender::MGeometryUtilities::displayStatus(objPath) == M3dView::kTemplate ) {
+	if (MHWRender::MGeometryUtilities::displayStatus(objPath) == M3dView::kActive) {
 
-		fillCol = MColor( pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, fillCol.a );
+		fillCol = MColor(pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, fillCol.a);
+
+	}
+
+	if (MHWRender::MGeometryUtilities::displayStatus(objPath) == M3dView::kTemplate) {
+
+		fillCol = MColor(pLocatorData->m_locColor.r, pLocatorData->m_locColor.g, pLocatorData->m_locColor.b, fillCol.a);
 
 	}
 
@@ -2122,9 +2480,9 @@ void ClonerMultiThreadOverride::addUIDrawables( const MDagPath& objPath, MHWRend
 	if (pLocatorData->m_displayProxy)
 	{
 
-		drawManager.setColor( MColor(fillCol.r,fillCol.g,fillCol.b, 1.0f) );
+		drawManager.setColor(MColor(fillCol.r, fillCol.g, fillCol.b, 1.0f));
 		drawManager.setPointSize(4);
-		drawManager.mesh(MHWRender::MUIDrawManager::kPoints,  pLocatorData->m_dispPointA);
+		drawManager.mesh(MHWRender::MUIDrawManager::kPoints, pLocatorData->m_dispPointA);
 
 
 		M3dView view = M3dView::active3dView();
@@ -2135,8 +2493,8 @@ void ClonerMultiThreadOverride::addUIDrawables( const MDagPath& objPath, MHWRend
 
 		view.worldToView(p, ox, oy);
 
-		drawManager.setColor( MColor(fillCol.r + 0.5,fillCol.g + 0.5,fillCol.b + 0.5, 1.0f) );
-		drawManager.circle2d(MPoint(ox,oy),3.0, false );
+		drawManager.setColor(MColor(fillCol.r + 0.5, fillCol.g + 0.5, fillCol.b + 0.5, 1.0f));
+		drawManager.circle2d(MPoint(ox, oy), 3.0, false);
 
 	}
 
@@ -2151,8 +2509,8 @@ void ClonerMultiThreadOverride::addUIDrawables( const MDagPath& objPath, MHWRend
 
 		view.worldToView(p, ox, oy);
 
-		drawManager.setColor( MColor(fillCol.r + 0.5,fillCol.g + 0.5,fillCol.b + 0.5, 1.0f) );
-		drawManager.circle2d(MPoint(ox,oy),3.0, false );
+		drawManager.setColor(MColor(fillCol.r + 0.5, fillCol.g + 0.5, fillCol.b + 0.5, 1.0f));
+		drawManager.circle2d(MPoint(ox, oy), 3.0, false);
 	}
 
 
@@ -2178,44 +2536,44 @@ MStatus ClonerMultiThread::initialize()
 
 	MFnStringData      fnStringData;
 	MObject            defaultStringA;
-	defaultStringA = fnStringData.create( "0,1" );
+	defaultStringA = fnStringData.create("0,1");
 
 
 	// Plugs
-	ClonerMultiThread::aInMesh = tAttr.create( "inMesh", "inMesh", MFnData::kMesh );
+	ClonerMultiThread::aInMesh = tAttr.create("inMesh", "inMesh", MFnData::kMesh);
 	tAttr.setDisconnectBehavior(MFnAttribute::kDelete);
-	tAttr.setChannelBox( false );
+	tAttr.setChannelBox(false);
 	tAttr.setArray(true);
 	tAttr.setWritable(true);
 	tAttr.setReadable(false);
-	addAttribute( ClonerMultiThread::aInMesh );
+	addAttribute(ClonerMultiThread::aInMesh);
 
-	ClonerMultiThread::aOutMesh = tAttr.create( "outMesh", "outMesh", MFnData::kMesh );
-	tAttr.setChannelBox( false );
+	ClonerMultiThread::aOutMesh = tAttr.create("outMesh", "outMesh", MFnData::kMesh);
+	tAttr.setChannelBox(false);
 	tAttr.setWritable(false);
 	tAttr.setReadable(true);
-	addAttribute( ClonerMultiThread::aOutMesh );
+	addAttribute(ClonerMultiThread::aOutMesh);
 #if MAYA_API_VERSION > 201600
-	ClonerMultiThread::aOutMatrixArray = tAttr.create( "outMatrixArray", "outMatrixArray", MFnMatrixData::kMatrixArray );
-	tAttr.setChannelBox( false );
+	ClonerMultiThread::aOutMatrixArray = tAttr.create("outMatrixArray", "outMatrixArray", MFnMatrixData::kMatrixArray);
+	tAttr.setChannelBox(false);
 	tAttr.setWritable(false);
 	tAttr.setReadable(true);
 	tAttr.setHidden(true);
-	addAttribute( ClonerMultiThread::aOutMatrixArray );
+	addAttribute(ClonerMultiThread::aOutMatrixArray);
 #endif
-	ClonerMultiThread::aOutIDArray = tAttr.create( "outIDArray", "outIDArray", MFnIntArrayData::kIntArray );
-	tAttr.setChannelBox( false );
+	ClonerMultiThread::aOutIDArray = tAttr.create("outIDArray", "outIDArray", MFnIntArrayData::kIntArray);
+	tAttr.setChannelBox(false);
 	tAttr.setWritable(false);
 	tAttr.setReadable(true);
 	tAttr.setHidden(true);
-	addAttribute( ClonerMultiThread::aOutIDArray );
+	addAttribute(ClonerMultiThread::aOutIDArray);
 
-	ClonerMultiThread::aRefMesh = tAttr.create( "referenceMesh", "referenceMesh", MFnData::kMesh );
+	ClonerMultiThread::aRefMesh = tAttr.create("referenceMesh", "referenceMesh", MFnData::kMesh);
 	tAttr.setWritable(true);
 	tAttr.setReadable(false);
 	tAttr.setStorable(false);
 	tAttr.setKeyable(true);
-	addAttribute( ClonerMultiThread::aRefMesh );
+	addAttribute(ClonerMultiThread::aRefMesh);
 
 	ClonerMultiThread::aInCurve = tAttr.create("inCurve", "inCurve", MFnData::kNurbsCurve);
 	tAttr.setWritable(true);
@@ -2225,7 +2583,7 @@ MStatus ClonerMultiThread::initialize()
 	addAttribute(ClonerMultiThread::aInCurve);
 
 	// A - B in locators
-	ClonerMultiThread::aInLocAPos = mAttr.create( "locatorAPos", "locatorAPos", MFnMatrixAttribute::kDouble );
+	ClonerMultiThread::aInLocAPos = mAttr.create("locatorAPos", "locatorAPos", MFnMatrixAttribute::kDouble);
 	mAttr.setChannelBox(false);
 	mAttr.setWritable(true);
 	mAttr.setReadable(false);
@@ -2233,7 +2591,7 @@ MStatus ClonerMultiThread::initialize()
 	mAttr.setKeyable(false);
 	addAttribute(ClonerMultiThread::aInLocAPos);
 
-	ClonerMultiThread::aInLocBPos = mAttr.create( "locatorBPos", "locatorBPos", MFnMatrixAttribute::kDouble );
+	ClonerMultiThread::aInLocBPos = mAttr.create("locatorBPos", "locatorBPos", MFnMatrixAttribute::kDouble);
 	mAttr.setChannelBox(false);
 	mAttr.setWritable(true);
 	mAttr.setReadable(false);
@@ -2553,24 +2911,24 @@ MStatus ClonerMultiThread::initialize()
 	addAttribute(ClonerMultiThread::aRndUVOffsetV);
 
 
-	ClonerMultiThread::aFirstUpVecX = nAttr.create("firstUpVecX","fux",MFnNumericData::kDouble,0);
+	ClonerMultiThread::aFirstUpVecX = nAttr.create("firstUpVecX", "fux", MFnNumericData::kDouble, 0);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	addAttribute(ClonerMultiThread::aFirstUpVecX);
 
-	ClonerMultiThread::aFirstUpVecY = nAttr.create("firstUpVecY","fuy",MFnNumericData::kDouble,1);
+	ClonerMultiThread::aFirstUpVecY = nAttr.create("firstUpVecY", "fuy", MFnNumericData::kDouble, 1);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	addAttribute(ClonerMultiThread::aFirstUpVecY);
 
 
-	ClonerMultiThread::aFirstUpVecZ = nAttr.create("firstUpVecZ","fuz",MFnNumericData::kDouble,0);
+	ClonerMultiThread::aFirstUpVecZ = nAttr.create("firstUpVecZ", "fuz", MFnNumericData::kDouble, 0);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	addAttribute(ClonerMultiThread::aFirstUpVecZ);
 
 
-	ClonerMultiThread::aFirstUpVec = cAttr.create("firstUpVec","fu");
+	ClonerMultiThread::aFirstUpVec = cAttr.create("firstUpVec", "fu");
 	cAttr.addChild(ClonerMultiThread::aFirstUpVecX);
 	cAttr.addChild(ClonerMultiThread::aFirstUpVecY);
 	cAttr.addChild(ClonerMultiThread::aFirstUpVecZ);
@@ -2642,26 +3000,26 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aDisplayProxy);
 
-	ClonerMultiThread::aConnectPieces = nAttr.create( "connectPieces", "connectPieces", MFnNumericData::kBoolean );
+	ClonerMultiThread::aConnectPieces = nAttr.create("connectPieces", "connectPieces", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(false);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute( ClonerMultiThread::aConnectPieces );
+	addAttribute(ClonerMultiThread::aConnectPieces);
 
-	ClonerMultiThread::aConnectLoop = nAttr.create( "connectLoop", "connectLoop", MFnNumericData::kBoolean );
+	ClonerMultiThread::aConnectLoop = nAttr.create("connectLoop", "connectLoop", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(false);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute( ClonerMultiThread::aConnectLoop );
+	addAttribute(ClonerMultiThread::aConnectLoop);
 
-	ClonerMultiThread::aInterpolate = nAttr.create( "interpolate", "interpolate", MFnNumericData::kBoolean );
+	ClonerMultiThread::aInterpolate = nAttr.create("interpolate", "interpolate", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(false);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
-	addAttribute( ClonerMultiThread::aInterpolate );
+	addAttribute(ClonerMultiThread::aInterpolate);
 
 
 	ClonerMultiThread::aOrientCurveToRefGeo = nAttr.create("orientCurveToRefGeo", "orientCurveToRefGeo", MFnNumericData::kBoolean, false);
@@ -2670,21 +3028,69 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aOrientCurveToRefGeo);
 
-	ClonerMultiThread::aConnectArrayA = tAttr.create( "connectArrayA", "connectArrayA", MFnData::kString, defaultStringA );
+	ClonerMultiThread::aConnectArrayA = tAttr.create("connectArrayA", "connectArrayA", MFnData::kString, defaultStringA);
 	tAttr.setStorable(true);
 	tAttr.setChannelBox(false);
-	addAttribute( ClonerMultiThread::aConnectArrayA );
+	addAttribute(ClonerMultiThread::aConnectArrayA);
 
-	ClonerMultiThread::aConnectArrayB = tAttr.create( "connectArrayB", "connectArrayB", MFnData::kString, defaultStringA);
+	ClonerMultiThread::aConnectArrayB = tAttr.create("connectArrayB", "connectArrayB", MFnData::kString, defaultStringA);
 	tAttr.setStorable(true);
 	tAttr.setChannelBox(false);
-	ClonerMultiThread::addAttribute( aConnectArrayB );
+	ClonerMultiThread::addAttribute(aConnectArrayB);
+
+
+	// Rulest Transform
+
+	ClonerMultiThread::aTransformXRule = tAttr.create("transformXRule", "transformXRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aTransformXRule);
+
+	ClonerMultiThread::aTransformYRule = tAttr.create("transformYRule", "transformYRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aTransformYRule);
+
+	ClonerMultiThread::aTransformZRule = tAttr.create("transformZRule", "transformZRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aTransformZRule);
+
+	// Rules Rotate
 
 	ClonerMultiThread::aRotateXRule = tAttr.create("rotateXRule", "rotateXRule", MFnData::kString);
 	tAttr.setStorable(true);
 	tAttr.setChannelBox(false);
-	addAttribute(ClonerMultiThread::aRotateXRule);
+	ClonerMultiThread::addAttribute(aRotateXRule);
 
+	ClonerMultiThread::aRotateYRule = tAttr.create("rotateYRule", "rotateYRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aRotateYRule);
+
+	ClonerMultiThread::aRotateZRule = tAttr.create("rotateZRule", "rotateZRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aRotateZRule);
+
+	// Scale Rotate
+
+	ClonerMultiThread::aScaleXRule = tAttr.create("scaleXRule", "scaleXRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aScaleXRule);
+
+	ClonerMultiThread::aScaleYRule = tAttr.create("scaleYRule", "scaleYRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aScaleYRule);
+
+	ClonerMultiThread::aScaleZRule = tAttr.create("scaleZRule", "scaleZRule", MFnData::kString);
+	tAttr.setStorable(true);
+	tAttr.setChannelBox(false);
+	ClonerMultiThread::addAttribute(aScaleZRule);
+
+	//
 
 	ClonerMultiThread::aGridOffsetRamp = rAttr.createCurveRamp("offsetRamp", "offsetRamp");
 	ClonerMultiThread::addAttribute(aGridOffsetRamp);
@@ -2772,7 +3178,17 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMesh);
 
+	attributeAffects(ClonerMultiThread::aTransformXRule, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aTransformYRule, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aTransformZRule, ClonerMultiThread::aOutMesh);
+
 	attributeAffects(ClonerMultiThread::aRotateXRule, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRotateYRule, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRotateZRule, ClonerMultiThread::aOutMesh);
+
+	attributeAffects(ClonerMultiThread::aScaleXRule, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aScaleYRule, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutMesh);
 
 #if MAYA_API_VERSION > 201600
 	// Output Matrix array
@@ -2831,7 +3247,17 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMatrixArray);
 
+	attributeAffects(ClonerMultiThread::aTransformXRule, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aTransformYRule, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aTransformZRule, ClonerMultiThread::aOutMatrixArray);
+
 	attributeAffects(ClonerMultiThread::aRotateXRule, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aRotateYRule, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aRotateZRule, ClonerMultiThread::aOutMatrixArray);
+
+	attributeAffects(ClonerMultiThread::aScaleXRule, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aScaleYRule, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutMatrixArray);
 
 #endif
 
@@ -2890,7 +3316,17 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutIDArray);
 
+	attributeAffects(ClonerMultiThread::aTransformXRule, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aTransformYRule, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aTransformZRule, ClonerMultiThread::aOutIDArray);
+
 	attributeAffects(ClonerMultiThread::aRotateXRule, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aRotateYRule, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aRotateZRule, ClonerMultiThread::aOutIDArray);
+
+	attributeAffects(ClonerMultiThread::aScaleXRule, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aScaleYRule, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutIDArray);
 
 	return MS::kSuccess;
 }

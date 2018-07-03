@@ -149,7 +149,19 @@ public:
 	static MObject				aRotateY;
 	static MObject				aRotateZ;
 
+
+	static MObject				aTransformXRule;
+	static MObject				aTransformYRule;
+	static MObject				aTransformZRule;
+
 	static MObject				aRotateXRule;
+	static MObject				aRotateYRule;
+	static MObject				aRotateZRule;
+
+	static MObject				aScaleXRule;
+	static MObject				aScaleYRule;
+	static MObject				aScaleZRule;
+
 
 	static MObject				aScaleX;
 	static MObject				aScaleY;
@@ -215,6 +227,8 @@ private:
 	static void					postDuplicateCB(void* data);
 	static void					nodeAddedCB(MObject& node, void* clientData);
 
+	// Rules
+	MStatus						storeRules();
 
 	// Sanity check
 	MStatus						checkInputPlugs();
@@ -314,6 +328,19 @@ private:
 
 	MString						o_defaultUVSetNameA;
 
+	// Rules
+
+	MFloatArray					m_rule_off_A_X;
+	MFloatArray					m_rule_off_A_Y;
+	MFloatArray					m_rule_off_A_Z;
+
+	MFloatArray					m_rule_rot_A_X;
+	MFloatArray					m_rule_rot_A_Y;
+	MFloatArray					m_rule_rot_A_Z;
+
+	MFloatArray					m_rule_scl_A_X;
+	MFloatArray					m_rule_scl_A_Y;
+	MFloatArray					m_rule_scl_A_Z;
 
 	// ID's
 	MIntArray					m_idA;
@@ -428,7 +455,17 @@ private:
 	// Callback
 	MCallbackIdArray			m_callbackIDs;
 
+	MString						m_transformXRule;
+	MString						m_transformYRule;
+	MString						m_transformZRule;
+
 	MString						m_rotateXRule;
+	MString						m_rotateYRule;
+	MString						m_rotateZRule;
+
+	MString						m_scaleXRule;
+	MString						m_scaleYRule;
+	MString						m_scaleZRule;
 
 };
 

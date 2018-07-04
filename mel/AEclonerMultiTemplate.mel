@@ -1,4 +1,4 @@
-deleteUI AttrEdclonerMultiFormLayout;
+//deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;

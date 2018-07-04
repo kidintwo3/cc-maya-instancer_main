@@ -17,8 +17,15 @@ MStatus initializePlugin( MObject obj )
 
 	MFnPlugin fnPlugin( obj, "Creative Case", "1.8", "Any" );
 
-	MGlobal::executeCommand( mel_AETemplate() );
 
+	MStringArray aeTemplateA = mel_AETemplate();
+
+	for (int i = 0; i < aeTemplateA.length(); i++)
+	{
+		MGlobal::executeCommand(aeTemplateA[i]);
+	}
+
+	
 
 	MString rebuild_icons = MCommonSystemUtils::getEnv("CLONERMULTI_REBUILD_ICONS", &status);
 

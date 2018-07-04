@@ -178,14 +178,16 @@ MStatus ClonerMultiThread::instanceSpline()
 				MFnMesh meshFn(m_refMesh, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
+
+				p *= m_curveTrMat;
+
 				int closestPolygon;
 				status = meshFn.getClosestPointAndNormal(p, closestPoint, closest_normal, MSpace::kObject, &closestPolygon);
 
 				if (status)
 				{
 
-					p = closestPoint;
-
+					p = closestPoint * m_curveTrMat.inverse();
 
 					MVector cross1 = closest_normal ^ tan;
 					cross1.normalize();
@@ -194,14 +196,12 @@ MStatus ClonerMultiThread::instanceSpline()
 					cross2.normalize();
 
 
-					double m[4][4] = { { closest_normal.x, closest_normal.y , closest_normal.z, 0.0 },
-					{ cross2.x, cross2.y, cross2.z, 0.0 },
+					double m[4][4] = { { cross2.x, cross2.y , cross2.z, 0.0 },
+					{ closest_normal.x, closest_normal.y, closest_normal.z, 0.0 },
 					{ cross1.x, cross1.y, cross1.z, 0.0 },
 					{ p.x, p.y, p.z, 1.0 } };
 
 					rotMatrix = m;
-
-
 				}
 
 			}
@@ -225,16 +225,10 @@ MStatus ClonerMultiThread::instanceSpline()
 
 
 		// Rotation
-
-		//double rot_orient[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
-
 		double rot[3] = { (m_rotateX + m_rule_rot_A_X[rc]) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, (m_rotateY + m_rule_rot_A_Y[rc]) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  (m_rotateZ + m_rule_rot_A_Z[rc]) * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
 
 		// Scale
 		const double scaleV[3] = { double(m_scaleX * m_rule_scl_A_X[rc])  * scale_ramp_mult,  double(m_scaleY * m_rule_scl_A_Y[rc])  * scale_ramp_mult,  double(m_scaleZ *  m_rule_scl_A_Z[rc])  * scale_ramp_mult };
-
-
-
 
 		// Random Transform
 		MFloatVector v_rndOffV(m_rndOffsetXA[i] * off_ramp_mult, m_rndOffsetYA[i] * off_ramp_mult, m_rndOffsetZA[i] * off_ramp_mult);
@@ -257,8 +251,6 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		status = tr_mat.addTranslation(v_baseOff, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		//status = tr_mat.addTranslation(v_baseOffY, MSpace::kObject);
-		//CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
@@ -272,21 +264,6 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-
-		//if (m_orientCurveToRefGeo)
-		//{
-		//	MTransformationMatrix tr_mat_orient(rotMatrix_orient);
-		//	double rot_orient[4];
-		//	tr_mat_orient.rotation().get(rot_orient);
-
-		//	double z_off = rot[2] - rot_orient[2];
-
-		//	double rot_orient_add[4] = {0.0,0.0,-z_off,0.0};
-
-		//	status = tr_mat.setRotation(rot_orient_add, MTransformationMatrix::kXYZ, MSpace::kObject);
-		//	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-		//}
 
 
 		m_tr_matA.set(tr_mat.asMatrix() * m_curveTrMat, i);

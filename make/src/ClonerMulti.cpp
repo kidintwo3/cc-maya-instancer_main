@@ -20,6 +20,8 @@ MObject		ClonerMultiThread::aInCurve;
 MObject		ClonerMultiThread::aRefMesh;
 MObject     ClonerMultiThread::aInLocAPos;
 MObject     ClonerMultiThread::aInLocBPos;
+MObject     ClonerMultiThread::aRefLocPos;
+
 
 MObject     ClonerMultiThread::aInstanceType;
 MObject		ClonerMultiThread::aPatterType;
@@ -1601,6 +1603,8 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	p_refMesh = MPlug(this->thisMObject(), aRefMesh);
 	p_inLocA = MPlug(this->thisMObject(), aInLocAPos);
 	p_inLocB = MPlug(this->thisMObject(), aInLocBPos);
+	p_refLoc = MPlug(this->thisMObject(), aRefLocPos);
+
 
 	MString stringDataA = data.inputValue(aConnectArrayA, &status).asString();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -1629,7 +1633,6 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_ConnectArrayB.setLength(maxValue);
 
 
-
 	m_inCurve = data.inputValue(aInCurve, &status).asNurbsCurve();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_curveTrMat = data.inputValue(aInCurve, &status).geometryTransformMatrix();
@@ -1644,6 +1647,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_inLocB_posMat = data.inputValue(aInLocBPos, &status).asMatrix();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_refLoc_posMat = data.inputValue(aRefLocPos, &status).asMatrix();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_firstUpVec = data.inputValue(aFirstUpVec, &status).asVector();
@@ -1898,6 +1904,7 @@ MStatus ClonerMultiThread::checkInputPlugs()
 	p_refMesh = MPlug(this->thisMObject(), aRefMesh);
 	p_inLocA = MPlug(this->thisMObject(), aInLocAPos);
 	p_inLocB = MPlug(this->thisMObject(), aInLocBPos);
+	p_refLoc = MPlug(this->thisMObject(), aRefLocPos);
 
 	//eAttr.addField("Grid", 0);
 	//eAttr.addField("Circular", 1);
@@ -2600,7 +2607,13 @@ MStatus ClonerMultiThread::initialize()
 	addAttribute(ClonerMultiThread::aInLocBPos);
 
 
-
+	ClonerMultiThread::aRefLocPos = mAttr.create("referenceLocator", "referenceLocator", MFnMatrixAttribute::kDouble);
+	mAttr.setChannelBox(false);
+	mAttr.setWritable(true);
+	mAttr.setReadable(false);
+	mAttr.setStorable(false);
+	mAttr.setKeyable(false);
+	addAttribute(ClonerMultiThread::aRefLocPos);
 
 	// Types
 	ClonerMultiThread::aInstanceType = eAttr.create("instanceType", "instanceType", 0);
@@ -3116,6 +3129,7 @@ MStatus ClonerMultiThread::initialize()
 
 	attributeAffects(ClonerMultiThread::aInLocAPos, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInLocBPos, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRefLocPos, ClonerMultiThread::aOutMesh);
 
 
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutMesh);
@@ -3197,6 +3211,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInLocAPos, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInLocBPos, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aRefLocPos, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aPatterType, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aScatterType, ClonerMultiThread::aOutMatrixArray);
@@ -3267,6 +3282,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInLocAPos, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInLocBPos, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aRefLocPos, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInstanceType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aPatterType, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScatterType, ClonerMultiThread::aOutIDArray);

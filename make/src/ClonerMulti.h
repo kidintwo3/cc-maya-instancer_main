@@ -124,6 +124,8 @@ public:
 	static MObject              aRefMesh;
 	static MObject				aInLocAPos;
 	static MObject				aInLocBPos;
+	static MObject				aRefLocPos;
+	
 
 	// Display
 	static MObject				aLimitDisplay;
@@ -288,6 +290,7 @@ private:
 	MPlug						p_refMesh;
 	MPlug						p_inLocA;
 	MPlug						p_inLocB;
+	MPlug						p_refLoc;
 
 	// Curve
 	MObject						m_inCurve;
@@ -435,6 +438,7 @@ private:
 
 	MMatrix						m_inLocA_posMat;
 	MMatrix						m_inLocB_posMat;
+	MMatrix						m_refLoc_posMat;
 
 	// Upvector
 	MVector                     m_firstUpVec;

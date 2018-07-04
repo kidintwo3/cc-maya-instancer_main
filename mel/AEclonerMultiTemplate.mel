@@ -38,7 +38,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addSeparator;
 	editorTemplate -label "World Space Input" -addControl "worldSpace";
 	editorTemplate -label "Loop Curve Offset" -addControl "loopOffset";
-	editorTemplate -label "Orient curve to Ref object" -addControl "orientCurveToRefGeo";
+	editorTemplate -label "Snap objects to Ref geo" -addControl "orientCurveToRefGeo";
 	editorTemplate -addSeparator;
 	editorTemplate -label "Snap Orientation" -addControl "orientationType";
 	editorTemplate -addSeparator;
@@ -159,28 +159,51 @@ global proc AE_cm_objList_create(string $attrName)
 	separator -height 5 -style "in";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Refresh.png" -label "Refesh list" -bgc 0.3 0.4 0.4 -c  ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
     separator -height 5 -style "in";
-	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
+	gridLayout -numberOfColumns 4 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
 	text -label "Ref Geo";
 	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_driverObj";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set Geo" -c  ("AE_cm_reference_set " + $nodeName[0] ) "cm_b_setRef";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Minus.png" -label "Remove" -c  ("AE_cm_reference_remove " + $nodeName[0] ) "cm_b_removeRef";
     setParent ..;
+	
     separator -height 5 -style "in";
-	gridLayout -numberOfColumns 3 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
+	gridLayout -numberOfColumns 4 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
 	text -label "Ref Curve";
 	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_curveObj";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set Curve" -c  ("AE_cm_curve_set " + $nodeName[0] ) "cm_b_setCrv";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Minus.png" -label "Remove" -c  ("AE_cm_curve_remove " + $nodeName[0] ) "cm_b_removeCrv";
+	setParent ..;
+	
+    separator -height 5 -style "in";
+	gridLayout -numberOfColumns 5 -cellWidthHeight 100 18 -bgc 0.2 0.2 0.2;
+	text -label "Ref Loactor";
+	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_locatorObj";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set Locator" -c  ("AE_cm_locator_set " + $nodeName[0] ) "cm_b_setLoc";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Remove" -c  ("AE_cm_locator_remove " + $nodeName[0] ) "cm_b_removeLoc";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Plus.png" -label "Add" -c  ("AE_cm_locator_remove " + $nodeName[0] ) "cm_b_addLoc";
+    setParent ..;
+	
     AE_cm_objList_refresh($nodeName[0]);
     scriptJob -rp -kws -p "AttrEdclonerMultiFormLayout" -connectionChange ($nodeName[0]+".inMesh") ("AE_cm_objList_refresh " + $nodeName[0] );
     string $refMeshAttr = $nodeName[0] + ".referenceMesh";
     string $refMeshShapePlug = `connectionInfo -sourceFromDestination $refMeshAttr`;
     string $refMeshShape[];
     tokenize($refMeshShapePlug, ".", $refMeshShape);
-    if ($refMeshShape[0] != ""){textField -edit -bgc 0.6 0.6 0.8 -tx $refMeshShape[0] "cm_t_driverObj";}
-    else{textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_driverObj";}
+	
+    if 
+	(
+		$refMeshShape[0] != ""){textField -edit -bgc 0.6 0.6 0.8 -tx $refMeshShape[0] "cm_t_driverObj";
+	}
+    else
+	{
+		textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_driverObj";
+	}
+	
     string $refCurveAttr = $nodeName[0] + ".inCurve";
     string $refCurveShapePlug = `connectionInfo -sourceFromDestination $refCurveAttr`;
     string $refCurveShape[];
     tokenize($refCurveShapePlug, ".", $refCurveShape);
+	
     if ($refCurveShape[0] != "")
     {
 	    textField -edit -bgc 0.8 0.6 0.6 -tx $refCurveShape[0] "cm_t_curveObj";
@@ -189,6 +212,22 @@ global proc AE_cm_objList_create(string $attrName)
     {
 	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_curveObj";
 	}
+	
+	
+	string $refLocAttr = $nodeName[0] + ".referenceLocator";
+    string $refLocPlug = `connectionInfo -sourceFromDestination $refCurveAttr`;
+	string $refLocNode[];
+    tokenize($refLocPlug, ".", $refLocNode);
+	
+    if ($refLocNode[0] != "")
+    {
+	    textField -edit -bgc 0.3 0.6 0.6 -tx $refLocNode[0] "cm_t_locatorObj";
+	}
+    else
+    {
+	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_locatorObj";
+	}
+	
 }
 
 global proc AE_cm_objList_edit(string $attrName)
@@ -199,6 +238,7 @@ global proc AE_cm_objList_edit(string $attrName)
 	iconTextButton -edit -c ("AE_cm_objList_moveUp " + $nodeName[0] ) "cm_b_up";
 	iconTextButton -edit -c ("AE_cm_objList_moveDown " + $nodeName[0] ) "cm_b_down";
 	iconTextButton -edit -c ("AE_cm_objList_refresh " + $nodeName[0] ) "cm_b_refr";
+	
     string $refMeshAttr = $nodeName[0] + ".referenceMesh";
     string $refMeshShapePlug = `connectionInfo -sourceFromDestination $refMeshAttr`;
     string $refMeshShape[];
@@ -225,8 +265,29 @@ global proc AE_cm_objList_edit(string $attrName)
     {
 	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_curveObj";
 	}
+	
+	string $refLocAttr = $nodeName[0] + ".referenceLocator";
+    string $refLocPlug = `connectionInfo -sourceFromDestination $refCurveAttr`;
+	string $refLocNode[];
+    tokenize($refLocPlug, ".", $refLocNode);
+	
+    if ($refLocNode[0] != "")
+    {
+	    textField -edit -bgc 0.3 0.6 0.6 -tx $refLocNode[0] "cm_t_locatorObj";
+	}
+    else
+    {
+	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_locatorObj";
+	}
+	
 	iconTextButton -edit -c ("AE_cm_reference_set " + $nodeName[0] ) "cm_b_setRef";
+	iconTextButton -edit -c ("AE_cm_reference_remove " + $nodeName[0] ) "cm_b_removeRef";
 	iconTextButton -edit -c ("AE_cm_curve_set " + $nodeName[0] ) "cm_b_setCrv";
+	iconTextButton -edit -c ("AE_cm_curve_remove " + $nodeName[0] ) "cm_b_removeCrv";
+	iconTextButton -edit -c ("AE_cm_locator_set " + $nodeName[0] ) "cm_b_setLoc";
+	iconTextButton -edit -c ("AE_cm_locator_remove " + $nodeName[0] ) "cm_b_removeLoc";
+	iconTextButton -edit -c ("AE_cm_locator_add " + $nodeName[0] ) "cm_b_addLoc";
+	
 	scriptJob -rp -kws -p "AttrEdclonerMultiFormLayout" -connectionChange ($nodeName[0]+".inMesh") ("AE_cm_objList_refresh " + $nodeName[0] );
 	AE_cm_objList_refresh($attrName);
    
@@ -432,6 +493,8 @@ global proc AE_cm_curve_set(string $attrName)
             string $InCurveShapePlug = `connectionInfo -sourceFromDestination $inCurveAttr`;
             string $InCurveShape[];
             tokenize($InCurveShapePlug, ".", $InCurveShape);
+
+			
     		if($selObjShape[0] == $InCurveShape[0])
             {
                 $isSame = 1;
@@ -452,6 +515,97 @@ global proc AE_cm_curve_set(string $attrName)
         warning -n "[ClonerMulti] Nothing selected / Select only one object!";
     }
 }
+
+global proc AE_cm_curve_remove(string $attrName)
+{
+    string $nodeName[];tokenize($attrName, ".", $nodeName);
+
+
+		string $refCurves[] = `listConnections -s true ($nodeName[0] + ".inCurve")`;
+		
+		$curveShape = `listRelatives -shapes $refCurves[0]`;
+        
+		if (size($curveShape) == 0)
+		{
+			warning -n "[ClonerMulti]Object is not a curve!";
+			return;
+		}
+		
+		
+		disconnectAttr ( $curveShape[0] + ".worldSpace[0]") ( $nodeName[0] + ".inCurve");
+		
+		AE_cm_objList_refresh($attrName);
+}
+
+
+global proc AE_cm_locator_set(string $attrName)
+{
+    string $nodeName[];tokenize($attrName, ".", $nodeName);
+    int $isSame = 0;
+    string $selObj[] = `ls -sl -o -tr`;
+
+    if (size($selObj) != 0)
+    {
+
+
+		string $inLocAAttr = $nodeName[0] + ".referenceLocator";
+		string $InMatrixPlug = `connectionInfo -sourceFromDestination $inLocAAttr`;
+
+		string $OutMatrixPlug[];
+        tokenize($InMatrixPlug, ".", $OutMatrixPlug);
+		
+
+		if($selObj[0] == $OutMatrixPlug[0])
+		{
+			$isSame = 1;
+		}
+		if($isSame == 0)
+        {
+			textField -edit -bgc 0.3 0.6 0.6 -tx $selObj[0] "cm_t_locatorObj";
+			connectAttr -f ( $selObj[0] + ".matrix") ( $nodeName[0] + ".referenceLocator");
+		}
+		 if($isSame == 1)
+		{
+			warning -n "[ClonerMulti] Curve allready added!";
+		}
+		
+    }
+    else
+    {
+        warning -n "[ClonerMulti] Nothing selected / Select only one transform!";
+    }
+}
+
+global proc AE_cm_locator_remove(string $attrName)
+{
+    string $nodeName[];tokenize($attrName, ".", $nodeName);
+
+
+		string $refLocators[] = `listConnections -s true ($nodeName[0] + ".referenceLocator")`;
+
+        
+		if (size($refLocators) == 0)
+		{
+			warning -n "[ClonerMulti]Object is not a transform!";
+			return;
+		}
+		
+		
+		disconnectAttr ( $refLocators[0] + ".matrix") ( $nodeName[0] + ".referenceLocator");
+		
+		AE_cm_objList_refresh($attrName);
+}
+
+global proc AE_cm_locator_add(string $attrName)
+{
+    string $nodeName[];tokenize($attrName, ".", $nodeName);
+	
+	print("adddddd");
+
+	AE_cm_objList_refresh($attrName);
+}
+
+
 global proc AE_cm_reference_set(string $attrName)
 {
     string $nodeName[];tokenize($attrName, ".", $nodeName);
@@ -506,6 +660,19 @@ global proc AE_cm_reference_set(string $attrName)
     }
 }
 
+global proc AE_cm_reference_remove(string $attrName)
+{
+    string $nodeName[];tokenize($attrName, ".", $nodeName);
+
+
+		string $refMeshes[] = `listConnections -s true ($nodeName[0] + ".referenceMesh")`;
+		
+		disconnectAttr ( $refMeshes[0] + ".worldMesh[0]") ( $nodeName[0] + ".referenceMesh");
+		
+		AE_cm_objList_refresh($attrName);
+}
+
+
 
 global proc AE_cm_objList_refresh(string $attrName)
 {
@@ -547,6 +714,21 @@ global proc AE_cm_objList_refresh(string $attrName)
         {
     	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_curveObj";
     	}
+
+		string $refLocAttr = $nodeName[0] + ".referenceLocator";
+        string $refLocPlug = `connectionInfo -sourceFromDestination $refLocAttr`;
+        string $refLoc[];
+        tokenize($refLocPlug, ".", $refLoc);
+        if ($refLoc[0] != "")
+        {
+    	    textField -edit -bgc 0.3 0.6 0.6 -tx $refLoc[0] "cm_t_locatorObj";
+    	}
+        else
+        {
+    	    textField -edit -bgc 0.3 0.3 0.3 -tx "none" "cm_t_locatorObj";
+    	}
+
+
 	}
 }
 

@@ -32,6 +32,7 @@
 #include <maya/MFnStringData.h>
 #include <maya/MStringArray.h>
 #include <maya/MEulerRotation.h>
+#include <maya/MQuaternion.h>
 
 #include <maya/MFnDependencyNode.h>
 
@@ -86,6 +87,10 @@ public:
 	static	MString			drawDbClassification;
 	static	MString			drawRegistrantId;
 
+	static MObject			aLocatorType;
+	static MObject			aShowNumber;
+	static MObject			aLocNumber;
+
 private:
 	
 	MBoundingBox			m_bbP;
@@ -111,6 +116,10 @@ public:
 
 	MColor					m_locColor;
 	MPoint					m_controllerPos;
+
+	int						m_locatorType;
+	int						m_locNumber;
+	bool					m_showNumber;
 
 };
 

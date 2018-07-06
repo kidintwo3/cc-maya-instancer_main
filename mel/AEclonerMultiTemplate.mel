@@ -1,4 +1,4 @@
-//deleteUI AttrEdclonerMultiFormLayout;
+deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;
@@ -12,6 +12,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addControl "reversePattern";
 	editorTemplate -label "Lock Output Mesh" -addControl "outputMeshDisplayOverride";
 	editorTemplate -label "Proxy Display" -addControl "displayProxy";
+	editorTemplate -label "Show Root Locator" -addControl "showRootLoc";
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Random Pattern Settings" -collapse 1;	
@@ -180,7 +181,7 @@ global proc AE_cm_objList_create(string $attrName)
 	textField -bgc 0.3 0.3 0.3 -ed false -tx "none" "cm_t_locatorObj";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Set Locator" -c  ("AE_cm_locator_set " + $nodeName[0] ) "cm_b_setLoc";
 	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Apply.png" -label "Remove" -c  ("AE_cm_locator_remove " + $nodeName[0] ) "cm_b_removeLoc";
-	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Plus.png" -label "Add" -c  ("AE_cm_locator_remove " + $nodeName[0] ) "cm_b_addLoc";
+	iconTextButton -style "iconAndTextHorizontal" -image1 "clonerMulti_Plus.png" -label "Add" -c  ("AE_cm_locator_add " + $nodeName[0] ) "cm_b_addLoc";
     setParent ..;
 	
     AE_cm_objList_refresh($nodeName[0]);
@@ -516,6 +517,9 @@ global proc AE_cm_curve_set(string $attrName)
     }
 }
 
+
+//
+
 global proc AE_cm_curve_remove(string $attrName)
 {
     string $nodeName[];tokenize($attrName, ".", $nodeName);
@@ -600,8 +604,11 @@ global proc AE_cm_locator_add(string $attrName)
 {
     string $nodeName[];tokenize($attrName, ".", $nodeName);
 	
-	print("adddddd");
-
+	string $clonerNode = `createNode "clonerMultiLoc"`;
+	connectAttr -f ( $clonerNode + ".worldMatrix[0]") ( $nodeName[0] + ".referenceLocator");
+	
+	print($clonerNode);
+	
 	AE_cm_objList_refresh($attrName);
 }
 

@@ -32,6 +32,8 @@ MObject     ClonerMultiThread::aIDType;
 MObject     ClonerMultiThread::aRevPattern;
 MObject		ClonerMultiThread::aLimitDisplay;
 
+MObject		ClonerMultiThread::aShowRoot;
+
 // Instance count
 MObject     ClonerMultiThread::aGridInstanceX;
 MObject     ClonerMultiThread::aGridInstanceY;
@@ -1790,6 +1792,8 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_orientCurveToRefGeo = data.inputValue(aOrientCurveToRefGeo, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+	m_showRoot = data.inputValue(aShowRoot, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_transformXRule = data.inputValue(aTransformXRule, &status).asString();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -2135,10 +2139,6 @@ MStatus ClonerMultiThread::compute(const MPlug& plug, MDataBlock& data)
 		MFnMesh ex_meshFn;
 
 
-
-
-
-
 		if (!m_displayProxy)
 		{
 
@@ -2352,6 +2352,7 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 {
 	MStatus status;
 
+
 	MObject locatorNode = objPath.node(&status);
 
 	if (!status)
@@ -2424,8 +2425,10 @@ MUserData* ClonerMultiThreadOverride::prepareForDraw(const MDagPath& objPath, co
 
 
 	MPlug dispProxyPlug(objPath.node(), ClonerMultiThread::aDisplayProxy);
+	MPlug showRootPlug(objPath.node(), ClonerMultiThread::aShowRoot);
 
 	data->m_displayProxy = dispProxyPlug.asBool();
+	data->m_showRoot = showRootPlug.asBool();
 
 	data->m_dispPointA = getInstancePoints(objPath);
 
@@ -2482,8 +2485,6 @@ void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRende
 
 	}
 
-
-
 	if (pLocatorData->m_displayProxy)
 	{
 
@@ -2506,7 +2507,7 @@ void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRende
 	}
 
 
-	else
+	if (pLocatorData->m_showRoot)
 	{
 		M3dView view = M3dView::active3dView();
 		short ox, oy;
@@ -2999,6 +3000,13 @@ MStatus ClonerMultiThread::initialize()
 	addAttribute(ClonerMultiThread::aUvUDIMLoop);
 
 
+	ClonerMultiThread::aShowRoot = nAttr.create("showRootLoc", "showRootLoc", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setDefault(true);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aShowRoot);
+
 	ClonerMultiThread::aOutputMeshDisplayOverride = nAttr.create("outputMeshDisplayOverride", "outputMeshDisplayOverride", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(true);
@@ -3204,6 +3212,9 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aScaleYRule, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutMesh);
 
+	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutMesh);
+
+
 #if MAYA_API_VERSION > 201600
 	// Output Matrix array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMatrixArray);
@@ -3274,6 +3285,8 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aScaleYRule, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutMatrixArray);
 
+	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutMatrixArray);
+
 #endif
 
 	// Output ID array
@@ -3343,6 +3356,8 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aScaleXRule, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScaleYRule, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutIDArray);
+
+	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutIDArray);
 
 	return MS::kSuccess;
 }

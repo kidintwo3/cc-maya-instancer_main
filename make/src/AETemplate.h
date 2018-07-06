@@ -2,7 +2,7 @@
 //  AETemplates.h
 //  clonerMulti
 //
-//  Created by Janos Hunyadi on 2018.07.04
+//  Created by Janos Hunyadi on 2018.07.06
 //  Copyright (c) 2018. Janos Hunyadi. All rights reserved.
 //
 
@@ -22,7 +22,7 @@ MStringArray mel_AETemplate()
 	MStringArray s_aeTemplate_A;
 
 	// ---------------
-	MString s_aeTemplate_000 = "//deleteUI AttrEdclonerMultiFormLayout;\r\n"
+	MString s_aeTemplate_000 = "deleteUI AttrEdclonerMultiFormLayout;\r\n"
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"\	editorTemplate -beginScrollLayout;\r\n"
@@ -36,6 +36,7 @@ MStringArray mel_AETemplate()
 		"\	editorTemplate -addControl \"reversePattern\";\r\n"
 		"\	editorTemplate -label \"Lock Output Mesh\" -addControl \"outputMeshDisplayOverride\";\r\n"
 		"\	editorTemplate -label \"Proxy Display\" -addControl \"displayProxy\";\r\n"
+		"\	editorTemplate -label \"Show Root Locator\" -addControl \"showRootLoc\";\r\n"
 		"\	editorTemplate -endLayout;\r\n"
 		"\	\r\n"
 		"\	editorTemplate -beginLayout \"Random Pattern Settings\" -collapse 1;\	\r\n"
@@ -204,7 +205,7 @@ MStringArray mel_AETemplate()
 		"\	textField -bgc 0.3 0.3 0.3 -ed false -tx \"none\" \"cm_t_locatorObj\";\r\n"
 		"\	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Apply.png\" -label \"Set Locator\" -c  (\"AE_cm_locator_set \" + $nodeName[0] ) \"cm_b_setLoc\";\r\n"
 		"\	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Apply.png\" -label \"Remove\" -c  (\"AE_cm_locator_remove \" + $nodeName[0] ) \"cm_b_removeLoc\";\r\n"
-		"\	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Plus.png\" -label \"Add\" -c  (\"AE_cm_locator_remove \" + $nodeName[0] ) \"cm_b_addLoc\";\r\n"
+		"\	iconTextButton -style \"iconAndTextHorizontal\" -image1 \"clonerMulti_Plus.png\" -label \"Add\" -c  (\"AE_cm_locator_add \" + $nodeName[0] ) \"cm_b_addLoc\";\r\n"
 		"    setParent ..;\r\n"
 		"\	\r\n"
 		"    AE_cm_objList_refresh($nodeName[0]);\r\n"
@@ -540,6 +541,9 @@ MStringArray mel_AETemplate()
 		"    }\r\n"
 		"}\r\n"
 		"\r\n"
+		"\r\n"
+		"//\r\n"
+		"\r\n"
 		;
 
 	s_aeTemplate_A.append(s_aeTemplate_000);
@@ -632,8 +636,11 @@ MStringArray mel_AETemplate()
 		"{\r\n"
 		"    string $nodeName[];tokenize($attrName, \".\", $nodeName);\r\n"
 		"\	\r\n"
-		"\	print(\"adddddd\");\r\n"
-		"\r\n"
+		"\	string $clonerNode = `createNode \"clonerMultiLoc\"`;\r\n"
+		"\	connectAttr -f ( $clonerNode + \".worldMatrix[0]\") ( $nodeName[0] + \".referenceLocator\");\r\n"
+		"\	\r\n"
+		"\	print($clonerNode);\r\n"
+		"\	\r\n"
 		"\	AE_cm_objList_refresh($attrName);\r\n"
 		"}\r\n"
 		"\r\n"
@@ -955,8 +962,6 @@ MStringArray mel_AETemplate()
 
 	return s_aeTemplate_A;
 }
-
-
 
 
 

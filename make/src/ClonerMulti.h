@@ -57,6 +57,8 @@
 #include <maya/MMeshIntersector.h>
 #include <maya/MPxLocatorNode.h>
 #include <maya/MRampAttribute.h>
+#include <maya/MAnimControl.h>
+
 
 #if MAYA_API_VERSION > 201600
 #include <maya/MFnMatrixArrayData.h>
@@ -129,6 +131,7 @@ public:
 
 	// Display
 	static MObject				aLimitDisplay;
+	static MObject				aShowRoot;
 
 	// Types
 	static MObject				aInstanceType;
@@ -432,6 +435,7 @@ private:
 	bool						m_connectLoop;
 	bool						m_interpolate;
 	bool						m_orientCurveToRefGeo;
+	bool						m_showRoot;
 
 	// Matrix
 	MMatrixArray				m_tr_matA;
@@ -496,6 +500,7 @@ public:
 	MPoint					m_controllerPos;
 
 	bool					m_displayProxy;
+	bool					m_showRoot;
 
 	MPointArray				m_dispPointA;
 

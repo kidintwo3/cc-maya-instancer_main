@@ -119,7 +119,6 @@ MStatus ClonerMultiThread::instanceCircle()
 								MVector cross2 = closest_normal ^ cross1;
 								cross2.normalize();
 
-
 								double m[4][4] = { { cross2.x, cross2.y , cross2.z, 0.0 },
 								{ closest_normal.x, closest_normal.y, closest_normal.z, 0.0 },
 								{ cross1.x, cross1.y, cross1.z, 0.0 },
@@ -145,6 +144,8 @@ MStatus ClonerMultiThread::instanceCircle()
 							MVector cross2 = closest_normal ^ cross1;
 							cross2.normalize();
 
+
+							p += closest_normal * m_offsetY;
 
 							double m[4][4] = { { cross2.x, cross2.y , cross2.z, 0.0 },
 							{ closest_normal.x, closest_normal.y, closest_normal.z, 0.0 },

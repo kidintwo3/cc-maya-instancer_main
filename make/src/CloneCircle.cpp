@@ -71,6 +71,9 @@ MStatus ClonerMultiThread::instanceCircle()
 
 
 				float angle = slice * x;
+
+				angle += m_circleRotate * (M_PI / 180.0f);
+
 				float newX = radius * cos(angle);
 				float newY = radius * sin(angle);
 				//double newZ = radius * sin(angle);

@@ -64,7 +64,9 @@ private:
 	MDagPathArray		p_currSelTrA;
 	MDagPathArray		p_currSelShapeA;
 	MDagPathArray		p_currSelTrA_curves;
+	MDagPathArray		p_currSelTrA_locators;
 	MDagPathArray		p_currSelShapeA_curves;
+	MDagPathArray		p_currSelShapeA_locators;
 
 	MObject				o_clonerMultiNode;
 
@@ -74,6 +76,7 @@ private:
 	MObject				o_clonerOutputMesh;
 
 	MObjectArray		o_outputObjectsA;
+	
 
 };
 

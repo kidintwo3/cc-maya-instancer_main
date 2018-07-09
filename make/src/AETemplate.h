@@ -2,7 +2,7 @@
 //  AETemplates.h
 //  clonerMulti
 //
-//  Created by Janos Hunyadi on 2018.07.06
+//  Created by Janos Hunyadi on 2018.07.09
 //  Copyright (c) 2018. Janos Hunyadi. All rights reserved.
 //
 
@@ -22,7 +22,7 @@ MStringArray mel_AETemplate()
 	MStringArray s_aeTemplate_A;
 
 	// ---------------
-	MString s_aeTemplate_000 = "deleteUI AttrEdclonerMultiFormLayout;\r\n"
+	MString s_aeTemplate_000 = "//deleteUI AttrEdclonerMultiFormLayout;\r\n"
 		"global proc AEclonerMultiTemplate( string $nodeName )\r\n"
 		"{\r\n"
 		"\	editorTemplate -beginScrollLayout;\r\n"
@@ -94,6 +94,10 @@ MStringArray mel_AETemplate()
 		"\	editorTemplate -label \"Rotate X Rule\" -addControl \"rotateXRule\";\r\n"
 		"\	editorTemplate -label \"Rotate Y Rule\" -addControl \"rotateYRule\";\r\n"
 		"\	editorTemplate -label \"Rotate Z Rule\" -addControl \"rotateZRule\";\r\n"
+		"\	editorTemplate -endLayout;\r\n"
+		"\	\r\n"
+		"\	editorTemplate -beginLayout \"Rotate circle\" -collapse 1;\	\r\n"
+		"\	editorTemplate -label \"Rotate circle angle\" -addControl \"circleRotate\";\r\n"
 		"\	editorTemplate -endLayout;\r\n"
 		"\	\r\n"
 		"\	editorTemplate -beginLayout \"Scale controls\" -collapse 0;\	\r\n"
@@ -962,8 +966,6 @@ MStringArray mel_AETemplate()
 
 	return s_aeTemplate_A;
 }
-
-
 
 
 

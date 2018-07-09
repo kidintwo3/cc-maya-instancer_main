@@ -29,6 +29,7 @@ MSyntax ClonerMultiCommand::newSyntax()
 	syntax.addFlag("-r", "-reverse", MSyntax::kString);
 	syntax.addFlag("-b", "-bake");
 	syntax.addFlag("-no", "-node", MSyntax::kString);
+	syntax.addFlag("-d", "-duplicate", MSyntax::kString);
 
 	// syntax.setObjectType( MSyntax::kSelectionList, 1, 1 );
 
@@ -54,6 +55,7 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 	// Get Selected Object
 	MSelectionList selectedObjects;
 	MGlobal::getActiveSelectionList(selectedObjects);
+
 
 
 
@@ -571,6 +573,7 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 		p_currSelShapeA.clear();
 		p_currSelTrA_curves.clear();
 		p_currSelShapeA_curves.clear();
+		p_currSelTrA_locators.clear();
 
 		//bool ffound = false;
 
@@ -612,6 +615,31 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 			}
 		}
 
+
+		// Get locators
+		for (unsigned int i = 0; i < selectedObjects.length(); i++)
+		{
+			selectedObjects.getDagPath(i, currDagPathTr);
+
+			if (currDagPathTr.apiType() == MFn::kTransform)
+			{
+
+				p_currSelTrA_locators.append(currDagPathTr);
+
+
+				status = getShapeNodeFromTransformDAG_locator(currDagPathTr);
+				if (status)
+				{
+					p_currSelShapeA_locators.append(currDagPathTr);
+				}
+
+
+
+
+			}
+		}
+
+
 	}
 
 
@@ -646,7 +674,7 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 
 
 	// Default node creation
-	if (!argData.isFlagSet("-no"))
+	if (!argData.isFlagSet("-no") && !argData.isFlagSet("-d"))
 	{
 
 
@@ -1375,16 +1403,273 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 
 	}
 
-	else
+	//else
+	//{
+	//	MGlobal::displayError(MString() + "[ClonerMulti] No/wrong ClonerMulti name set for command (use the -cm flag to set)");
+	//	return MStatus::kFailure;
+	//}
+
+
+
+	// duplicate selection
+	if (argData.isFlagSet("-d"))
 	{
-		MGlobal::displayError(MString() + "[ClonerMulti] No/wrong ClonerMulti name set for command (use the -cm flag to set)");
-		return MStatus::kFailure;
+
+
+		//MPlug p_clonerMultiNode_inLocator = fnDepClonerNodeShape.findPlug("referenceLocator", &status);
+		//CHECK_MSTATUS_AND_RETURN_IT(status);
+
+		// Add selected curves
+		for (int i = 0; i < p_currSelShapeA_locators.length(); i++)
+		{
+
+			if (i == 0)
+			{
+
+				MFnDagNode fnDepSource(p_currSelShapeA_locators[i].node());
+				MPlug plugSource = fnDepSource.findPlug("worldMatrix");
+				plugSource = plugSource.elementByLogicalIndex(0);
+
+
+				// Find output mesh
+				MPlugArray destPlugs;
+				plugSource.connectedTo(destPlugs, false, true);
+
+				if (destPlugs.length() > 0)
+				{
+
+					MPlug destPlug = destPlugs[0];
+					MFnDagNode depN(destPlug.node());
+
+					MObject parent_tr = depN.parent(0, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+
+					if (!parent_tr.isNull())
+					{
+						MFnDagNode parent_depN(parent_tr);
+
+						MDagPath parent_path;
+						parent_depN.getPath(parent_path);
+
+						MDagPath clonerMulti_tr_path = parent_path;
+						MDagPath clonerMulti_shp_path;
+
+
+						status = getShapeNodeFromTransformDAG_clonerNode(parent_path);
+
+						if (status)
+						{
+
+							clonerMulti_shp_path = parent_path;
+
+							// Create clonerMulti node
+							MObject o_clonerMultiLocNode = m_DAGMod.createNode(MTypeId(0x00123947), MObject::kNullObj, &status);
+							CHECK_MSTATUS_AND_RETURN_IT(status);
+
+							status = m_DAGMod.doIt();
+							CHECK_MSTATUS_AND_RETURN_IT(status);
+
+							MFnTransform trMat_source_loc(p_currSelTrA_locators[i]);
+
+							MFnDependencyNode fnDepClonerLoc(o_clonerMultiLocNode);
+
+
+							// Find shape node of node
+							MDagPath dag_clonerNodeLocTr;
+							MDagPath dag_clonerNodeLocShape;
+							MDagPath dag_clonerNodeLoc;
+							MSelectionList sel_list;
+							sel_list.clear();
+							sel_list.add(fnDepClonerLoc.name());
+							sel_list.getDagPath(0, dag_clonerNodeLoc);
+							dag_clonerNodeLocTr = dag_clonerNodeLoc;
+							dag_clonerNodeLoc.extendToShape();
+							dag_clonerNodeLocShape = dag_clonerNodeLoc;
+
+							MFnTransform trMat_target_loc(dag_clonerNodeLocTr);
+							trMat_target_loc.set(trMat_source_loc.transformationMatrix());
+
+							/*					MFnDependencyNode fnDepClonerLoc(o_clonerMultiLocNode);
+												fnDepClonerLoc.setName(clonerMulti_node_name);*/
+
+							MObject o_dup_clonerMulti_node = parent_depN.duplicate();
+
+							if (!o_dup_clonerMulti_node.isNull())
+							{
+
+
+
+								// Add to undo delete queue
+								o_outputObjectsA.append(o_dup_clonerMulti_node);
+
+
+
+								// Create clonerMulti output mesh
+								MObject o_clonerOutputMesh_dup = m_DAGMod.createNode("mesh", MObject::kNullObj, &status);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+								status = m_DAGMod.doIt();
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+								MFnDependencyNode fnDepClonerOutputMesh(o_clonerOutputMesh_dup);
+								fnDepClonerOutputMesh.setName(clonerMulti_mesh_name);
+
+								status = m_DAGMod.doIt();
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+								// Assign Same material as input mesh
+								assignInitialShadingGroup(o_clonerOutputMesh_dup);
+
+
+								// Add to undo delete queue
+								o_outputObjectsA.append(o_clonerOutputMesh_dup);
+
+
+
+								//
+
+								// Find shape node of output mesh
+								MDagPath dag_outMeshTr;
+								MDagPath dag_outMeshShape;
+								MDagPath dag_outMesh;
+								sel_list.clear();
+								status = sel_list.add(fnDepClonerOutputMesh.name());
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+								status = sel_list.getDagPath(0, dag_outMesh);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+								dag_outMeshTr = dag_outMesh;
+								status = dag_outMesh.extendToShape();
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+								dag_outMeshShape = dag_outMesh;
+
+
+								// Connect the mesh to the node
+								MFnDependencyNode fnDepClonerOutputMeshShape(dag_outMeshShape.node());
+								MFnDependencyNode fnDepClonerOutputMeshTransform(dag_outMeshTr.node());
+
+								fnDepClonerOutputMeshShape.setName(clonerMulti_mesh_name + "Shape#");
+
+
+								// Mesh plugs
+								MPlug p_clonerMultiMesh_inMesh = fnDepClonerOutputMeshShape.findPlug("inMesh", &status);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
+								MFnDependencyNode fnDepClonerNodeTr(o_dup_clonerMulti_node);
+
+
+								// Find shape node of node
+								MDagPath dag_clonerNode_dup;
+								MDagPath dag_clonerNode_dup_tr;
+								MDagPath dag_clonerNode_dup_Shape;
+								MSelectionList sel_list;
+								sel_list.clear();
+								sel_list.add(fnDepClonerNodeTr.name());
+								sel_list.getDagPath(0, dag_clonerNode_dup);
+								dag_clonerNode_dup_tr = dag_clonerNode_dup;
+								dag_clonerNode_dup.extendToShape();
+								dag_clonerNode_dup_Shape = dag_clonerNode_dup;
+
+
+
+
+
+								status = getShapeNodeFromTransformDAG_clonerNode(dag_clonerNode_dup_Shape);
+
+								MFnDependencyNode fnDepClonerNodeShape(dag_clonerNode_dup_Shape.node());
+
+
+
+								// Node plugs
+
+								MPlug p_clonerMultiNode_outMesh = fnDepClonerNodeShape.findPlug("outMesh", &status);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+								MPlug p_clonerMultiNode_inMesh = fnDepClonerNodeShape.findPlug("inMesh", &status);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+								MPlug p_clonerMultiNode_inCurve = fnDepClonerNodeShape.findPlug("inCurve", &status);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
+								MGlobal::displayInfo(MString() + "-----------");
+								MGlobal::displayInfo(MString() + p_clonerMultiNode_outMesh.name());
+								MGlobal::displayInfo(MString() + "-----------");
+
+
+
+								status = m_DAGMod.connect(p_clonerMultiNode_outMesh, p_clonerMultiMesh_inMesh);
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
+
+
+								status = m_DAGMod.doIt();
+								CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+								MSelectionList active_sl;
+								active_sl.add(dag_clonerNodeLocTr);
+
+								MGlobal::setActiveSelectionList(active_sl);
+
+
+							}
+
+						}
+
+						else
+						{
+							MGlobal::displayWarning(MString() + "[ClonerMulti] Locator is not connected to a ClonerMulti node...");
+						}
+
+
+
+					}
+
+
+				}
+
+				else
+				{
+					MGlobal::displayWarning(MString() + "[ClonerMulti] Locator is not connected to any ClonerMulti node...");
+				}
+
+
+
+
+			}
+
+
+		}
+
+
+
+
+
 	}
 
 
-
-
-
+	//import maya.cmds as cmds
+	//cmds.clonerMultiCommand(d = True)
 
 
 

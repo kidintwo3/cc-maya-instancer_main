@@ -331,6 +331,100 @@ MStatus getShapeNodeFromTransformDAG(MDagPath& path)
 
 }
 
+MStatus getShapeNodeFromTransformDAG_clonerNode(MDagPath& path)
+{
+	MStatus status;
+
+	if (path.apiType() != MFn::kTransform)
+	{
+		return MS::kSuccess;
+	}
+
+	unsigned int numShapes;
+	status = path.numberOfShapesDirectlyBelow(numShapes);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+	for (unsigned int i = 0; i < numShapes; ++i)
+	{
+		status = path.extendToShapeDirectlyBelow(i);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+		MFnDependencyNode depN(path.node());
+
+		if (depN.typeId() != 0x00123946)
+		{
+			path.pop();
+			continue;
+		}
+
+
+
+		MFnDagNode fnNode(path, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		if (!fnNode.isIntermediateObject())
+		{
+			return MS::kSuccess;
+		}
+		path.pop();
+	}
+
+	MGlobal::displayWarning(MString() + "Selection is not a locator");
+
+	return MS::kFailure;
+
+}
+
+
+
+MStatus getShapeNodeFromTransformDAG_locator(MDagPath& path)
+{
+	MStatus status;
+
+	if (path.apiType() != MFn::kTransform)
+	{
+		return MS::kSuccess;
+	}
+
+	unsigned int numShapes;
+	status = path.numberOfShapesDirectlyBelow(numShapes);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+	for (unsigned int i = 0; i < numShapes; ++i)
+	{
+		status = path.extendToShapeDirectlyBelow(i);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	
+		MFnDependencyNode depN(path.node());
+
+		if (depN.typeId() != 0x00123947)
+		{
+			path.pop();
+			continue;
+		}
+
+
+
+		MFnDagNode fnNode(path, &status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		if (!fnNode.isIntermediateObject())
+		{
+			return MS::kSuccess;
+		}
+		path.pop();
+	}
+
+	MGlobal::displayWarning(MString() + "Selection is not a locator");
+
+	return MS::kFailure;
+
+}
+
+
+
 MStatus getShapeNodeFromTransformDAG_curve(MDagPath& path)
 {
 	MStatus status;

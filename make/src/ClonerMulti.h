@@ -163,6 +163,8 @@ public:
 	static MObject				aRotateYRule;
 	static MObject				aRotateZRule;
 
+	static MObject				aCircleRotate;
+
 	static MObject				aScaleXRule;
 	static MObject				aScaleYRule;
 	static MObject				aScaleZRule;
@@ -383,6 +385,7 @@ private:
 	float                       m_rotateX;
 	float                       m_rotateY;
 	float                       m_rotateZ;
+	float						m_circleRotate;
 	float                       m_scaleX;
 	float                       m_scaleY;
 	float                       m_scaleZ;

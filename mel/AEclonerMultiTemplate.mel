@@ -1,4 +1,4 @@
-deleteUI AttrEdclonerMultiFormLayout;
+//deleteUI AttrEdclonerMultiFormLayout;
 global proc AEclonerMultiTemplate( string $nodeName )
 {
 	editorTemplate -beginScrollLayout;
@@ -70,6 +70,10 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -label "Rotate X Rule" -addControl "rotateXRule";
 	editorTemplate -label "Rotate Y Rule" -addControl "rotateYRule";
 	editorTemplate -label "Rotate Z Rule" -addControl "rotateZRule";
+	editorTemplate -endLayout;
+	
+	editorTemplate -beginLayout "Rotate circle" -collapse 1;	
+	editorTemplate -label "Rotate circle angle" -addControl "circleRotate";
 	editorTemplate -endLayout;
 	
 	editorTemplate -beginLayout "Scale controls" -collapse 0;	

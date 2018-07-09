@@ -51,6 +51,8 @@ MObject     ClonerMultiThread::aRotateY;
 MObject     ClonerMultiThread::aRotateZ;
 MObject     ClonerMultiThread::aRotateRamp;
 
+MObject		ClonerMultiThread::aCircleRotate;
+
 MObject     ClonerMultiThread::aTransformXRule;
 MObject     ClonerMultiThread::aTransformYRule;
 MObject     ClonerMultiThread::aTransformZRule;
@@ -1707,6 +1709,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_rotateZ = data.inputValue(aRotateZ, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+	m_circleRotate = data.inputValue(aCircleRotate, &status).asFloat();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
 	m_scaleX = data.inputValue(aScaleX, &status).asFloat();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 	m_scaleY = data.inputValue(aScaleY, &status).asFloat();
@@ -2767,6 +2772,17 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aRotateZ);
 
+	// Circle rotate
+	ClonerMultiThread::aCircleRotate = nAttr.create("circleRotate", "circleRotate", MFnNumericData::kFloat);
+	nAttr.setStorable(true);
+	nAttr.setDefault(0.0);
+	nAttr.setSoftMax(180.0);
+	nAttr.setSoftMin(-180.0);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aCircleRotate);
+
+
 	// Scale
 	ClonerMultiThread::aScaleX = nAttr.create("scaleX", "scaleX", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
@@ -3160,6 +3176,9 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aRotateX, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRotateY, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRotateZ, ClonerMultiThread::aOutMesh);
+
+	attributeAffects(ClonerMultiThread::aCircleRotate, ClonerMultiThread::aOutMesh);
+
 	attributeAffects(ClonerMultiThread::aScaleX, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aScaleY, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aScaleZ, ClonerMultiThread::aOutMesh);
@@ -3237,6 +3256,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aRotateX, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aRotateY, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aRotateZ, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aCircleRotate, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aScaleX, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aScaleY, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aScaleZ, ClonerMultiThread::aOutMatrixArray);
@@ -3310,6 +3330,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aRotateX, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aRotateY, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aRotateZ, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aCircleRotate, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScaleX, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScaleY, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aScaleZ, ClonerMultiThread::aOutIDArray);

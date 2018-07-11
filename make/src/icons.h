@@ -8,10 +8,10 @@ void writeIcon_binary(MString path, MString filename, const unsigned char output
 
 	ofstream myfile;
 
-	myfile.open(MString(path + filename).asChar());
+	myfile.open(MString(path + filename).asChar(),  ios::out | ios::binary);
 	myfile.write((char *)output, char_size);
 	myfile.close();
-	MGlobal::displayInfo(MString() + "[ShellMod] Created icon: " + path + filename);
+	MGlobal::displayInfo(MString() + "[ClonerMulti] Created icon: " + path + filename);
 
 
 }
@@ -24,7 +24,7 @@ void icons_data_write()
 
 	MString path;
 	MGlobal::executeCommand("internalVar -userBitmapsDir", path);
-	MGlobal::displayInfo(MString() + "[ShellMod] Icons path: " + path);
+	MGlobal::displayInfo(MString() + "[ClonerMulti] Icons path: " + path);
 
 	std::string c_path = path.asChar();
 

@@ -2,7 +2,7 @@
 //  AETemplates.h
 //  clonerMulti
 //
-//  Created by Janos Hunyadi on 2018.07.09
+//  Created by Janos Hunyadi on 2018.07.13
 //  Copyright (c) 2018. Janos Hunyadi. All rights reserved.
 //
 
@@ -165,6 +165,8 @@ MStringArray mel_AETemplate()
 		"\	editorTemplate -suppress \"inMesh\";\r\n"
 		"\	editorTemplate -suppress \"inCurve\";\r\n"
 		"\	editorTemplate -suppress \"referenceMesh\";\r\n"
+		"\	editorTemplate -suppress \"referenceMeshSmooth\";\r\n"
+		"\	editorTemplate -suppress \"smoothMeshPreview\";\r\n"
 		"\	editorTemplate -suppress \"outMesh\";\r\n"
 		"\	editorTemplate -suppress \"locatorAPos\";\r\n"
 		"\	editorTemplate -suppress \"locatorBPos\";\r\n"
@@ -691,6 +693,8 @@ MStringArray mel_AETemplate()
 		"        {\r\n"
 		"            textField -edit -bgc 0.6 0.6 0.8 -tx $selObjShape[0] \"cm_t_driverObj\";\r\n"
 		"            connectAttr -f ( $selObjShape[0] + \".worldMesh[0]\") ( $nodeName[0] + \".referenceMesh\");\r\n"
+		"\	\	\	connectAttr -f ( $selObjShape[0] + \".outSmoothMesh\") ( $nodeName[0] + \".referenceMeshSmooth\");\r\n"
+		"\	\	\	connectAttr -f ( $selObjShape[0] + \".displaySmoothMesh\") ( $nodeName[0] + \".smoothMeshPreview\");\r\n"
 		"        }\r\n"
 		"        if($isSame == 1)\r\n"
 		"        {\r\n"

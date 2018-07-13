@@ -18,6 +18,7 @@ MObject		ClonerMultiThread::aOutIDArray;
 MObject     ClonerMultiThread::aInMesh;
 MObject		ClonerMultiThread::aInCurve;
 MObject		ClonerMultiThread::aRefMesh;
+MObject		ClonerMultiThread::aRefMeshSmooth;
 MObject     ClonerMultiThread::aInLocAPos;
 MObject     ClonerMultiThread::aInLocBPos;
 MObject     ClonerMultiThread::aRefLocPos;
@@ -113,6 +114,7 @@ MObject		ClonerMultiThread::aConnectArrayA;
 MObject		ClonerMultiThread::aConnectArrayB;
 MObject		ClonerMultiThread::aInterpolate;
 
+MObject		ClonerMultiThread::aSmoothMeshPreview;
 
 MString		ClonerMultiThread::drawDbClassification("drawdb/geometry/ClonerMultiThread");
 MString		ClonerMultiThread::drawRegistrantId("ClonerMultiThreadPlugin");
@@ -1605,6 +1607,7 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	p_outMesh = MPlug(this->thisMObject(), aOutMesh);
 	p_inCurve = MPlug(this->thisMObject(), aInCurve);
 	p_refMesh = MPlug(this->thisMObject(), aRefMesh);
+	p_refMeshSmooth = MPlug(this->thisMObject(), aRefMeshSmooth);
 	p_inLocA = MPlug(this->thisMObject(), aInLocAPos);
 	p_inLocB = MPlug(this->thisMObject(), aInLocBPos);
 	p_refLoc = MPlug(this->thisMObject(), aRefLocPos);
@@ -1642,8 +1645,25 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_curveTrMat = data.inputValue(aInCurve, &status).geometryTransformMatrix();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+
+	m_smoothMeshPreview = data.inputValue(aSmoothMeshPreview, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
 	m_refMesh = data.inputValue(aRefMesh, &status).asMesh();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_refMeshSmooth = data.inputValue(aRefMeshSmooth, &status).asMesh();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	//if (p_refMeshSmooth.isConnected())
+	//{
+	//	if (m_smoothMeshPreview)
+	//	{
+	//	}
+	//}
+
+
 	m_refMeshMat = data.inputValue(aRefMesh, &status).geometryTransformMatrix();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
@@ -2588,6 +2608,14 @@ MStatus ClonerMultiThread::initialize()
 	tAttr.setKeyable(true);
 	addAttribute(ClonerMultiThread::aRefMesh);
 
+	ClonerMultiThread::aRefMeshSmooth = tAttr.create("referenceMeshSmooth", "referenceMeshSmooth", MFnData::kMesh);
+	tAttr.setWritable(true);
+	tAttr.setReadable(false);
+	tAttr.setStorable(false);
+	tAttr.setKeyable(false);
+	//tAttr.setInternal(true);
+	addAttribute(ClonerMultiThread::aRefMeshSmooth);
+
 	ClonerMultiThread::aInCurve = tAttr.create("inCurve", "inCurve", MFnData::kNurbsCurve);
 	tAttr.setWritable(true);
 	tAttr.setReadable(false);
@@ -3058,12 +3086,18 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aInterpolate);
 
-
 	ClonerMultiThread::aOrientCurveToRefGeo = nAttr.create("orientCurveToRefGeo", "orientCurveToRefGeo", MFnNumericData::kBoolean, false);
 	nAttr.setStorable(true);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aOrientCurveToRefGeo);
+
+	ClonerMultiThread::aSmoothMeshPreview = nAttr.create("smoothMeshPreview", "smoothMeshPreview", MFnNumericData::kBoolean, false);
+	nAttr.setStorable(false);
+	nAttr.setKeyable(false);
+	nAttr.setChannelBox(false);
+	//nAttr.setInternal(true);
+	addAttribute(ClonerMultiThread::aSmoothMeshPreview);
 
 	ClonerMultiThread::aConnectArrayA = tAttr.create("connectArrayA", "connectArrayA", MFnData::kString, defaultStringA);
 	tAttr.setStorable(true);
@@ -3149,7 +3183,10 @@ MStatus ClonerMultiThread::initialize()
 
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRefMeshSmooth, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutMesh);
+
+	attributeAffects(ClonerMultiThread::aSmoothMeshPreview, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aInLocAPos, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInLocBPos, ClonerMultiThread::aOutMesh);
@@ -3238,7 +3275,9 @@ MStatus ClonerMultiThread::initialize()
 	// Output Matrix array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aRefMeshSmooth, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aSmoothMeshPreview, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInLocAPos, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInLocBPos, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aRefLocPos, ClonerMultiThread::aOutMatrixArray);
@@ -3312,6 +3351,8 @@ MStatus ClonerMultiThread::initialize()
 	// Output ID array
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aRefMeshSmooth, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aSmoothMeshPreview, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInCurve, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInLocAPos, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInLocBPos, ClonerMultiThread::aOutIDArray);

@@ -124,6 +124,7 @@ public:
 	static MObject				aInMesh;
 	static MObject              aInCurve;
 	static MObject              aRefMesh;
+	static MObject              aRefMeshSmooth;
 	static MObject				aInLocAPos;
 	static MObject				aInLocBPos;
 	static MObject				aRefLocPos;
@@ -227,6 +228,10 @@ public:
 	static MObject				aOutMatrixArray;
 	static MObject				aOutIDArray;
 
+	// Subd
+
+	static MObject				aSmoothMeshPreview;
+
 private:
 
 	// Callbacks
@@ -287,12 +292,14 @@ private:
 
 	// Reference mesh
 	MObject						m_refMesh;
+	MObject						m_refMeshSmooth;
 
 	// Plugs
 	MPlug						p_inMesh;
 	MPlug						p_outMesh;
 	MPlug						p_inCurve;
 	MPlug						p_refMesh;
+	MPlug						p_refMeshSmooth;
 	MPlug						p_inLocA;
 	MPlug						p_inLocB;
 	MPlug						p_refLoc;
@@ -323,6 +330,8 @@ private:
 	MVectorArray				o_faceVertexNormals;
 
 	bool						m_disableBaseMeshOverride;
+
+	bool						m_smoothMeshPreview;
 
 	// UV's
 	MFloatArray					o_uArrayA;

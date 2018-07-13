@@ -26,9 +26,19 @@ MStatus ClonerMultiThread::instanceCircle()
 
 	int rc = 0;
 
-	// curve data
+	// Normal mesh data
 	MFnMesh meshFn(m_refMesh, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	// Smooth mesh data
+	if (p_refMeshSmooth.isConnected())
+	{
+		if (m_smoothMeshPreview)
+		{
+			status = meshFn.setObject(m_refMeshSmooth);
+			CHECK_MSTATUS_AND_RETURN_IT(status);
+		}
+	}
 
 
 	for (int y = 0; y < m_instanceY; y++)

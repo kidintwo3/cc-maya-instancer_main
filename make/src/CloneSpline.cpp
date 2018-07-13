@@ -27,8 +27,6 @@ MStatus ClonerMultiThread::instanceSpline()
 	MVector prevNormal;
 	MMatrix rotMatrix, rotMatrix_orient;
 
-	//
-	MItMeshPolygon itPoly(m_refMesh);
 
 	// curve data
 	MFnNurbsCurve curveFn(m_inCurve, &status);
@@ -178,11 +176,21 @@ MStatus ClonerMultiThread::instanceSpline()
 				MFnMesh meshFn(m_refMesh, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
+				if (p_refMeshSmooth.isConnected())
+				{
+					if (m_smoothMeshPreview)
+					{
+						status = meshFn.setObject(m_refMeshSmooth);
+						CHECK_MSTATUS_AND_RETURN_IT(status);
+					}
+				}
+
 
 				p *= m_curveTrMat;
 
 				int closestPolygon;
 				status = meshFn.getClosestPointAndNormal(p, closestPoint, closest_normal, MSpace::kObject, &closestPolygon);
+
 
 				if (status)
 				{

@@ -141,6 +141,8 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -suppress "inMesh";
 	editorTemplate -suppress "inCurve";
 	editorTemplate -suppress "referenceMesh";
+	editorTemplate -suppress "referenceMeshSmooth";
+	editorTemplate -suppress "smoothMeshPreview";
 	editorTemplate -suppress "outMesh";
 	editorTemplate -suppress "locatorAPos";
 	editorTemplate -suppress "locatorBPos";
@@ -659,6 +661,8 @@ global proc AE_cm_reference_set(string $attrName)
         {
             textField -edit -bgc 0.6 0.6 0.8 -tx $selObjShape[0] "cm_t_driverObj";
             connectAttr -f ( $selObjShape[0] + ".worldMesh[0]") ( $nodeName[0] + ".referenceMesh");
+			connectAttr -f ( $selObjShape[0] + ".outSmoothMesh") ( $nodeName[0] + ".referenceMeshSmooth");
+			connectAttr -f ( $selObjShape[0] + ".displaySmoothMesh") ( $nodeName[0] + ".smoothMeshPreview");
         }
         if($isSame == 1)
         {

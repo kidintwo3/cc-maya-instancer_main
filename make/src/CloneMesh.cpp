@@ -177,6 +177,9 @@ MStatus ClonerMultiThread::instanceOnMesh()
 		for (int i = 0; i < m_numDup; i++)
 		{
 
+		
+
+
 			MVector tan = mesh_uTA[i];
 			tan.normalize();
 

@@ -856,6 +856,9 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 				if (m_instanceType == 4)
 				{
 
+					MTransformationMatrix trMOrig(m_tr_matA[m]);
+
+
 					// curve data
 					MFnNurbsCurve curveFn(m_inCurve, &status);
 					CHECK_MSTATUS_AND_RETURN_IT(status);
@@ -885,14 +888,15 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 					{ cross1.x, cross1.y, cross1.z, 0.0 },
 					{ ptClosest.x, ptClosest.y, ptClosest.z, 1.0 } };
 
-					//
-
-
-
-
 					MMatrix rotMatrix = m;
 
+
+
 					MTransformationMatrix trMz(rotMatrix);
+
+					//tempActiveP *= trMOrig.asRotateMatrix();
+					tempActiveP *= trMOrig.asScaleMatrix();
+					
 		
 					currentPoint = tempActiveP * trMz.asMatrix();
 

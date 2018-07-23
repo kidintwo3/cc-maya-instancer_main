@@ -29,6 +29,8 @@ MObject		ClonerMultiThread::aPatterType;
 MObject		ClonerMultiThread::aScatterType;
 MObject		ClonerMultiThread::aOrientationType;
 
+MObject		ClonerMultiThread::aWrapToSurface;
+
 MObject     ClonerMultiThread::aIDType;
 MObject     ClonerMultiThread::aRevPattern;
 MObject		ClonerMultiThread::aLimitDisplay;
@@ -740,12 +742,15 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 {
 
+
 	MStatus status;
 
 
 	// Setup mesh creation vector arrays for all meshes
 
-
+	// curve data
+	MFnNurbsCurve curveFn(m_inCurve, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	i_numVertices.resize(m_numInputMeshes);
 	i_numPolygons.resize(m_numInputMeshes);
@@ -821,23 +826,6 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 	float offZ = 0.0f;
 
 
-	//if (m_connectPieces)
-	//{
-	//	for (int i = 0; i < m_ConnectArrayA.length(); i++)
-	//	{
-	//		MGlobal::displayInfo(MString() + m_ConnectArrayA[i]);
-	//	}
-
-	//	MGlobal::displayInfo(MString() + "---");
-
-	//	for (int i = 0; i < m_ConnectArrayB.length(); i++)
-	//	{
-	//		MGlobal::displayInfo(MString() + m_ConnectArrayB[i]);
-	//	}
-	//}
-
-	//MGlobal::displayInfo(MString() + "---");
-
 
 	for (int m = 0; m < m_numDup; m++)
 	{
@@ -849,10 +837,74 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 		{
 			MFloatPoint currP = i_vertexArray[idA[m]][v];
 			MPoint currentPoint(currP.x, currP.y, currP.z, currP.w);
+			MPoint tempActiveP = currentPoint;
 
 			if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
 
 			currentPoint *= m_tr_matA[m];
+
+			if (m_wrap_to_surface)
+			{
+
+
+
+				//
+				// Wire deformer
+				//
+
+				// Only calculate if type is set to spline
+				if (m_instanceType == 4)
+				{
+
+					MTransformationMatrix trMOrig(m_tr_matA[m]);
+
+
+					// curve data
+					MFnNurbsCurve curveFn(m_inCurve, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+
+					MPoint ptClosest, pCvPosition;
+					double param;
+
+
+					MPoint pt = tempActiveP * m_tr_matA[m];
+
+					ptClosest = curveFn.closestPoint(pt, &param, 0.1, MSpace::kWorld, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+
+					MVector tan = curveFn.tangent(param, MSpace::kWorld);
+					tan.normalize();
+
+					MVector cross1 = tan ^ m_firstUpVec;
+					cross1.normalize();
+
+					MVector cross2 = cross1 ^ tan;
+
+					cross2.normalize();
+
+
+					double m[4][4] = { { tan.x, tan.y , tan.z, 0.0 },
+					{ cross2.x, cross2.y, cross2.z, 0.0 },
+					{ cross1.x, cross1.y, cross1.z, 0.0 },
+					{ ptClosest.x, ptClosest.y, ptClosest.z, 1.0 } };
+
+					MMatrix rotMatrix = m;
+
+
+
+					MTransformationMatrix trMz(rotMatrix);
+
+					//tempActiveP *= trMOrig.asRotateMatrix();
+					tempActiveP *= trMOrig.asScaleMatrix();
+					
+		
+					currentPoint = tempActiveP * trMz.asMatrix();
+
+				}
+			}
+		
+	
+
 
 			o_vertexArray.set(MFloatPoint(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.w), v + idOffset);
 		}
@@ -887,6 +939,69 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 
 	}
+
+	////
+	//// Wire deformer
+	////
+
+	//// Only calculate if type is set to spline
+	//if (m_instanceType == 4)
+	//{
+
+	//	// curve data
+	//	MFnNurbsCurve curveFn(m_inCurve, &status);
+	//	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	//	MPoint ptClosest, pCvPosition;
+	//	double param;
+
+
+	//	for (int i = 0; i < o_vertexArray.length(); i++)
+	//	{
+
+	//		MPoint pt = o_vertexArray[i];
+
+	//		ptClosest = curveFn.closestPoint(pt, &param, 0.1, MSpace::kObject, &status);
+	//		CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+	//		//double distance = (pt - ptClosest).length();
+
+
+
+	//		MVector tan = curveFn.tangent(param, MSpace::kObject);
+	//		tan.normalize();
+
+	//		//MVector norm = curveFn.normal(param, MSpace::kObject);
+
+	//		MVector cross1 = m_firstUpVec ^ tan;
+	//		cross1.normalize();
+
+	//		MVector cross2 = tan ^ cross1;
+
+	//		cross2.normalize();
+
+
+
+	//		double m[4][4] = { { tan.x, tan.y , tan.z, 0.0 },
+	//		{ cross2.x, cross2.y, cross2.z, 0.0 },
+	//		{ cross1.x, cross1.y, cross1.z, 0.0 },
+	//		{ ptClosest.x, ptClosest.y, ptClosest.z, 1.0 } };
+
+	//		MMatrix rotMatrix = m;
+
+	//		MTransformationMatrix trMz(rotMatrix);
+	//		trMz.setTranslation(MVector(0.0, 0.0, 0.0), MSpace::kObject);
+	//		
+	//	
+
+	//		MPoint Bp = pt * trMz.asRotateMatrix() ;
+
+	//		o_vertexArray.set(Bp, i);
+
+	//	}
+
+	//}
 
 
 
@@ -957,80 +1072,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 	}
 
 
-	if (m_connectPieces)
-	{
 
-
-		// Interpolate
-		if (m_interpolate)
-		{
-			//// Only calculate if type is set to spline
-			//if (m_instanceType == 4)
-			//{
-			//	idOffset = 0;
-
-			//	// curve data
-			//	MFnNurbsCurve curveFn(m_inCurve, &status);
-			//	CHECK_MSTATUS_AND_RETURN_IT(status);
-
-			//	MPoint ptClosest;
-			//	double dUValue;
-			//	MVector normal;
-			//	MVector tan;
-			//	// m_firstUpVec;
-			//	double param;
-
-			//	// vertexArray
-
-			//	for (int i = 0; i < o_vertexArray.length(); i++)
-			//	{
-
-			//		MPoint pt = o_vertexArray[i];
-
-
-			//		ptClosest = curveFn.closestPoint( pt, &dUValue, 0.0, MSpace::kObject, &status );
-			//		CHECK_MSTATUS_AND_RETURN_IT(status);
-
-			//		status = curveFn.getParamAtPoint(ptClosest,param);
-			//		CHECK_MSTATUS_AND_RETURN_IT(status);
-
-			//		tan = curveFn.tangent(param, MSpace::kObject, &status );
-			//		CHECK_MSTATUS_AND_RETURN_IT(status);
-
-			//		normal = pt - ptClosest;
-			//		normal.normalize();
-
-			//		MVector cross1 = normal^tan;
-			//		cross1.normalize();
-
-			//		MVector cross2 =  tan^cross1;
-			//		cross2.normalize();
-
-
-			//		double m[4][4] = {{tan.x, tan.y , tan.z, 0.0},
-			//		{ cross2.x, cross2.y, cross2.z, 0.0},
-			//		{ cross1.x, cross1.y, cross1.z, 0.0},
-			//		{ ptClosest.x, ptClosest.y, ptClosest.z, 1.0}};
-
-			//		MMatrix rotMatrix = m;
-
-
-			//		
-			//		//
-
-			//		pt *= rotMatrix;
-			//		//pt += normal;
-			//		
-
-			//		o_vertexArray.set(pt,i);
-			//	}
-
-
-
-
-		}
-
-	}
 
 
 
@@ -1845,6 +1887,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_scaleZRule = data.inputValue(aScaleZRule, &status).asString();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_wrap_to_surface = data.inputValue(aWrapToSurface, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	// Override instace count if instance type is set to Circle
@@ -3205,6 +3250,13 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aShowRoot);
 
+	ClonerMultiThread::aWrapToSurface = nAttr.create("wrapToSurface", "wrapToSurface", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setDefault(false);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aWrapToSurface);
+
 	ClonerMultiThread::aOutputMeshDisplayOverride = nAttr.create("outputMeshDisplayOverride", "outputMeshDisplayOverride", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(true);
@@ -3424,6 +3476,8 @@ MStatus ClonerMultiThread::initialize()
 
 	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutMesh);
 
+	attributeAffects(ClonerMultiThread::aWrapToSurface, ClonerMultiThread::aOutMesh);
+	
 
 #if MAYA_API_VERSION > 201600
 	// Output Matrix array
@@ -3499,6 +3553,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutMatrixArray);
 
 	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aWrapToSurface, ClonerMultiThread::aOutMatrixArray);
 
 #endif
 
@@ -3574,6 +3629,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aScaleZRule, ClonerMultiThread::aOutIDArray);
 
 	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aWrapToSurface, ClonerMultiThread::aOutIDArray);
 
 	return MS::kSuccess;
 }

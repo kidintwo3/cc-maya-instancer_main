@@ -223,6 +223,7 @@ public:
 	static MObject				aInterpolate;
 
 	static MObject				aOrientCurveToRefGeo;
+	static MObject				aWrapToSurface;
 
 	// Output string for baking
 	static MObject				aOutMatrixArray;
@@ -332,6 +333,8 @@ private:
 	bool						m_disableBaseMeshOverride;
 
 	bool						m_smoothMeshPreview;
+
+	bool						m_wrap_to_surface;
 
 	// UV's
 	MFloatArray					o_uArrayA;

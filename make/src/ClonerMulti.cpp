@@ -2373,7 +2373,7 @@ MBoundingBox ClonerMultiThreadOverride::boundingBox(const MDagPath& objPath, con
 	//return m_bbP;
 }
 
-MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath) const
+vector<MPointArray> ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath) const
 {
 	MStatus status;
 
@@ -2382,44 +2382,186 @@ MPointArray ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath
 
 	if (!status)
 	{
-		return MPointArray();
+		return vector<MPointArray>();
 	}
 
 
-	MPointArray currPA;
 #if MAYA_API_VERSION > 201600
 	MPlug pointsPlug(locatorNode, ClonerMultiThread::aOutMatrixArray);
 #endif
 	MPlug inMeshPlug(locatorNode, ClonerMultiThread::aInMesh);
+	MPlug idPlug(locatorNode, ClonerMultiThread::aOutIDArray);
 
-#if MAYA_API_VERSION > 201600
+	vector<MBoundingBox> inmeshBBA;
+	vector<MPointArray> currPA;
 
 
+	// Get bounding box
 	if (inMeshPlug.numConnectedElements() != 0)
 	{
-		if (!pointsPlug.isNull())
+
+		for (auto i = 0; i < inMeshPlug.numConnectedElements(); i++)
 		{
 
-			MObject matrixObject;
 
-			pointsPlug.getValue(matrixObject);
+
+
+			MPlug currP = inMeshPlug.elementByPhysicalIndex(i, &status);
 
 			if (status)
 			{
 
-				MFnMatrixArrayData worldMatrixData(matrixObject);
-				MMatrixArray out_matrixArray;
-
-				worldMatrixData.copyTo(out_matrixArray);
-
-
-				currPA.setLength(out_matrixArray.length());
-
-				for (int i = 0; i < out_matrixArray.length(); i++)
+				if (currP.isConnected())
 				{
-					currPA[i] = MPoint() * out_matrixArray[i];
+
+					MPlugArray inputs_plugArr;
+					currP.connectedTo(inputs_plugArr, true, false, &status);
+
+					if (status)
+					{
+						currP = inputs_plugArr[0];
+
+						if (!currP.isNull())
+						{
+
+							MFnDagNode inMesh_dn(currP.node());
+							MBoundingBox bb = inMesh_dn.boundingBox();
+
+							inmeshBBA.push_back(bb);
+
+						}
+					}
+
+
 				}
 			}
+		}
+
+	}
+
+
+
+
+
+#if MAYA_API_VERSION > 201600
+
+
+
+	if (inMeshPlug.numConnectedElements() != 0)
+	{
+		if (!pointsPlug.isNull() && !idPlug.isNull())
+		{
+
+			MObject matrixObject;
+			pointsPlug.getValue(matrixObject);
+
+			MObject idObject;
+			idPlug.getValue(idObject);
+
+			MFnIntArrayData idArrayData(idObject);
+			MIntArray out_idArray;
+			idArrayData.copyTo(out_idArray);
+
+			MFnMatrixArrayData worldMatrixData(matrixObject);
+			MMatrixArray out_matrixArray;
+			worldMatrixData.copyTo(out_matrixArray);
+
+
+			//currPA.setLength(out_matrixArray.length());
+
+			if (out_matrixArray.length() == out_idArray.length())
+			{
+
+				/*			MGlobal::displayInfo("yolooooooo");*/
+
+
+				for (auto i = 0; i < out_matrixArray.length(); i++)
+				{
+
+
+					MBoundingBox bb;
+
+
+					bb = inmeshBBA[out_idArray[i]];
+
+					double w = bb.width() * 0.5;
+					double h = bb.height() * 0.5;
+					double d = bb.depth() * 0.5;
+
+					double cx = bb.center().x;
+					double cy = bb.center().y;
+					double cz = bb.center().x;
+
+					MPoint p00 = MPoint(-w, -h, d, 1.0f) * out_matrixArray[i];
+					MPoint p01 = MPoint(w, -h, d, 1.0f) * out_matrixArray[i];
+					MPoint p02 = MPoint(-w, h, d, 1.0f) * out_matrixArray[i];
+					MPoint p03 = MPoint(w, h, d, 1.0f) * out_matrixArray[i];
+					MPoint p04 = MPoint(-w, h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p05 = MPoint(w, h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p06 = MPoint(-w, -h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p07 = MPoint(w, -h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p08 = MPoint(-w, -h, d, 1.0f) * out_matrixArray[i];
+					MPoint p09 = MPoint(-w, h, d, 1.0f) * out_matrixArray[i];
+					MPoint p10 = MPoint(w, -h, d, 1.0f) * out_matrixArray[i];
+					MPoint p11 = MPoint(w, h, d, 1.0f) * out_matrixArray[i];
+					MPoint p12 = MPoint(-w, h, d, 1.0f) * out_matrixArray[i];
+					MPoint p13 = MPoint(-w, h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p14 = MPoint(w, h, d, 1.0f) * out_matrixArray[i];
+					MPoint p15 = MPoint(w, h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p16 = MPoint(-w, h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p17 = MPoint(-w, -h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p18 = MPoint(w, h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p19 = MPoint(w, -h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p20 = MPoint(-w, -h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p21 = MPoint(-w, -h, d, 1.0f) * out_matrixArray[i];
+					MPoint p22 = MPoint(w, -h, -d, 1.0f) * out_matrixArray[i];
+					MPoint p23 = MPoint(w, -h, d, 1.0f) * out_matrixArray[i];
+
+					MPointArray pA;
+
+
+					pA.append(p00);
+					pA.append(p01);
+					pA.append(p02);
+					pA.append(p03);
+					pA.append(p04);
+					pA.append(p05);
+					pA.append(p06);
+					pA.append(p07);
+					pA.append(p08);
+					pA.append(p09);
+					pA.append(p10);
+					pA.append(p11);
+					pA.append(p12);
+					pA.append(p13);
+					pA.append(p14);
+					pA.append(p15);
+					pA.append(p16);
+					pA.append(p17);
+					pA.append(p18);
+					pA.append(p19);
+					pA.append(p20);
+					pA.append(p21);
+					pA.append(p22);
+					pA.append(p23);
+
+
+
+					currPA.push_back(pA);
+
+				}
+
+			}
+
+			//for (int i = 0; i < out_matrixArray.length(); i++)
+			//{
+			//	/*currPA[i] = MPoint() * out_matrixArray[i];*/
+
+
+
+
+			//}
+
 		}
 	}
 
@@ -2456,6 +2598,8 @@ MUserData* ClonerMultiThreadOverride::prepareForDraw(const MDagPath& objPath, co
 	data->m_showRoot = showRootPlug.asBool();
 
 	data->m_dispPointA = getInstancePoints(objPath);
+
+
 
 	data->m_inLoc_mat = objPath.exclusiveMatrix();
 
@@ -2515,19 +2659,29 @@ void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRende
 
 		drawManager.setColor(MColor(fillCol.r, fillCol.g, fillCol.b, 1.0f));
 		drawManager.setPointSize(4);
-		drawManager.mesh(MHWRender::MUIDrawManager::kPoints, pLocatorData->m_dispPointA);
+		
+		//drawManager.setLineStyle(MHWRender::MUIDrawManager::kDotted);
+
+		for (auto i = 0; i < pLocatorData->m_dispPointA.size(); i++)
+		{
+			drawManager.mesh(MHWRender::MUIDrawManager::kLines, pLocatorData->m_dispPointA[i]);
+		}
 
 
-		M3dView view = M3dView::active3dView();
-		short ox, oy;
 
-		MPoint p = MPoint::origin;
-		p *= pLocatorData->m_inLoc_mat;
 
-		view.worldToView(p, ox, oy);
 
-		drawManager.setColor(MColor(fillCol.r + 0.5, fillCol.g + 0.5, fillCol.b + 0.5, 1.0f));
-		drawManager.circle2d(MPoint(ox, oy), 3.0, false);
+
+		//M3dView view = M3dView::active3dView();
+		//short ox, oy;
+
+		//MPoint p = MPoint::origin;
+		//p *= pLocatorData->m_inLoc_mat;
+
+		//view.worldToView(p, ox, oy);
+
+		//drawManager.setColor(MColor(fillCol.r + 0.5, fillCol.g + 0.5, fillCol.b + 0.5, 1.0f));
+		//drawManager.circle2d(MPoint(ox, oy), 3.0, false);
 
 	}
 

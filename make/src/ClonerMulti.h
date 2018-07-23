@@ -514,7 +514,7 @@ public:
 	bool					m_displayProxy;
 	bool					m_showRoot;
 
-	MPointArray				m_dispPointA;
+	vector<MPointArray>		m_dispPointA;
 
 };
 
@@ -545,7 +545,7 @@ public:
 private:
 	ClonerMultiThreadOverride(const MObject& obj);
 
-	MPointArray getInstancePoints(const MDagPath& objPath) const;
+	vector<MPointArray> getInstancePoints(const MDagPath& objPath) const;
 
 };
 

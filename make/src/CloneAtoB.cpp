@@ -116,7 +116,12 @@ MStatus ClonerMultiThread::instanceAtoB(){
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
-		m_tr_matA.set(tr_mat.asMatrix(), i);
+
+		MMatrix outMat = tr_mat.asMatrix();
+
+		if (m_worldSpace) { outMat *= m_inMeshMatrixArray[m_idA[i]]; }
+
+		m_tr_matA.set(outMat, i);
 
 
 	}

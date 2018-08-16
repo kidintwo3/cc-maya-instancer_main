@@ -352,7 +352,11 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			status = m_tr_matA.set(tr_mat.asMatrix() * m_refMeshMat, i);
+
+			MMatrix outMat = tr_mat.asMatrix();
+			if (m_worldSpace) { outMat *= m_inMeshMatrixArray[m_idA[i]]; }
+
+			status = m_tr_matA.set(outMat * m_refMeshMat, i);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		}
@@ -472,7 +476,11 @@ MStatus ClonerMultiThread::instanceOnMesh()
 			status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
-			status = m_tr_matA.set(tr_mat.asMatrix() * m_refMeshMat, i);
+
+			MMatrix outMat = tr_mat.asMatrix();
+			if (m_worldSpace) { outMat *= m_inMeshMatrixArray[m_idA[i]]; }
+
+			status = m_tr_matA.set(outMat * m_refMeshMat, i);
 			CHECK_MSTATUS_AND_RETURN_IT(status);
 
 		}
@@ -613,7 +621,11 @@ MStatus ClonerMultiThread::instanceOnMesh()
 				status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				status = m_tr_matA.set(tr_mat.asMatrix() * m_refMeshMat, i);
+
+				MMatrix outMat = tr_mat.asMatrix();
+				if (m_worldSpace) { outMat *= m_inMeshMatrixArray[m_idA[i]]; }
+
+				status = m_tr_matA.set(outMat * m_refMeshMat, i);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				i += 1;

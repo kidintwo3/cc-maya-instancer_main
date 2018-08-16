@@ -56,6 +56,7 @@ MStatus ClonerMultiThread::instanceSpline()
 
 
 	int rc = 0;
+	double prev_param;
 
 	for (unsigned int i = 0; i < m_numDup; i++)
 	{
@@ -144,6 +145,14 @@ MStatus ClonerMultiThread::instanceSpline()
 		MPoint closestPoint;
 
 		double param = curveFn.findParamFromLength(tempLength);
+
+		/*MGlobal::displayInfo(MString() + param);*/
+
+
+		//if (prev_param < para)
+		//{
+
+		//}
 
 		curveFn.getPointAtParam(param, p, MSpace::kObject);
 
@@ -273,8 +282,11 @@ MStatus ClonerMultiThread::instanceSpline()
 		status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
+		MMatrix outMat = tr_mat.asMatrix();
 
-		m_tr_matA.set(tr_mat.asMatrix() * m_curveTrMat, i);
+		if (m_worldSpace) { outMat *= m_inMeshMatrixArray[m_idA[i]]; }
+
+		m_tr_matA.set(outMat * m_curveTrMat, i);
 
 
 		rc += 1;

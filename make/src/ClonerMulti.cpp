@@ -632,7 +632,7 @@ MStatus ClonerMultiThread::mergeInputMeshes()
 		i_numPolygons[m] = mfnMesh.numPolygons();
 
 
-		mfnMesh.getPoints(i_vertexArray[m], MSpace::kWorld);
+		mfnMesh.getPoints(i_vertexArray[m], MSpace::kObject);
 		mfnMesh.getVertices(i_polygonCounts[m], i_polygonConnects[m]);
 
 
@@ -768,7 +768,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 		i_numPolygons[m] = mfnMesh.numPolygons();
 
 
-		mfnMesh.getPoints(i_vertexArray[m], MSpace::kWorld);
+		mfnMesh.getPoints(i_vertexArray[m], MSpace::kObject);
 		mfnMesh.getVertices(i_polygonCounts[m], i_polygonConnects[m]);
 
 
@@ -839,7 +839,7 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 			MPoint currentPoint(currP.x, currP.y, currP.z, currP.w);
 			MPoint tempActiveP = currentPoint;
 
-			if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
+			//if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
 
 			currentPoint *= m_tr_matA[m];
 
@@ -1208,7 +1208,7 @@ MStatus ClonerMultiThread::generateBBMeshes(MIntArray& idA)
 
 
 
-			if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
+			//if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
 
 			currentPoint *= m_tr_matA[m];
 
@@ -2536,6 +2536,8 @@ vector<MPointArray> ClonerMultiThreadOverride::getInstancePoints(const MDagPath&
 					double cx = bb.center().x;
 					double cy = bb.center().y;
 					double cz = bb.center().x;
+
+					//if (!m_worldSpace) { currentPoint = (MPoint(currentPoint) *= m_inMeshMatrixArray[idA[m]].inverse()); }
 
 					MPoint p00 = MPoint(-w, -h, d, 1.0f) * out_matrixArray[i];
 					MPoint p01 = MPoint(w, -h, d, 1.0f) * out_matrixArray[i];

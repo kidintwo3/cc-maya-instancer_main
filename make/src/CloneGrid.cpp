@@ -104,7 +104,12 @@ MStatus ClonerMultiThread::instanceGrid()
 				status = tr_mat.addRotation(rot_rnd, MTransformationMatrix::kXYZ, MSpace::kObject);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				m_tr_matA.set(tr_mat.asMatrix(), f);
+
+				MMatrix outMat = tr_mat.asMatrix();
+
+				if (m_worldSpace) { outMat *= m_inMeshMatrixArray[m_idA[f]]; }
+
+				m_tr_matA.set(outMat, f);
 
 				f += 1;
 

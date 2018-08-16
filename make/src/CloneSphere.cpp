@@ -141,6 +141,8 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 
 
 
+
+
 		//status = tr_mat.addTranslation(p, MSpace::kObject);
 		//CHECK_MSTATUS_AND_RETURN_IT(status);
 		status = tr_mat.addTranslation(v_rndOffV, MSpace::kObject);
@@ -162,8 +164,11 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 		status = tr_mat.addScale(scaleV_rnd, MSpace::kObject);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 
+		MMatrix outMat = tr_mat.asMatrix();
+		if (m_worldSpace) {outMat *= m_inMeshMatrixArray[m_idA[i]]; }
 
-		m_tr_matA.set(tr_mat.asMatrix(), i);
+
+		m_tr_matA.set(outMat, i);
 
 	}
 

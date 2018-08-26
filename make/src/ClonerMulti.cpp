@@ -748,9 +748,9 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 	// Setup mesh creation vector arrays for all meshes
 
-	// curve data
-	MFnNurbsCurve curveFn(m_inCurve, &status);
-	CHECK_MSTATUS_AND_RETURN_IT(status);
+	//// curve data
+	//MFnNurbsCurve curveFn(m_inCurve, &status);
+	//CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	i_numVertices.resize(m_numInputMeshes);
 	i_numPolygons.resize(m_numInputMeshes);
@@ -1542,23 +1542,33 @@ MStatus ClonerMultiThread::duplicateUVs(MIntArray& idA)
 		o_uvCountsA_offset += v_in_uvCounts[id].length();
 		o_uvIdsA_offset += v_in_uvIds[id].length();
 
-		off_tileU += m_uvOffsetU;
-		off_tileV += m_uvOffsetV;
+		// If UDIM loop is set offset the uvs if they reach UDIM 1010
+		if (m_uvUDIMLoop)
+		{
+
+			off_tileU += m_uvOffsetU;
+
+			if (off_tileU >= (1.0))
+			{
+				off_tileU = 0.0;
+				off_tileV += m_uvOffsetV;
+			}
+
+		}
+
+		else
+		{
+			off_tileU += m_uvOffsetU;
+			off_tileV += m_uvOffsetV;
+		}
+
+
 
 		off_tileU += m_rndOffsetUA[m];
 		off_tileV += m_rndOffsetVA[m];
 
 
-		// If UDIM loop is set offset the uvs if they reach UDIM 1010
-		if (m_uvUDIMLoop)
-		{
-			if (off_tileU >= 10.0)
-			{
-				off_tileU = 0.0;
-				off_tileV += 1.0;
-			}
 
-		}
 
 
 	}

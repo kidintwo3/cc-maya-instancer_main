@@ -45,27 +45,24 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 	{
 
 
-		double off_ramp_mult = 1.0;
+		double off_ramp_multX, off_ramp_multY, off_ramp_multZ = 1.0;
 
-		if (i < int(m_offsetProfileA.length()))
-		{
-			off_ramp_mult = m_offsetProfileA[i];
-		}
+		if (i < int(m_offsetProfileAX.length())) { off_ramp_multX = m_offsetProfileAX[i]; }
+		if (i < int(m_offsetProfileAY.length())) { off_ramp_multY = m_offsetProfileAY[i]; }
+		if (i < int(m_offsetProfileAZ.length())) { off_ramp_multZ = m_offsetProfileAZ[i]; }
 
 
-		double rot_ramp_mult = 1.0;
+		double rot_ramp_multX, rot_ramp_multY, rot_ramp_multZ = 1.0;
 
-		if (i < int(m_rotateProfileA.length()))
-		{
-			rot_ramp_mult = m_rotateProfileA[i];
-		}
+		if (i < int(m_rotateProfileAX.length())) { rot_ramp_multX = m_rotateProfileAX[i]; }
+		if (i < int(m_rotateProfileAY.length())) { rot_ramp_multY = m_rotateProfileAY[i]; }
+		if (i < int(m_rotateProfileAZ.length())) { rot_ramp_multZ = m_rotateProfileAZ[i]; }
 
-		double scale_ramp_mult = 1.0;
+		double scale_ramp_multX, scale_ramp_multY, scale_ramp_multZ = 1.0;
 
-		if (i < int(m_scaleProfileA.length()))
-		{
-			scale_ramp_mult = m_scaleProfileA[i];
-		}
+		if (i < int(m_scaleProfileAX.length())) { scale_ramp_multX = m_scaleProfileAX[i]; }
+		if (i < int(m_scaleProfileAY.length())) { scale_ramp_multY = m_scaleProfileAY[i]; }
+		if (i < int(m_scaleProfileAZ.length())) { scale_ramp_multZ = m_scaleProfileAZ[i]; }
 
 
 
@@ -83,7 +80,7 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 
 
 		//MTransformationMatrix transMatrix; // Calc trans
-		MPoint p(x * (m_offsetX* off_ramp_mult), y * (m_offsetY* off_ramp_mult), z * (m_offsetZ* off_ramp_mult));
+		MPoint p(x * (m_offsetX * off_ramp_multX), y * (m_offsetY* off_ramp_multY), z * (m_offsetZ* off_ramp_multZ));
 		//MPoint p = v_baseV * 0.5;
 
 
@@ -123,20 +120,20 @@ MStatus ClonerMultiThread::instanceFibonacciSphere()
 
 
 		// Rotation
-		double rotation[3] = { m_rotateX * 0.5f * (M_PI / 180.0f) * rot_ramp_mult, m_rotateY * 0.5f * (M_PI / 180.0f) * rot_ramp_mult,  m_rotateZ * 0.5f * (M_PI / 180.0f) * rot_ramp_mult };
+		double rotation[3] = { (m_rotateX + m_rule_rot_A_X[i]) * (M_PI / 180.0f) * rot_ramp_multX, (m_rotateY + m_rule_rot_A_Y[i]) * (M_PI / 180.0f) * rot_ramp_multY,  (m_rotateZ + m_rule_rot_A_Z[i]) * (M_PI / 180.0f) * rot_ramp_multZ };
 
 
 		// Scale
-		const double scaleV[3] = { double(m_scaleX) * scale_ramp_mult,  double(m_scaleY) * scale_ramp_mult,  double(m_scaleZ) * scale_ramp_mult };
+		const double scaleV[3] = { double(m_scaleX * m_rule_scl_A_X[i]) * scale_ramp_multX,  double(m_scaleY * m_rule_scl_A_Y[i]) * scale_ramp_multY,  double(m_scaleZ * m_rule_scl_A_Z[i]) * scale_ramp_multZ };
 
 		// Random Transform
-		MFloatVector v_rndOffV(m_rndOffsetXA[i] * off_ramp_mult, m_rndOffsetYA[i] * off_ramp_mult, m_rndOffsetZA[i] * off_ramp_mult);
+		MFloatVector v_rndOffV(m_rndOffsetXA[i] * off_ramp_multX, m_rndOffsetYA[i] * off_ramp_multY, m_rndOffsetZA[i] * off_ramp_multZ);
 		// Random Rotate
 
-		double rot_rnd[3] = { m_rndRotateXA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult, m_rndRotateYA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult,  m_rndRotateZA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_mult };
+		double rot_rnd[3] = { m_rndRotateXA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_multX, m_rndRotateYA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_multY,  m_rndRotateZA[i] * 0.5f * (M_PI / 180.0f)* rot_ramp_multZ };
 
 		// Random Scale
-		const double scaleV_rnd[3] = { double(1.0 + m_rndScaleXA[i])* scale_ramp_mult,  double(1.0 + m_rndScaleYA[i])* scale_ramp_mult,  double(1.0 + m_rndScaleZA[i])* scale_ramp_mult };
+		const double scaleV_rnd[3] = { double(1.0 + m_rndScaleXA[i])* scale_ramp_multX,  double(1.0 + m_rndScaleYA[i])* scale_ramp_multY,  double(1.0 + m_rndScaleZA[i])* scale_ramp_multZ };
 
 
 

@@ -816,21 +816,53 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 		m_curve_interps.append(MRampAttribute::kLinear);
 		m_curve_interps.append(MRampAttribute::kLinear);
 
-		MPlug p_offsetRamp = fnDepClonerNodeShape.findPlug("offsetRamp", status);
+		// Offset
+		MPlug p_offsetRampX = fnDepClonerNodeShape.findPlug("offsetRampX", status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		MRampAttribute a_offsetRamp(p_offsetRamp);
-		a_offsetRamp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+		MRampAttribute a_offsetRampX(p_offsetRampX);
+		a_offsetRampX.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
 
-		MPlug p_rotateRamp = fnDepClonerNodeShape.findPlug("rotateRamp", status);
+		MPlug p_offsetRampY = fnDepClonerNodeShape.findPlug("offsetRampY", status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		MRampAttribute a_rotateRamp(p_rotateRamp);
-		a_rotateRamp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+		MRampAttribute a_offsetRampY(p_offsetRampY);
+		a_offsetRampY.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
 
-		MPlug p_scaleRamp = fnDepClonerNodeShape.findPlug("scaleRamp", status);
+		MPlug p_offsetRampZ = fnDepClonerNodeShape.findPlug("offsetRampZ", status);
 		CHECK_MSTATUS_AND_RETURN_IT(status);
-		MRampAttribute a_scaleRamp(p_scaleRamp);
-		a_scaleRamp.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+		MRampAttribute a_offsetRampZ(p_offsetRampZ);
+		a_offsetRampZ.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
 
+		// Rotate
+		MPlug p_rotateRampX = fnDepClonerNodeShape.findPlug("rotateRampX", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_rotateRampX(p_rotateRampX);
+		a_rotateRampX.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		MPlug p_rotateRampY = fnDepClonerNodeShape.findPlug("rotateRampY", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_rotateRampY(p_rotateRampY);
+		a_rotateRampY.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		MPlug p_rotateRampZ = fnDepClonerNodeShape.findPlug("rotateRampZ", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_rotateRampZ(p_rotateRampZ);
+		a_rotateRampZ.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		// Scale
+		MPlug p_scaleRampX = fnDepClonerNodeShape.findPlug("scaleRampX", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_scaleRampX(p_scaleRampX);
+		a_scaleRampX.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		MPlug p_scaleRampY = fnDepClonerNodeShape.findPlug("scaleRampY", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_scaleRampY(p_scaleRampY);
+		a_scaleRampY.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
+
+		MPlug p_scaleRampZ = fnDepClonerNodeShape.findPlug("scaleRampZ", status);
+		CHECK_MSTATUS_AND_RETURN_IT(status);
+		MRampAttribute a_scaleRampZ(p_scaleRampZ);
+		a_scaleRampZ.setRamp(m_curve_values, m_curve_positions, m_curve_interps);
 
 		// Add selected objects
 		for (int i = 0; i < p_currSelShapeA.length(); i++)

@@ -46,13 +46,18 @@ MObject     ClonerMultiThread::aGridInstanceZ;
 MObject     ClonerMultiThread::aGridOffsetX;
 MObject     ClonerMultiThread::aGridOffsetY;
 MObject     ClonerMultiThread::aGridOffsetZ;
-MObject     ClonerMultiThread::aGridOffsetRamp;
+MObject     ClonerMultiThread::aGridOffsetRampX;
+MObject     ClonerMultiThread::aGridOffsetRampY;
+MObject     ClonerMultiThread::aGridOffsetRampZ;
 
 // Rotate
 MObject     ClonerMultiThread::aRotateX;
 MObject     ClonerMultiThread::aRotateY;
 MObject     ClonerMultiThread::aRotateZ;
-MObject     ClonerMultiThread::aRotateRamp;
+MObject     ClonerMultiThread::aRotateRampX;
+MObject     ClonerMultiThread::aRotateRampY;
+MObject     ClonerMultiThread::aRotateRampZ;
+
 
 MObject		ClonerMultiThread::aCircleRotate;
 
@@ -72,7 +77,9 @@ MObject     ClonerMultiThread::aScaleZRule;
 MObject     ClonerMultiThread::aScaleX;
 MObject     ClonerMultiThread::aScaleY;
 MObject     ClonerMultiThread::aScaleZ;
-MObject     ClonerMultiThread::aScaleRamp;
+MObject     ClonerMultiThread::aScaleRampX;
+MObject     ClonerMultiThread::aScaleRampY;
+MObject     ClonerMultiThread::aScaleRampZ;
 
 // Random
 MObject     ClonerMultiThread::aRndOffsetX;
@@ -1910,24 +1917,51 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_numDup = m_instanceX * m_instanceY * m_instanceZ; if (m_numDup < 1) { m_numDup = 1; }
 
 
-
-	// Ramp attribute
-	MRampAttribute a_offsetAttribute(this->thisMObject(), aGridOffsetRamp, &status);
+	// Ramp Offset attribute
+	MRampAttribute a_offsetAttributeX(this->thisMObject(), aGridOffsetRampX, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_offsetProfileA = storeProfileCurveData(a_offsetAttribute, m_numDup);
+	m_offsetProfileAX = storeProfileCurveData(a_offsetAttributeX, m_numDup);
 
-	MRampAttribute a_rotateAttribute(this->thisMObject(), aRotateRamp, &status);
+	MRampAttribute a_offsetAttributeY(this->thisMObject(), aGridOffsetRampY, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_rotateProfileA = storeProfileCurveData(a_rotateAttribute, m_numDup);
+	m_offsetProfileAY = storeProfileCurveData(a_offsetAttributeY, m_numDup);
 
-	MRampAttribute a_scaleAttribute(this->thisMObject(), aScaleRamp, &status);
+	MRampAttribute a_offsetAttributeZ(this->thisMObject(), aGridOffsetRampZ, &status);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	m_scaleProfileA = storeProfileCurveData(a_scaleAttribute, m_numDup);
+	m_offsetProfileAZ = storeProfileCurveData(a_offsetAttributeZ, m_numDup);
 
+	// Ramp Rotate attribute
 
+	MRampAttribute a_rotateAttributeX(this->thisMObject(), aRotateRampX, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_rotateProfileAX = storeProfileCurveData(a_rotateAttributeX, m_numDup);
+
+	MRampAttribute a_rotateAttributeY(this->thisMObject(), aRotateRampY, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_rotateProfileAY = storeProfileCurveData(a_rotateAttributeY, m_numDup);
+
+	MRampAttribute a_rotateAttributeZ(this->thisMObject(), aRotateRampZ, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_rotateProfileAZ = storeProfileCurveData(a_rotateAttributeZ, m_numDup);
+
+	// Ramp Scale attribute
+
+	MRampAttribute a_scaleAttributeX(this->thisMObject(), aScaleRampX, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_scaleProfileAX = storeProfileCurveData(a_scaleAttributeX, m_numDup);
+
+	MRampAttribute a_scaleAttributeY(this->thisMObject(), aScaleRampY, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_scaleProfileAY = storeProfileCurveData(a_scaleAttributeY, m_numDup);
+
+	MRampAttribute a_scaleAttributeZ(this->thisMObject(), aScaleRampZ, &status);
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+	m_scaleProfileAZ = storeProfileCurveData(a_scaleAttributeZ, m_numDup);
 
 	// Override instace count if instance type is set to Mesh
 	if (m_instanceType == 5) { overrideInstanceOnMeshSettings(); }
+
+	//cout << "-----------------" << endl;
 
 	return MStatus::kSuccess;
 
@@ -1940,9 +1974,9 @@ MFloatArray ClonerMultiThread::storeProfileCurveData(MRampAttribute a_segmentsAt
 
 	MFloatArray curve_segments_values;
 
-	for (int i = 0; i < segments + 1; i++)
+	for (int i = 0; i < segments; i++)
 	{
-		float rampPosition = (1.0f / float(segments + 1)) * float(i);
+		float rampPosition = (1.0f / float(segments - 1)) * float(i);
 		float curveRampValue;
 
 		a_segmentsAttribute.getValueAtPosition(rampPosition, curveRampValue, &status);
@@ -1950,6 +1984,11 @@ MFloatArray ClonerMultiThread::storeProfileCurveData(MRampAttribute a_segmentsAt
 
 		curve_segments_values.append(curveRampValue);
 
+	}
+
+	if (segments == 0)
+	{
+		curve_segments_values.append(1);
 	}
 
 	return curve_segments_values;
@@ -2367,7 +2406,7 @@ void ClonerMultiThread::draw(M3dView & view, const MDagPath & path, M3dView::Dis
 	MObject thisNode = thisMObject();
 
 	MFnDependencyNode fnDepCloner(thisNode);
-
+#if MAYA_API_VERSION < 201800
 	// Draw locator
 	view.beginGL();
 
@@ -2388,7 +2427,7 @@ void ClonerMultiThread::draw(M3dView & view, const MDagPath & path, M3dView::Dis
 	glPopAttrib();
 
 	view.endGL();
-
+#endif
 }
 
 
@@ -2987,8 +3026,8 @@ MStatus ClonerMultiThread::initialize()
 	ClonerMultiThread::aRotateX = nAttr.create("rotateX", "rotateX", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	nAttr.setSoftMax(360.0);
-	nAttr.setSoftMin(-360.0);
+	nAttr.setSoftMax(180.0);
+	nAttr.setSoftMin(-180.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aRotateX);
@@ -2996,8 +3035,8 @@ MStatus ClonerMultiThread::initialize()
 	ClonerMultiThread::aRotateY = nAttr.create("rotateY", "rotateY", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	nAttr.setSoftMax(360.0);
-	nAttr.setSoftMin(-360.0);
+	nAttr.setSoftMax(180.0);
+	nAttr.setSoftMin(-180.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aRotateY);
@@ -3005,8 +3044,8 @@ MStatus ClonerMultiThread::initialize()
 	ClonerMultiThread::aRotateZ = nAttr.create("rotateZ", "rotateZ", MFnNumericData::kFloat);
 	nAttr.setStorable(true);
 	nAttr.setDefault(0.0);
-	nAttr.setSoftMax(360.0);
-	nAttr.setSoftMin(-360.0);
+	nAttr.setSoftMax(180.0);
+	nAttr.setSoftMin(-180.0);
 	nAttr.setKeyable(true);
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aRotateZ);
@@ -3381,23 +3420,49 @@ MStatus ClonerMultiThread::initialize()
 
 	//
 
-	ClonerMultiThread::aGridOffsetRamp = rAttr.createCurveRamp("offsetRamp", "offsetRamp");
-	ClonerMultiThread::addAttribute(aGridOffsetRamp);
+	ClonerMultiThread::aGridOffsetRampX = rAttr.createCurveRamp("offsetRampX", "offsetRampX");
+	ClonerMultiThread::addAttribute(aGridOffsetRampX);
 
-	ClonerMultiThread::aRotateRamp = rAttr.createCurveRamp("rotateRamp", "rotateRamp");
-	ClonerMultiThread::addAttribute(aRotateRamp);
+	ClonerMultiThread::aGridOffsetRampY = rAttr.createCurveRamp("offsetRampY", "offsetRampY");
+	ClonerMultiThread::addAttribute(aGridOffsetRampY);
 
-	ClonerMultiThread::aScaleRamp = rAttr.createCurveRamp("scaleRamp", "scaleRamp");
-	ClonerMultiThread::addAttribute(aScaleRamp);
+	ClonerMultiThread::aGridOffsetRampZ = rAttr.createCurveRamp("offsetRampZ", "offsetRampZ");
+	ClonerMultiThread::addAttribute(aGridOffsetRampZ);
+
+	ClonerMultiThread::aRotateRampX = rAttr.createCurveRamp("rotateRampX", "rotateRampX");
+	ClonerMultiThread::addAttribute(aRotateRampX);
+
+	ClonerMultiThread::aRotateRampY = rAttr.createCurveRamp("rotateRampY", "rotateRampY");
+	ClonerMultiThread::addAttribute(aRotateRampY);
+
+	ClonerMultiThread::aRotateRampZ = rAttr.createCurveRamp("rotateRampZ", "rotateRampZ");
+	ClonerMultiThread::addAttribute(aRotateRampZ);
+
+	ClonerMultiThread::aScaleRampX = rAttr.createCurveRamp("scaleRampX", "scaleRampX");
+	ClonerMultiThread::addAttribute(aScaleRampX);
+
+	ClonerMultiThread::aScaleRampY = rAttr.createCurveRamp("scaleRampY", "scaleRampY");
+	ClonerMultiThread::addAttribute(aScaleRampY);
+
+	ClonerMultiThread::aScaleRampZ = rAttr.createCurveRamp("scaleRampZ", "scaleRampZ");
+	ClonerMultiThread::addAttribute(aScaleRampZ);
 
 
 	// Attribute affects
 	// Output mesh
 
 
-	attributeAffects(ClonerMultiThread::aGridOffsetRamp, ClonerMultiThread::aOutMesh);
-	attributeAffects(ClonerMultiThread::aRotateRamp, ClonerMultiThread::aOutMesh);
-	attributeAffects(ClonerMultiThread::aScaleRamp, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aGridOffsetRampX, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aGridOffsetRampY, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aGridOffsetRampZ, ClonerMultiThread::aOutMesh);
+
+	attributeAffects(ClonerMultiThread::aRotateRampX, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRotateRampY, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aRotateRampZ, ClonerMultiThread::aOutMesh);
+	
+	attributeAffects(ClonerMultiThread::aScaleRampX, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aScaleRampY, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aScaleRampZ, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aInMesh, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRefMesh, ClonerMultiThread::aOutMesh);

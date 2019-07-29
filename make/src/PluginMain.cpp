@@ -15,17 +15,10 @@ MStatus initializePlugin( MObject obj )
 {
 	MStatus status;
 
-	MFnPlugin fnPlugin( obj, "Creative Case", "1.8", "Any" );
+	MFnPlugin fnPlugin( obj, "Creative Case", "1.6", "Any" );
 
 
-	MStringArray aeTemplateA = mel_AETemplate();
-
-	for (int i = 0; i < aeTemplateA.length(); i++)
-	{
-		MGlobal::executeCommand(aeTemplateA[i]);
-	}
-
-	
+	//
 
 	MString rebuild_icons = MCommonSystemUtils::getEnv("CLONERMULTI_REBUILD_ICONS", &status);
 
@@ -41,6 +34,12 @@ MStatus initializePlugin( MObject obj )
 		MGlobal::executeCommand( mel_createShelf() );
 	}
 
+	MStringArray aeTemplateA = mel_AETemplate();
+
+	for (int i = 0; i < aeTemplateA.length(); i++)
+	{
+		MGlobal::executeCommand(aeTemplateA[i]);
+	}
 
 	status = fnPlugin.registerCommand( "clonerMultiCommand", ClonerMultiCommand::creator, ClonerMultiCommand::newSyntax );
 	CHECK_MSTATUS_AND_RETURN_IT( status );

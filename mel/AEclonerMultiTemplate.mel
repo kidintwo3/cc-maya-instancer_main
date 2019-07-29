@@ -43,55 +43,73 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addSeparator;
 	editorTemplate -label "Snap Orientation" -addControl "orientationType";
 	editorTemplate -addSeparator;
-	
-	editorTemplate -beginLayout "Offset controls" -collapse 0;	
-	AEaddRampControl( $nodeName + ".offsetRamp" );
-	editorTemplate -addSeparator;
-	editorTemplate -addControl "offsetX";
-	editorTemplate -addControl "offsetY";
-	editorTemplate -addControl "offsetZ";
 	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Offset rules" -collapse 1;	
-	editorTemplate -label "Offset X Rule" -addControl "transformXRule";
-	editorTemplate -label "Offset Y Rule" -addControl "transformYRule";
-	editorTemplate -label "Offset Z Rule" -addControl "transformZRule";
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Rotate controls" -collapse 0;	
-	AEaddRampControl( $nodeName + ".rotateRamp" );
-	editorTemplate -addSeparator;
-	editorTemplate -addControl "rotateX";
-	editorTemplate -addControl "rotateY";
-	editorTemplate -addControl "rotateZ";
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Rotate rules" -collapse 1;	
-	editorTemplate -label "Rotate X Rule" -addControl "rotateXRule";
-	editorTemplate -label "Rotate Y Rule" -addControl "rotateYRule";
-	editorTemplate -label "Rotate Z Rule" -addControl "rotateZRule";
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Rotate circle" -collapse 1;	
-	editorTemplate -label "Rotate circle angle" -addControl "circleRotate";
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Scale controls" -collapse 0;	
-	AEaddRampControl( $nodeName + ".scaleRamp" );
-	editorTemplate -addSeparator;
-	editorTemplate -addControl "scaleX";
-	editorTemplate -addControl "scaleY";
-	editorTemplate -addControl "scaleZ";
-	editorTemplate -endLayout;
-	
-	editorTemplate -beginLayout "Scale rules" -collapse 1;	
-	editorTemplate -label "Scale X Rule" -addControl "scaleXRule";
-	editorTemplate -label "Scale Y Rule" -addControl "scaleYRule";
-	editorTemplate -label "Scale Z Rule" -addControl "scaleZRule";
-	editorTemplate -endLayout;
-	
 
-	editorTemplate -beginLayout "Randomize Transform" -collapse 0;
+	editorTemplate -beginLayout "Offset" -collapse 0;	
+    	editorTemplate -beginLayout "Offset controls" -collapse 1;	
+    	editorTemplate -addControl "offsetX";
+    	editorTemplate -addControl "offsetY";
+    	editorTemplate -addControl "offsetZ";
+    	editorTemplate -endLayout;
+    	
+    	editorTemplate -beginLayout "Offset ramps" -collapse 1;	
+    	AEaddRampControl( $nodeName + ".offsetRampX" );
+    	AEaddRampControl( $nodeName + ".offsetRampY" );
+    	AEaddRampControl( $nodeName + ".offsetRampZ" );
+    	editorTemplate -endLayout;
+
+    	editorTemplate -beginLayout "Offset rules" -collapse 1;	
+    	editorTemplate -label "Offset X Rule" -addControl "transformXRule";
+    	editorTemplate -label "Offset Y Rule" -addControl "transformYRule";
+    	editorTemplate -label "Offset Z Rule" -addControl "transformZRule";
+    	editorTemplate -endLayout;
+    editorTemplate -endLayout;
+
+	editorTemplate -beginLayout "Rotate" -collapse 0;	
+    	editorTemplate -beginLayout "Rotate controls" -collapse 1;	
+    	editorTemplate -addControl "rotateX";
+    	editorTemplate -addControl "rotateY";
+    	editorTemplate -addControl "rotateZ";
+    	editorTemplate -endLayout;
+    	
+    	editorTemplate -beginLayout "Rotate ramps" -collapse 1;	
+    	AEaddRampControl( $nodeName + ".rotateRampX" );
+		AEaddRampControl( $nodeName + ".rotateRampY" );
+		AEaddRampControl( $nodeName + ".rotateRampZ" );
+    	editorTemplate -endLayout;
+    	
+    	editorTemplate -beginLayout "Rotate rules" -collapse 1;	
+    	editorTemplate -label "Rotate X Rule" -addControl "rotateXRule";
+    	editorTemplate -label "Rotate Y Rule" -addControl "rotateYRule";
+    	editorTemplate -label "Rotate Z Rule" -addControl "rotateZRule";
+    	editorTemplate -endLayout;
+    	
+    	editorTemplate -beginLayout "Rotate circle" -collapse 1;	
+    	editorTemplate -label "Rotate circle angle" -addControl "circleRotate";
+    	editorTemplate -endLayout;
+	 editorTemplate -endLayout;
+
+	editorTemplate -beginLayout "Scale" -collapse 0;	
+    	editorTemplate -beginLayout "Scale controls" -collapse 1;	
+    	editorTemplate -addControl "scaleX";
+    	editorTemplate -addControl "scaleY";
+    	editorTemplate -addControl "scaleZ";
+    	editorTemplate -endLayout;
+    	
+    	editorTemplate -beginLayout "Scale ramps" -collapse 1;	
+    	AEaddRampControl( $nodeName + ".scaleRampX" );
+		AEaddRampControl( $nodeName + ".scaleRampY" );
+		AEaddRampControl( $nodeName + ".scaleRampZ" );
+    	editorTemplate -endLayout;
+    	
+    	editorTemplate -beginLayout "Scale rules" -collapse 1;	
+    	editorTemplate -label "Scale X Rule" -addControl "scaleXRule";
+    	editorTemplate -label "Scale Y Rule" -addControl "scaleYRule";
+    	editorTemplate -label "Scale Z Rule" -addControl "scaleZRule";
+    	editorTemplate -endLayout;
+    editorTemplate -endLayout;
+
+	editorTemplate -beginLayout "Randomize Transform" -collapse 1;
 	editorTemplate -label "Random Offset X" -addControl "randomizeOffsetX";
 	editorTemplate -label "Random Offset Y" -addControl "randomizeOffsetY";
 	editorTemplate -label "Random Offset Z" -addControl "randomizeOffsetZ";
@@ -151,6 +169,7 @@ global proc AEclonerMultiTemplate( string $nodeName )
 	editorTemplate -addExtraControls;
 	editorTemplate -endScrollLayout;
 }
+
 global proc AE_cm_objList_create(string $attrName)
 {
     string $nodeName[];tokenize($attrName, ".", $nodeName);
@@ -236,7 +255,6 @@ global proc AE_cm_objList_create(string $attrName)
 	}
 	
 }
-
 global proc AE_cm_objList_edit(string $attrName)
 {
     string $nodeName[];tokenize($attrName, ".", $nodeName);
@@ -408,7 +426,6 @@ global proc AE_cm_objList_moveUp(string $attrName)
         }
         AE_cm_reconnectPlugs_set($attrName);
     }
-    
 }
 
 global proc AE_cm_objList_moveDown(string $attrName)
@@ -475,6 +492,14 @@ global proc AE_cm_reconnectPlugs_set(string $attrName)
 	
     AE_cm_objList_refresh($attrName);
 }
+
+
+
+
+
+// --------------------------------------------------------------------------------------------------------------------------
+// EOL
+// --------------------------------------------------------------------------------------------------------------------------
 
 global proc AE_cm_curve_set(string $attrName)
 {

@@ -59,7 +59,7 @@ void ClonerMultiLoc::draw(M3dView & view, const MDagPath & path, M3dView::Displa
 	MObject thisNode = thisMObject();
 
 	MFnDependencyNode fnDepCloner(thisNode);
-
+#if MAYA_API_VERSION < 201800
 	// Draw locator
 	view.beginGL();
 
@@ -121,7 +121,7 @@ void ClonerMultiLoc::draw(M3dView & view, const MDagPath & path, M3dView::Displa
 	glPopAttrib();
 
 	view.endGL();
-
+	#endif
 }
 
 

@@ -189,9 +189,17 @@ public:
 	static MObject				aRandIDLev;
 
 	// Ramps
-	static MObject				aGridOffsetRamp;
-	static MObject				aRotateRamp;
-	static MObject				aScaleRamp;
+	static MObject				aGridOffsetRampX;
+	static MObject				aGridOffsetRampY;
+	static MObject				aGridOffsetRampZ;
+
+	static MObject				aRotateRampX;
+	static MObject				aRotateRampY;
+	static MObject				aRotateRampZ;
+
+	static MObject				aScaleRampX;
+	static MObject				aScaleRampY;
+	static MObject				aScaleRampZ;
 
 	// UV
 	static MObject				aUVOffsetU;
@@ -386,9 +394,17 @@ private:
 
 	// Ramps
 
-	MFloatArray					m_offsetProfileA;
-	MFloatArray					m_rotateProfileA;
-	MFloatArray					m_scaleProfileA;
+	MFloatArray					m_offsetProfileAX;
+	MFloatArray					m_offsetProfileAY;
+	MFloatArray					m_offsetProfileAZ;
+
+	MFloatArray					m_rotateProfileAX;
+	MFloatArray					m_rotateProfileAY;
+	MFloatArray					m_rotateProfileAZ;
+
+	MFloatArray					m_scaleProfileAX;
+	MFloatArray					m_scaleProfileAY;
+	MFloatArray					m_scaleProfileAZ;
 
 	// Transforms
 	float					    m_offsetX;

@@ -149,6 +149,7 @@ MStringArray mel_AETemplate()
 		"\	editorTemplate -endLayout;\r\n"
 		"\	editorTemplate -beginLayout \"Snap vert pairs\" -collapse 0;\r\n"
 		"\	editorTemplate -addControl \"connectPieces\";\r\n"
+		"\	editorTemplate -addControl \"mergePieces\";\r\n"
 		"\	editorTemplate -addControl \"connectLoop\";\r\n"
 		"\	editorTemplate -addSeparator;\r\n"
 		"    editorTemplate -addControl \"connectArrayA\";\r\n"

@@ -118,10 +118,12 @@ MObject     ClonerMultiThread::aFirstUpVecZ;
 MObject		ClonerMultiThread::aOrientCurveToRefGeo;
 
 MObject		ClonerMultiThread::aConnectPieces;
+MObject		ClonerMultiThread::aMergePieces;
 MObject		ClonerMultiThread::aConnectLoop;
 MObject		ClonerMultiThread::aConnectArrayA;
 MObject		ClonerMultiThread::aConnectArrayB;
 MObject		ClonerMultiThread::aInterpolate;
+MObject		ClonerMultiThread::aCustomEdgeComponent;
 
 MObject		ClonerMultiThread::aSmoothMeshPreview;
 
@@ -903,14 +905,14 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 					//tempActiveP *= trMOrig.asRotateMatrix();
 					tempActiveP *= trMOrig.asScaleMatrix();
-					
-		
+
+
 					currentPoint = tempActiveP * trMz.asMatrix();
 
 				}
 			}
-		
-	
+
+
 
 
 			o_vertexArray.set(MFloatPoint(currentPoint.x, currentPoint.y, currentPoint.z, currentPoint.w), v + idOffset);
@@ -1011,17 +1013,23 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 	//}
 
 
+	m_connPairVA.clear();
+	m_connPairVB.clear();
+
 
 	// Snap verts
 	if (m_connectPieces)
 	{
 
+
+
 		if (m_numInputMeshes == 1)
 		{
 
-
 			idOffset = 0;
 			MPoint ptClosest;
+
+			int c = 0;
 
 			for (int m = 0; m < m_numDup - 1; m++)
 			{
@@ -1031,25 +1039,33 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 
 					for (int x = 0; x < m_ConnectArrayA.length(); x++)
 					{
+
+
 						if (v == m_ConnectArrayA[x])
 						{
 							MPoint aP = o_vertexArray[m_ConnectArrayA[x] + idOffset];
 							MPoint bP = o_vertexArray[m_ConnectArrayB[x] + idOffset + i_vertexArray[idA[m]].length()];
 
-							MPoint nP = (aP + bP) * 0.5;
 
+							// Store pairs
+							
+							m_connPairVA.append(m_ConnectArrayA[x] + idOffset);
+							m_connPairVB.append(m_ConnectArrayB[x] + idOffset + i_vertexArray[idA[m]].length());
+							
+
+							MPoint nP = (aP + bP) * 0.5;
 							o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayA[x] + idOffset);
 							o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayB[x] + idOffset + i_vertexArray[idA[m]].length());
+
 						}
+
 					}
 
+					c += 1;
+
 				}
-
 				idOffset += i_vertexArray[idA[m]].length();
-
 			}
-
-
 
 			// Connect End loops
 			if (m_connectLoop)
@@ -1064,10 +1080,18 @@ MStatus ClonerMultiThread::duplicateInputMeshes(MIntArray& idA)
 						MPoint aP = o_vertexArray[m_ConnectArrayA[x] + idOffset];
 						MPoint bP = o_vertexArray[m_ConnectArrayB[x]];
 
+
 						MPoint nP = (aP + bP) * 0.5;
+
 
 						o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayA[x] + idOffset);
 						o_vertexArray.set(MFloatPoint(nP.x, nP.y, nP.z, nP.w), m_ConnectArrayB[x]);
+
+
+						//// Store pairs
+						//m_connPairVA.append(m_ConnectArrayA[x] );
+						//m_connPairVB.append(m_ConnectArrayB[x] );
+
 					}
 
 				}
@@ -1584,7 +1608,7 @@ MStatus ClonerMultiThread::duplicateUVs(MIntArray& idA)
 	return MS::kSuccess;
 }
 
-MStatus ClonerMultiThread::smoothNormals(MFnMesh &meshFn)
+MStatus ClonerMultiThread::smoothNormals(MFnMesh& meshFn)
 {
 	MStatus status;
 
@@ -1683,6 +1707,19 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	MStringArray stringDataBArray;
 	status = stringDataB.split(',', stringDataBArray);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+
+	// Get input point array
+	m_customEdgeComponents.clear();
+	MPlug p_customEdge = MPlug(this->thisMObject(), aCustomEdgeComponent);
+	MObject o_edgeArray;
+	p_customEdge.getValue(o_edgeArray);
+	MFnIntArrayData fn_aPoints(o_edgeArray);
+	fn_aPoints.copyTo(m_customEdgeComponents);
+
+
+	//MGlobal::displayInfo(MString() + "[Custom plug]: " + customEdgecomponentData.elementCount());
 
 	// put user input array into an mIntarray
 	m_ConnectArrayA.clear();
@@ -1865,6 +1902,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_connectPieces = data.inputValue(aConnectPieces, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
+	m_mergePieces = data.inputValue(aMergePieces, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
 	m_connectLoop = data.inputValue(aConnectLoop, &status).asBool();
@@ -2318,22 +2358,127 @@ MStatus ClonerMultiThread::compute(const MPlug& plug, MDataBlock& data)
 				status = duplicateInputMeshes(m_idA);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
-				ex_meshFn.create(o_numVertices, o_numPolygons, o_vertexArray, o_polygonCounts, o_polygonConnects, o_uArrayA, o_vArrayA, ex_newMeshData, &status);
-				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				if (m_connectPieces && m_mergePieces && m_numInputMeshes == 1)
+				{
+
+					MFloatPointArray n_vertexArray;
+
+					for (int i = 0; i < o_vertexArray.length(); i++)
+					{
+
+						// Find in array
+						bool is_found = false;
+						for (int f = 0; f < m_connPairVB.length(); f++)
+						{
+							if (m_connPairVB[f] == i)
+							{
+								is_found = true;
+								break;
+							}
+						}
+
+						if (!is_found)
+						{
+							n_vertexArray.append(o_vertexArray[i]);
+						}
+
+					}
+
+					MIntArray n_polygonConnects;
+					status = n_polygonConnects.copy(o_polygonConnects);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+
+					o_polygonConnects.clear();
+					o_vertexArray.clear();
+
+					int largestnum_delete = -1;
+
+					for (int z = 0; z < m_connPairVB.length(); z++)
+					{
+		
+
+						for (int i = 0; i < n_polygonConnects.length(); i++)
+						{
+
+							if (n_polygonConnects[i] == m_connPairVB[z])
+							{
+								n_polygonConnects[i] = m_connPairVA[z];
+							}
+							if (n_polygonConnects[i] > m_connPairVB[z])
+							{
+								n_polygonConnects[i] -= 1;
+								largestnum_delete = m_connPairVB[z];
+							}
+
+						}
+
+
+						for (int t = 0; t < m_connPairVB.length(); t++)
+						{
+							if (m_connPairVB[t] > largestnum_delete)
+							{
+								m_connPairVB[t] -= 1;
+							}
+						}
+
+						for (int t = 0; t < m_connPairVA.length(); t++)
+						{
+							if (m_connPairVA[t] > largestnum_delete)
+							{
+								m_connPairVA[t] -= 1;
+							}
+						}
+
+					}
+
+					int n_numVertices = o_numVertices - m_connPairVB.length();
+
+				/*	if (m_connectLoop)
+					{
+						n_numVertices -= m_ConnectArrayA.length();
+					}*/
+
+
+					ex_meshFn.create(n_numVertices, o_numPolygons, n_vertexArray, o_polygonCounts, n_polygonConnects, o_uArrayA, o_vArrayA, ex_newMeshData, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+
+
+				}
+
+				else
+				{
+					ex_meshFn.create(o_numVertices, o_numPolygons, o_vertexArray, o_polygonCounts, o_polygonConnects, o_uArrayA, o_vArrayA, ex_newMeshData, &status);
+					CHECK_MSTATUS_AND_RETURN_IT(status);
+				}
+
+
+
 				//status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA, &o_defaultUVSetNameA);
 				status = ex_meshFn.assignUVs(o_uvCountsA, o_uvIdsA);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 
+
+
+
 				// Smooth the normals globally
 				smoothNormals(ex_meshFn);
+
 
 				// Send mesh to output datablock
 				status = h_outputMesh.set(ex_newMeshData);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
+
+
+
+
+
 			}
 		}
+
+		//MGlobal::displayInfo("-------");
 
 		if (m_displayProxy)
 		{
@@ -2401,7 +2546,7 @@ MStatus ClonerMultiThread::compute(const MPlug& plug, MDataBlock& data)
 
 
 // VP 1.0 Functions
-void ClonerMultiThread::draw(M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status)
+void ClonerMultiThread::draw(M3dView& view, const MDagPath& path, M3dView::DisplayStyle style, M3dView::DisplayStatus status)
 {
 	MObject thisNode = thisMObject();
 
@@ -2755,7 +2900,7 @@ void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRende
 
 		drawManager.setColor(MColor(fillCol.r, fillCol.g, fillCol.b, 1.0f));
 		drawManager.setPointSize(4);
-		
+
 		//drawManager.setLineStyle(MHWRender::MUIDrawManager::kDotted);
 
 		for (auto i = 0; i < pLocatorData->m_dispPointA.size(); i++)
@@ -2916,6 +3061,7 @@ MStatus ClonerMultiThread::initialize()
 	eAttr.addField("Vertex", 1);
 	eAttr.addField("Polygon", 2);
 	eAttr.addField("Polygon Borders", 3);
+	eAttr.addField("Custom Edges", 4);
 	eAttr.setStorable(true);
 	addAttribute(ClonerMultiThread::aScatterType);
 
@@ -3329,6 +3475,13 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aConnectPieces);
 
+	ClonerMultiThread::aMergePieces = nAttr.create("mergePieces", "mergePieces", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setDefault(true);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aMergePieces);
+
 	ClonerMultiThread::aConnectLoop = nAttr.create("connectLoop", "connectLoop", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(false);
@@ -3366,6 +3519,12 @@ MStatus ClonerMultiThread::initialize()
 	tAttr.setChannelBox(false);
 	ClonerMultiThread::addAttribute(aConnectArrayB);
 
+	// Custom Edges
+	ClonerMultiThread::aCustomEdgeComponent = tAttr.create("customEdgeComponent", "customEdgeComponent", MFnIntArrayData::kIntArray);
+	tAttr.setStorable(true);
+	tAttr.setInternal(true);
+	tAttr.setHidden(true);
+	ClonerMultiThread::addAttribute(aCustomEdgeComponent);
 
 	// Rulest Transform
 
@@ -3459,7 +3618,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aRotateRampX, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRotateRampY, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aRotateRampZ, ClonerMultiThread::aOutMesh);
-	
+
 	attributeAffects(ClonerMultiThread::aScaleRampX, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aScaleRampY, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aScaleRampZ, ClonerMultiThread::aOutMesh);
@@ -3534,10 +3693,12 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aDisplayProxy, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aMergePieces, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aCustomEdgeComponent, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aTransformXRule, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aTransformYRule, ClonerMultiThread::aOutMesh);
@@ -3554,7 +3715,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aShowRoot, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aWrapToSurface, ClonerMultiThread::aOutMesh);
-	
+
 
 #if MAYA_API_VERSION > 201600
 	// Output Matrix array
@@ -3612,10 +3773,12 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aDisplayProxy, ClonerMultiThread::aOutMatrixArray);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aMergePieces, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aCustomEdgeComponent, ClonerMultiThread::aOutMatrixArray);
 
 	attributeAffects(ClonerMultiThread::aTransformXRule, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aTransformYRule, ClonerMultiThread::aOutMatrixArray);
@@ -3688,10 +3851,12 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aUvUDIMLoop, ClonerMultiThread::aOutIDArray);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aMergePieces, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectLoop, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayA, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aConnectArrayB, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aInterpolate, ClonerMultiThread::aOutIDArray);
+	attributeAffects(ClonerMultiThread::aCustomEdgeComponent, ClonerMultiThread::aOutIDArray);
 
 	attributeAffects(ClonerMultiThread::aTransformXRule, ClonerMultiThread::aOutIDArray);
 	attributeAffects(ClonerMultiThread::aTransformYRule, ClonerMultiThread::aOutIDArray);

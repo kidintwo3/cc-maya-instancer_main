@@ -66,10 +66,10 @@ MStatus ClonerMultiThread::instanceGrid()
 				double rot[3] = { ((m_rotateX  ) + m_rule_rot_A_X[f]) * (M_PI / 180.0f) * rot_ramp_multX , ((m_rotateY  ) + m_rule_rot_A_Y[f]) * (M_PI / 180.0f) * rot_ramp_multY,  ((m_rotateZ  ) + m_rule_rot_A_Z[f]) * (M_PI / 180.0f) * rot_ramp_multZ };
 
 				// Scale
-				const double scaleV[3] = { double(m_scaleX * m_rule_scl_A_X[f])* (scale_ramp_multX),  double(m_scaleY * m_rule_scl_A_X[f])* (scale_ramp_multY),  double(m_scaleZ * m_rule_scl_A_Z[f])* (scale_ramp_multZ) };
+				const double scaleV[3] = { double(m_scaleX * m_rule_scl_A_X[f])* (scale_ramp_multX),  double(m_scaleY * m_rule_scl_A_Y[f]) * (scale_ramp_multY),  double(m_scaleZ * m_rule_scl_A_Z[f]) * (scale_ramp_multZ) };
 
 
-
+				//MGlobal::displayInfo(MString() + scaleV[0] + "," + scaleV[1] + "," + scaleV[2]);
 
 
 				// Random Transform
@@ -81,7 +81,7 @@ MStatus ClonerMultiThread::instanceGrid()
 				// Random Scale
 				const double scaleV_rnd[3] = { double(1.0 + m_rndScaleXA[f])* (scale_ramp_multX),  double(1.0 + m_rndScaleYA[f])* (scale_ramp_multY),  double(1.0 + m_rndScaleZA[f]) * (scale_ramp_multZ) };
 
-
+				
 
 				// Matrix
 				MTransformationMatrix tr_mat;

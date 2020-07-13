@@ -21,6 +21,7 @@ MIntArray ClonerMultiThread::generatePatternIDs(short& patternType, int& m_numDu
 	MIntArray idAr;
 	idAr.setLength(m_numDup);
 
+	// MGlobal::displayInfo(MString() + "numdup: " + m_numDup + "/" + patternType);
 
 
 	MIntArray m_manualIDA;

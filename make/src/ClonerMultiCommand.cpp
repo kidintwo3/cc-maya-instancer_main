@@ -30,6 +30,7 @@ MSyntax ClonerMultiCommand::newSyntax()
 	syntax.addFlag("-b", "-bake");
 	syntax.addFlag("-no", "-node", MSyntax::kString);
 	syntax.addFlag("-d", "-duplicate", MSyntax::kString);
+	syntax.addFlag("-ea", "-edgeArray");
 
 	// syntax.setObjectType( MSyntax::kSelectionList, 1, 1 );
 
@@ -58,6 +59,112 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 
 
 
+	// set custom edge array
+	if (argData.isFlagSet("-ea"))
+	{
+		if (argData.isFlagSet("-no"))
+		{
+
+			MString s_clonerMultiNodeName;
+
+			argData.getFlagArgument("-no", 0, s_clonerMultiNodeName);
+
+	
+			//
+
+			MIntArray eA;
+
+			MSelectionList selection_list;
+			MGlobal::getActiveSelectionList(selection_list);
+			MItSelectionList iter(selection_list);
+			for (; !iter.isDone(); iter.next()) // For each selected object
+			{
+				MObject component;
+				MDagPath item;
+				iter.getDagPath(item, component);
+
+				MGlobal::displayInfo(item.fullPathName());
+
+				if (component.isNull())
+					continue; // No edges selected.
+
+				if (component.apiType() != MFn::kMeshEdgeComponent)
+					continue; // the component is not an edge (perhaps face, vert etc.)
+
+
+				MStatus status;
+				MItMeshEdge edge_it(item, component, &status);
+
+				for (; !edge_it.isDone(); edge_it.next()) // For each selected vertex
+				{
+					int af = edge_it.index(&status);
+					eA.append(af);
+					//MGlobal::displayInfo(MString() + af);
+				}
+			}
+
+
+
+			//
+		
+		
+
+			// Find ClonerMulti from name
+			MObject MObj;
+			MSelectionList selList;
+			selList.add(s_clonerMultiNodeName);
+			selList.getDependNode(0, MObj);
+			MFnDependencyNode mfDgN(MObj);
+			o_clonerMultiNode = mfDgN.object();
+
+
+			if (!o_clonerMultiNode.isNull())
+			{
+				// Dependency node so we can get the worldMatrix attribute
+				MFnDependencyNode fnDepCloner(o_clonerMultiNode);
+
+				// Find shape node of node
+				MDagPath dag_clonerNodeTr;
+				MDagPath dag_clonerNodeShape;
+				MDagPath dag_clonerNode;
+				MSelectionList sel_list;
+				sel_list.clear();
+				status = sel_list.add(fnDepCloner.name());
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+				status = sel_list.getDagPath(0, dag_clonerNode);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+				dag_clonerNodeTr = dag_clonerNode;
+				status = dag_clonerNode.extendToShape();
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				dag_clonerNodeShape = dag_clonerNode;
+
+				MFnDependencyNode fnDepClonerNodeShape(dag_clonerNodeShape.node());
+
+
+
+				// Get it's locator A plug
+				MObject customEdgeA_Attr = fnDepClonerNodeShape.attribute("customEdgeComponent", &status);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				MPlug customEdgeA_plug = MPlug(fnDepClonerNodeShape.object(), customEdgeA_Attr);
+
+
+				MFnIntArrayData pAD_points;
+				MObject o_pA = pAD_points.create(eA, &status);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				status = customEdgeA_plug.setMObject(o_pA);
+				CHECK_MSTATUS_AND_RETURN_IT(status);
+
+				MGlobal::displayInfo(MString() + "[ClonerMulti] " + eA.length() + " edges set.");
+			}
+		}
+
+		return::MStatus::kSuccess;
+
+
+	}
 
 	// Shift string
 	if (argData.isFlagSet("-s"))

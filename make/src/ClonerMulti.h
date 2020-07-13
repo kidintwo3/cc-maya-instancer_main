@@ -225,10 +225,14 @@ public:
 	static MObject              aFirstUpVecZ;
 
 	static MObject				aConnectPieces;
+	static MObject				aMergePieces;
 	static MObject				aConnectLoop;
 	static MObject				aConnectArrayA;
 	static MObject				aConnectArrayB;
 	static MObject				aInterpolate;
+
+	// Custom Edge
+	static MObject				aCustomEdgeComponent;
 
 	static MObject				aOrientCurveToRefGeo;
 	static MObject				aWrapToSurface;
@@ -280,6 +284,7 @@ private:
 	// Instance types
 	MStatus						instanceGrid();
 	MStatus                     instanceAtoB();
+	MStatus						instanceEdges();
 	MStatus                     instanceSpline();
 	MStatus                     instanceCircle();
 	MStatus                     instanceFibonacciSphere();
@@ -374,6 +379,14 @@ private:
 	MIntArray					m_idA;
 	MIntArray					m_manualIDA;
 
+	MIntArray					m_connPairVA;
+	MIntArray					m_connPairVB;
+
+	// Custom edge
+	MObject						m_o_customEdgeComponents;
+	MIntArray					m_customEdgeComponents;
+	double						m_customEdgeLengthTotal;
+
 	// Random
 	int							m_rand_seed;
 
@@ -463,6 +476,7 @@ private:
 	bool						m_outputMeshDisplayOverride;
 	bool						m_displayProxy;
 	bool						m_connectPieces;
+	bool						m_mergePieces;
 	bool						m_connectLoop;
 	bool						m_interpolate;
 	bool						m_orientCurveToRefGeo;

@@ -140,13 +140,6 @@ MStatus ClonerMultiThread::instanceSpline()
 
 		double param = curveFn.findParamFromLength(tempLength);
 
-		/*MGlobal::displayInfo(MString() + param);*/
-
-
-		//if (prev_param < para)
-		//{
-
-		//}
 
 		curveFn.getPointAtParam(param, p, MSpace::kObject);
 

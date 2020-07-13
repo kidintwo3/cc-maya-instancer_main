@@ -41,6 +41,8 @@
 #include <maya/MFnSingleIndexedComponent.h>
 #include <maya/MItMeshVertex.h>
 #include <maya/MRampAttribute.h>
+#include <maya/MFnIntArrayData.h>
+#include <maya/MArgList.h>
 
 class ClonerMultiCommand : public MPxCommand
 {

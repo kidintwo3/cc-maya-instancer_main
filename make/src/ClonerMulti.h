@@ -58,7 +58,7 @@
 #include <maya/MPxLocatorNode.h>
 #include <maya/MRampAttribute.h>
 #include <maya/MAnimControl.h>
-
+#include <maya/MItMeshEdge.h>
 
 #if MAYA_API_VERSION > 201600
 #include <maya/MFnMatrixArrayData.h>
@@ -217,6 +217,7 @@ public:
 	static MObject				aUvUDIMLoop;
 	static MObject				aOutputMeshDisplayOverride;
 	static MObject				aDisplayProxy;
+	static MObject				aDisplayEdges;
 
 	// Upvector
 	static MObject              aFirstUpVec;
@@ -289,7 +290,7 @@ private:
 	MStatus                     instanceCircle();
 	MStatus                     instanceFibonacciSphere();
 	MStatus                     instanceOnMesh();
-
+	void						lerp(MPoint& p1, MPoint& p2, double blend, MPoint& outPoint);
 
 	// Datahandles
 	MDataHandle					h_outputMesh;
@@ -475,6 +476,7 @@ private:
 	bool						m_uvUDIMLoop;
 	bool						m_outputMeshDisplayOverride;
 	bool						m_displayProxy;
+	bool						m_displayEdges;
 	bool						m_connectPieces;
 	bool						m_mergePieces;
 	bool						m_connectLoop;
@@ -504,6 +506,7 @@ private:
 	MVectorArray				mesh_uTA;
 	MVectorArray				mesh_vTA;
 	MVectorArray				mesh_nA;
+	MMatrixArray				mesh_edge_mA;
 
 	// Callback
 	MCallbackIdArray			m_callbackIDs;
@@ -545,9 +548,11 @@ public:
 	MPoint					m_controllerPos;
 
 	bool					m_displayProxy;
+	bool					m_displayEdges;
 	bool					m_showRoot;
 
 	vector<MPointArray>		m_dispPointA;
+	vector<MPointArray>		m_edgeLineA;
 
 };
 
@@ -579,7 +584,7 @@ private:
 	ClonerMultiThreadOverride(const MObject& obj);
 
 	vector<MPointArray> getInstancePoints(const MDagPath& objPath) const;
-
+	vector<MPointArray> getEdgePoints(const MDagPath& objPath) const;
 };
 
 

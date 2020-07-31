@@ -75,6 +75,8 @@ private:
 	MObject				o_locA;
 	MObject				o_locB;
 
+	MObject				o_pA;
+
 	MObject				o_clonerOutputMesh;
 
 	MObjectArray		o_outputObjectsA;

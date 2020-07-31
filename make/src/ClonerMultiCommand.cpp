@@ -32,6 +32,7 @@ MSyntax ClonerMultiCommand::newSyntax()
 	syntax.addFlag("-d", "-duplicate", MSyntax::kString);
 	syntax.addFlag("-ea", "-edgeArray");
 
+	// edges example: clonerMultiCommand -no clonerMulti_node1 -ea
 	// syntax.setObjectType( MSyntax::kSelectionList, 1, 1 );
 
 	syntax.useSelectionAsDefault(true);
@@ -103,12 +104,6 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 				}
 			}
 
-
-
-			//
-		
-		
-
 			// Find ClonerMulti from name
 			MObject MObj;
 			MSelectionList selList;
@@ -151,7 +146,7 @@ MStatus ClonerMultiCommand::doIt(const MArgList& argList)
 
 
 				MFnIntArrayData pAD_points;
-				MObject o_pA = pAD_points.create(eA, &status);
+				o_pA = pAD_points.create(eA, &status);
 				CHECK_MSTATUS_AND_RETURN_IT(status);
 
 				status = customEdgeA_plug.setMObject(o_pA);
@@ -1842,7 +1837,6 @@ MStatus ClonerMultiCommand::undoIt()
 		status = m_DAGMod_bake.doIt();
 		CHECK_MSTATUS_AND_RETURN_IT(status);
 	}
-
 
 
 

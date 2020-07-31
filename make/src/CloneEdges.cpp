@@ -1,17 +1,17 @@
 //
-//  CloneSphere.h
+//  CloneEdges.cpp
 //  ClonerMulti
 //
-//  Created by Hunyadi JÃ¡nos on 2015. 01. 03..
-//  Copyright (c) 2015. Janos Hunyadi. All rights reserved.
+//  Created by Hunyadi János on 2020. 02. 12..
+//  Copyright (c) 2020. Janos Hunyadi. All rights reserved.
 //
 
 
 
-#include "CloneSphere.h"
+#include "CloneEdges.h"
 
 // --- Instance A to B ------
-MStatus ClonerMultiThread::instanceAtoB(){
+MStatus ClonerMultiThread::instanceEdges() {
 
 	MStatus status;
 
@@ -29,11 +29,11 @@ MStatus ClonerMultiThread::instanceAtoB(){
 
 	// Set up a temp numdup divider just for the curve
 	int numdup_divider = m_numDup - 1;
-	if (numdup_divider < 1) { numdup_divider = 1; } 
+	if (numdup_divider < 1) { numdup_divider = 1; }
 
 
 
-	double step = (ab.length() / double(numdup_divider) );
+	double step = (ab.length() / double(numdup_divider));
 
 
 
@@ -53,7 +53,13 @@ MStatus ClonerMultiThread::instanceAtoB(){
 	MMatrix rotMatrix;
 
 
-	for(int i=0; i < m_numDup; i++)
+	//double bbW,bbMinX;
+
+	//bbMinX = m_bbPosMinArray[m_idArray[0]][0].x;
+	//double cX = 0.0-bbMinX;
+
+
+	for (int i = 0; i < m_numDup; i++)
 	{
 		double off_ramp_multX, off_ramp_multY, off_ramp_multZ = 1.0;
 
@@ -76,14 +82,14 @@ MStatus ClonerMultiThread::instanceAtoB(){
 
 		MFloatPoint p(inLocAP + xDir * step * double(i));
 
-		double m[4][4] = {{xDir.x, xDir.y, xDir.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {yDir.x, yDir.y, yDir.z, 0.0}, {p.x, p.y, p.z, 1.0}};
+		double m[4][4] = { {xDir.x, xDir.y, xDir.z, 0.0}, {zDir.x, zDir.y, zDir.z, 0.0}, {yDir.x, yDir.y, yDir.z, 0.0}, {p.x, p.y, p.z, 1.0} };
 
 		rotMatrix = m;
 
 
-		if (m_orientationType == 1) {double m[4][4] = {{0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
-		if (m_orientationType == 2) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
-		if (m_orientationType == 3) {double m[4][4] = {{1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0}};rotMatrix = m;}
+		if (m_orientationType == 1) { double m[4][4] = { {0.0, 1.0 , 0.0, 0.0},{ 1.0, 0.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0} }; rotMatrix = m; }
+		if (m_orientationType == 2) { double m[4][4] = { {1.0, 0.0 , 0.0, 0.0},{ 0.0, 1.0, 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ p.x, p.y, p.z, 1.0} }; rotMatrix = m; }
+		if (m_orientationType == 3) { double m[4][4] = { {1.0, 0.0 , 0.0, 0.0},{ 0.0, 0.0, 1.0, 0.0},{ 0.0, -1.0, 0.0, 0.0},{ p.x, p.y, p.z, 1.0} }; rotMatrix = m; }
 
 
 		// Translation
@@ -99,13 +105,13 @@ MStatus ClonerMultiThread::instanceAtoB(){
 
 
 		// Random Transform
-		MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i] ,m_rndOffsetZA[i]);
+		MFloatVector v_rndOffV(m_rndOffsetXA[i], m_rndOffsetYA[i], m_rndOffsetZA[i]);
 		// Random Rotate
 
-		double rot_rnd[3] = {m_rndRotateXA[i] * 0.5f * ( M_PI / 180.0f ), m_rndRotateYA[i] * 0.5f * ( M_PI / 180.0f ),  m_rndRotateZA[i] * 0.5f * ( M_PI / 180.0f )};
+		double rot_rnd[3] = { m_rndRotateXA[i] * 0.5f * (M_PI / 180.0f), m_rndRotateYA[i] * 0.5f * (M_PI / 180.0f),  m_rndRotateZA[i] * 0.5f * (M_PI / 180.0f) };
 
 		// Random Scale
-		const double scaleV_rnd[3] = {  double(1.0+m_rndScaleXA[i]),  double(1.0+m_rndScaleYA[i]),  double(1.0+m_rndScaleZA[i]) };
+		const double scaleV_rnd[3] = { double(1.0 + m_rndScaleXA[i]),  double(1.0 + m_rndScaleYA[i]),  double(1.0 + m_rndScaleZA[i]) };
 
 
 

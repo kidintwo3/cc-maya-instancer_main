@@ -33,9 +33,9 @@
 #include <maya/MStringArray.h>
 #include <maya/MEulerRotation.h>
 #include <maya/MQuaternion.h>
-
+#include <maya/MCallbackIdArray.h>
 #include <maya/MFnDependencyNode.h>
-
+#include <maya/MEventMessage.h>
 #include <maya/MFileIO.h>
 
 #include <maya/MPlugArray.h>
@@ -72,7 +72,7 @@ public:
 
     virtual MStatus   		compute( const MPlug& plug, MDataBlock& data );
 
-	virtual void            draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status );
+	//virtual void            draw( M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status );
 
 	virtual bool            isBounded() const;
 	virtual MBoundingBox    boundingBox() const;
@@ -121,6 +121,8 @@ public:
 	int						m_locNumber;
 	bool					m_showNumber;
 
+	MDagPath				m_dagPath;
+
 };
 
 
@@ -138,6 +140,7 @@ public:
 	virtual MHWRender::DrawAPI supportedDrawAPIs() const;
 
 	virtual bool isBounded( const MDagPath& objPath, const MDagPath& cameraPath) const;
+	virtual bool drawLast() const { return true; }
 	virtual MBoundingBox boundingBox( const MDagPath& objPath, const MDagPath& cameraPath) const;
 
 	virtual MUserData* prepareForDraw( const MDagPath& objPath, const MDagPath& cameraPath, const MHWRender::MFrameContext& frameContext, MUserData* oldData);
@@ -145,10 +148,20 @@ public:
 	virtual bool hasUIDrawables() const { return true; }
 	virtual void addUIDrawables( const MDagPath& objPath, MHWRender::MUIDrawManager& drawManager, const MHWRender::MFrameContext& frameContext, const MUserData* data);
 
-	static void draw(const MHWRender::MDrawContext& context, const MUserData* data) {};
+	static void triggerRefresh(const MHWRender::MDrawContext& context, const MUserData* data);
+
+
+	//static void draw(const MHWRender::MDrawContext& context, const MUserData* data) {};
+
+protected:
+	MCallbackId fModelEditorChangedCbId;
 
 private:
 	ClonerMultiLocOverride(const MObject& obj);
+	static void OnModelEditorChanged(void* clientData);
+
+	ClonerMultiLoc* fBaseLoc;
+
 
 };
 

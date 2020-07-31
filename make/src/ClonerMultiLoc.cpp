@@ -32,15 +32,57 @@ void ClonerMultiLoc::postConstructor()
 
 void* ClonerMultiLoc::creator() { return new ClonerMultiLoc(); }
 
-ClonerMultiLocOverride::ClonerMultiLocOverride(const MObject& obj) : MHWRender::MPxDrawOverride(obj, ClonerMultiLocOverride::draw) {}
-ClonerMultiLocOverride::~ClonerMultiLocOverride()
+ClonerMultiLocOverride::ClonerMultiLocOverride(const MObject& obj) : MHWRender::MPxDrawOverride(obj, ClonerMultiLocOverride::triggerRefresh, false) 
 {
 
+	fModelEditorChangedCbId = MEventMessage::addEventCallback("modelEditorChanged", OnModelEditorChanged, this);
+	MStatus status;
+	MFnDependencyNode node(obj, &status);
+
+	fBaseLoc = status ? dynamic_cast<ClonerMultiLoc*>(node.userNode()) : NULL;
+
+}
+
+void ClonerMultiLocOverride::triggerRefresh(const MHWRender::MDrawContext& context, const MUserData* data)
+{
+	MHWRender::MStateManager* stateMgr = context.getStateManager();
+
+	ClonerMultiLocData* pLocatorData = (ClonerMultiLocData*)data;
+	if (!pLocatorData)
+	{
+		return;
+	}
 
 
+		if (pLocatorData->m_dagPath.isValid())
+		{
+			MStatus status;
+			MObject o_BaseLocNode = pLocatorData->m_dagPath.node(&status);
+
+			if (status)
+			{
+				MHWRender::MRenderer::setGeometryDrawDirty(o_BaseLocNode);
+			}
 
 
+		}
 
+
+}
+
+void ClonerMultiLocOverride::OnModelEditorChanged(void* clientData)
+{
+	ClonerMultiLocOverride* override = static_cast<ClonerMultiLocOverride*>(clientData);
+
+	if (override && override->fBaseLoc)
+	{
+		MHWRender::MRenderer::setGeometryDrawDirty(override->fBaseLoc->thisMObject());
+	}
+}
+
+
+ClonerMultiLocOverride::~ClonerMultiLocOverride()
+{
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -53,76 +95,76 @@ MStatus ClonerMultiLoc::compute(const MPlug& plug, MDataBlock& data)
 	return MS::kUnknownParameter;
 }
 
-
-void ClonerMultiLoc::draw(M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status)
-{
-	MObject thisNode = thisMObject();
-
-	MFnDependencyNode fnDepCloner(thisNode);
-#if MAYA_API_VERSION < 201800
-	// Draw locator
-	view.beginGL();
-
-	glPushAttrib(GL_CURRENT_BIT);
-
-	if (status == M3dView::kActive) {
-		view.setDrawColor(13, M3dView::kActiveColors);
-	}
-	else {
-		view.setDrawColor(13, M3dView::kDormantColors);
-	}
-
-
-
-	float r = 1.0f;
-
-	int lats = 10;
-	int longs = 10;
-
-	for (int i = 0; i <= lats; i++) {
-		double lat0 = M_PI * (-0.5 + (double)(i - 1) / lats);
-		double z0 = sin(lat0);
-		double zr0 = cos(lat0);
-		z0 *= r * 0.5;
-		zr0 *= r * 0.5;
-
-		double lat1 = M_PI * (-0.5 + (double)i / lats);
-		double z1 = sin(lat1);
-		double zr1 = cos(lat1);
-		z1 *= r * 0.5;
-		zr1 *= r * 0.5;
-
-		glBegin(GL_QUAD_STRIP);
-		for (int j = 0; j <= longs; j++)
-		{
-			double lng = 2 * M_PI * (double)(j - 1) / longs;
-			double x = cos(lng);
-			double y = sin(lng);
-
-			MPoint a(float(x) * float(zr0), float(y) * float(zr0), float(z0));
-			MPoint b(float(x) * float(zr1), float(y) * float(zr1), float(z1));
-
-
-			glVertex3f(float(a.x), float(a.y), float(a.z));
-			glVertex3f(float(b.x), float(b.y), float(b.z));
-		}
-		glEnd();
-
-	}
-
-
-
-
-
-	// view.drawText( "Switch to VP 2.0", MPoint::origin, M3dView::kCenter );
-
-
-
-	glPopAttrib();
-
-	view.endGL();
-	#endif
-}
+//
+//void ClonerMultiLoc::draw(M3dView & view, const MDagPath & path, M3dView::DisplayStyle style, M3dView::DisplayStatus status)
+//{
+//	MObject thisNode = thisMObject();
+//
+//	MFnDependencyNode fnDepCloner(thisNode);
+//#if MAYA_API_VERSION < 201800
+//	// Draw locator
+//	view.beginGL();
+//
+//	glPushAttrib(GL_CURRENT_BIT);
+//
+//	if (status == M3dView::kActive) {
+//		view.setDrawColor(13, M3dView::kActiveColors);
+//	}
+//	else {
+//		view.setDrawColor(13, M3dView::kDormantColors);
+//	}
+//
+//
+//
+//	float r = 1.0f;
+//
+//	int lats = 10;
+//	int longs = 10;
+//
+//	for (int i = 0; i <= lats; i++) {
+//		double lat0 = M_PI * (-0.5 + (double)(i - 1) / lats);
+//		double z0 = sin(lat0);
+//		double zr0 = cos(lat0);
+//		z0 *= r * 0.5;
+//		zr0 *= r * 0.5;
+//
+//		double lat1 = M_PI * (-0.5 + (double)i / lats);
+//		double z1 = sin(lat1);
+//		double zr1 = cos(lat1);
+//		z1 *= r * 0.5;
+//		zr1 *= r * 0.5;
+//
+//		glBegin(GL_QUAD_STRIP);
+//		for (int j = 0; j <= longs; j++)
+//		{
+//			double lng = 2 * M_PI * (double)(j - 1) / longs;
+//			double x = cos(lng);
+//			double y = sin(lng);
+//
+//			MPoint a(float(x) * float(zr0), float(y) * float(zr0), float(z0));
+//			MPoint b(float(x) * float(zr1), float(y) * float(zr1), float(z1));
+//
+//
+//			glVertex3f(float(a.x), float(a.y), float(a.z));
+//			glVertex3f(float(b.x), float(b.y), float(b.z));
+//		}
+//		glEnd();
+//
+//	}
+//
+//
+//
+//
+//
+//	// view.drawText( "Switch to VP 2.0", MPoint::origin, M3dView::kCenter );
+//
+//
+//
+//	glPopAttrib();
+//
+//	view.endGL();
+//	#endif
+//}
 
 
 bool ClonerMultiLoc::isBounded() const
@@ -137,10 +179,9 @@ MBoundingBox ClonerMultiLoc::boundingBox() const
 
 	MFnDependencyNode fnDepLocNode(thisMObject());
 
-	double camRad = 1.0;
 
-	MPoint corner1(-0.01, 0.01, 0.01);
-	MPoint corner2(0.01, -0.01, -0.01);
+	MPoint corner1(-0.05, -0.05, 0.05);
+	MPoint corner2(0.05, 0.05, -0.05);
 
 
 	return MBoundingBox(corner1, corner2);
@@ -179,8 +220,8 @@ MBoundingBox ClonerMultiLocOverride::boundingBox(const MDagPath& objPath, const 
 	MStatus status;
 	MObject CLonerMultiNode = objPath.node(&status);
 
-	MPoint corner1(-0.05, 0.05, 0.05);
-	MPoint corner2(0.05, -0.05, -0.05);
+	MPoint corner1(-0.05, -0.05, 0.05);
+	MPoint corner2(0.05, 0.05, -0.05);
 
 
 	return MBoundingBox(corner1, corner2);
@@ -206,6 +247,8 @@ MUserData* ClonerMultiLocOverride::prepareForDraw(const MDagPath& objPath, const
 	{
 		data = new ClonerMultiLocData();
 	}
+
+	data->m_dagPath = objPath;
 
 
 	p = MPlug(o_cLonerMultiNode, ClonerMultiLoc::aLocatorType);

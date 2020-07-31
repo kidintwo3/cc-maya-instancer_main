@@ -109,6 +109,7 @@ MObject		ClonerMultiThread::aLoopOffset;
 MObject		ClonerMultiThread::aUvUDIMLoop;
 MObject		ClonerMultiThread::aOutputMeshDisplayOverride;
 MObject		ClonerMultiThread::aDisplayProxy;
+MObject		ClonerMultiThread::aDisplayEdges;
 
 MObject     ClonerMultiThread::aFirstUpVec;
 MObject     ClonerMultiThread::aFirstUpVecX;
@@ -1901,6 +1902,9 @@ MStatus ClonerMultiThread::collectPlugs(MDataBlock& data)
 	m_displayProxy = data.inputValue(aDisplayProxy, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
+	m_displayEdges = data.inputValue(aDisplayEdges, &status).asBool();
+	CHECK_MSTATUS_AND_RETURN_IT(status);
+
 	m_connectPieces = data.inputValue(aConnectPieces, &status).asBool();
 	CHECK_MSTATUS_AND_RETURN_IT(status);
 
@@ -2612,6 +2616,93 @@ MBoundingBox ClonerMultiThreadOverride::boundingBox(const MDagPath& objPath, con
 	//return m_bbP;
 }
 
+vector<MPointArray> ClonerMultiThreadOverride::getEdgePoints(const MDagPath& objPath) const
+{
+	MStatus status;
+
+
+	MObject locatorNode = objPath.node(&status);
+
+	if (!status)
+	{
+		return vector<MPointArray>();
+	}
+
+	//
+
+	MPlug refMeshPlug(locatorNode, ClonerMultiThread::aRefMesh);
+	vector<MPointArray> currPA;
+
+
+	
+
+	// Get bounding box
+	if (!refMeshPlug.isConnected())
+	{
+		return currPA;
+	}
+
+	MDagPath mesh_path;
+
+
+	MPlugArray inputs_plugArr;
+	refMeshPlug.connectedTo(inputs_plugArr, true, false, &status);
+
+	if (status)
+	{
+		MPlug currP = inputs_plugArr[0];
+
+		if (!currP.isNull())
+		{
+
+			MFnDagNode inMesh_dn(currP.node());
+			inMesh_dn.getPath(mesh_path);
+
+		}
+	}
+
+	
+	if (!mesh_path.isValid()) { return currPA; }
+
+
+		// Get input point array
+	MIntArray m_customEdgeComponents;
+	MPlug p_customEdge(locatorNode, ClonerMultiThread::aCustomEdgeComponent);
+	MObject o_edgeArray;
+	p_customEdge.getValue(o_edgeArray);
+	MFnIntArrayData fn_aPoints(o_edgeArray);
+	fn_aPoints.copyTo(m_customEdgeComponents);
+
+	MFnSingleIndexedComponent customEdgeComponents;
+	// Add the vertex ids to the component MObject
+	customEdgeComponents.addElements(m_customEdgeComponents);
+
+	// Creates an MObject of type kMeshVertComponent
+	MObject m_o_customEdgeComponents = customEdgeComponents.create(MFn::kMeshEdgeComponent, &status);
+
+	// Add the vertex ids to the component MObject
+	customEdgeComponents.addElements(m_customEdgeComponents);
+
+	MItMeshEdge itEdge(mesh_path, m_o_customEdgeComponents, &status);
+
+	//
+
+	for (itEdge.reset(); !itEdge.isDone(); itEdge.next())
+	{
+		// Calculate edge trmat
+		MPoint vertA = itEdge.point(0, MSpace::kObject, &status);
+		MPoint vertB = itEdge.point(1, MSpace::kObject, &status);
+
+		MPointArray pA;
+		pA.append(vertA);
+		pA.append(vertB);
+
+		currPA.push_back(pA);
+	}
+
+	return currPA;
+}
+
 vector<MPointArray> ClonerMultiThreadOverride::getInstancePoints(const MDagPath& objPath) const
 {
 	MStatus status;
@@ -2833,13 +2924,15 @@ MUserData* ClonerMultiThreadOverride::prepareForDraw(const MDagPath& objPath, co
 
 
 	MPlug dispProxyPlug(objPath.node(), ClonerMultiThread::aDisplayProxy);
+	MPlug dispEdgesPlug(objPath.node(), ClonerMultiThread::aDisplayEdges);
 	MPlug showRootPlug(objPath.node(), ClonerMultiThread::aShowRoot);
 
 	data->m_displayProxy = dispProxyPlug.asBool();
+	data->m_displayEdges = dispEdgesPlug.asBool();
 	data->m_showRoot = showRootPlug.asBool();
 
 	data->m_dispPointA = getInstancePoints(objPath);
-
+	data->m_edgeLineA = getEdgePoints(objPath);
 
 
 	data->m_inLoc_mat = objPath.exclusiveMatrix();
@@ -2895,11 +2988,26 @@ void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRende
 
 	}
 
+	if (pLocatorData->m_displayEdges)
+	{
+		if (pLocatorData->m_edgeLineA.size() > 0)
+		{
+			drawManager.setColor(MColor(1.0f, 0.0f, 0.0f, 1.0f));
+			drawManager.setLineWidth(12);
+			drawManager.setLineStyle(MHWRender::MUIDrawManager::kDotted);
+
+			for (auto i = 0; i < pLocatorData->m_edgeLineA.size(); i++)
+			{
+				drawManager.mesh(MHWRender::MUIDrawManager::kLines, pLocatorData->m_edgeLineA[i]);
+			}
+		}
+	}
+
 	if (pLocatorData->m_displayProxy)
 	{
 
 		drawManager.setColor(MColor(fillCol.r, fillCol.g, fillCol.b, 1.0f));
-		drawManager.setPointSize(4);
+		//drawManager.setPointSize(4);
 
 		//drawManager.setLineStyle(MHWRender::MUIDrawManager::kDotted);
 
@@ -2907,22 +3015,6 @@ void ClonerMultiThreadOverride::addUIDrawables(const MDagPath& objPath, MHWRende
 		{
 			drawManager.mesh(MHWRender::MUIDrawManager::kLines, pLocatorData->m_dispPointA[i]);
 		}
-
-
-
-
-
-
-		//M3dView view = M3dView::active3dView();
-		//short ox, oy;
-
-		//MPoint p = MPoint::origin;
-		//p *= pLocatorData->m_inLoc_mat;
-
-		//view.worldToView(p, ox, oy);
-
-		//drawManager.setColor(MColor(fillCol.r + 0.5, fillCol.g + 0.5, fillCol.b + 0.5, 1.0f));
-		//drawManager.circle2d(MPoint(ox, oy), 3.0, false);
 
 	}
 
@@ -3468,6 +3560,13 @@ MStatus ClonerMultiThread::initialize()
 	nAttr.setChannelBox(true);
 	addAttribute(ClonerMultiThread::aDisplayProxy);
 
+	ClonerMultiThread::aDisplayEdges = nAttr.create("displayEdges", "displayEdges", MFnNumericData::kBoolean);
+	nAttr.setStorable(true);
+	nAttr.setDefault(true);
+	nAttr.setKeyable(true);
+	nAttr.setChannelBox(true);
+	addAttribute(ClonerMultiThread::aDisplayEdges);
+
 	ClonerMultiThread::aConnectPieces = nAttr.create("connectPieces", "connectPieces", MFnNumericData::kBoolean);
 	nAttr.setStorable(true);
 	nAttr.setDefault(false);
@@ -3691,6 +3790,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aUvUDIMLoop, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aOutputMeshDisplayOverride, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aDisplayProxy, ClonerMultiThread::aOutMesh);
+	attributeAffects(ClonerMultiThread::aDisplayEdges, ClonerMultiThread::aOutMesh);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMesh);
 	attributeAffects(ClonerMultiThread::aMergePieces, ClonerMultiThread::aOutMesh);
@@ -3771,6 +3871,7 @@ MStatus ClonerMultiThread::initialize()
 	attributeAffects(ClonerMultiThread::aLoopOffset, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aUvUDIMLoop, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aDisplayProxy, ClonerMultiThread::aOutMatrixArray);
+	attributeAffects(ClonerMultiThread::aDisplayEdges, ClonerMultiThread::aOutMatrixArray);
 
 	attributeAffects(ClonerMultiThread::aConnectPieces, ClonerMultiThread::aOutMatrixArray);
 	attributeAffects(ClonerMultiThread::aMergePieces, ClonerMultiThread::aOutMatrixArray);

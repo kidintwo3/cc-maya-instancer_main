@@ -14,6 +14,6 @@
 
 MStatus overrideInstanceOnMeshSettings();
 MStatus instanceOnMesh();
-
+void lerp(MPoint& p1, MPoint& p2, double blend, MPoint& outPoint);
 
 #endif
